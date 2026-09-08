@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.kashuapp.domain.usecase.UserLogic
 import com.example.kashuapp.ui.theme.KashuAppTheme
+import com.example.kashuapp.core.navigation.Navigation
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,26 +32,30 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        NavigationBar {
-                            NavigationBarItem(
-                                selected = selectedTab == 0,
-                                onClick = { selectedTab = 0 },
-                                icon = { Text("1") },
-                                label = { Text("Inicio") }
-                            )
-                            NavigationBarItem(
-                                selected = selectedTab ==1,
-                                onClick = {selectedTab =1 },
-                                icon = {Text("2")},
-                                label   = {Text("xd")}
-                            )
-                            NavigationBarItem(
-                                selected = selectedTab ==3,
-                                onClick = {selectedTab =3 },
-                                icon = {Text("3")},
-                                label   = {Text("xadsfad")}
-                            )
-                        }
+
+                        Navigation()
+
+
+//                        NavigationBar {
+//                            NavigationBarItem(
+//                                selected = selectedTab == 0,
+//                                onClick = { selectedTab = 0 },
+//                                icon = { Text("1") },
+//                                label = { Text("Inicio") }
+//                            )
+//                            NavigationBarItem(
+//                                selected = selectedTab == 1,
+//                                onClick = { selectedTab = 1 },
+//                                icon = { Text("2") },
+//                                label = { Text("xd") }
+//                            )
+//                            NavigationBarItem(
+//                                selected = selectedTab == 3,
+//                                onClick = { selectedTab = 3 },
+//                                icon = { Text("3") },
+//                                label = { Text("xadsfad") }
+//                            )
+//                        }
                     }
                 ) { innerPadding ->
 
@@ -58,7 +63,8 @@ class MainActivity : ComponentActivity() {
 
                     Column(
 
-                        modifier = Modifier.padding( innerPadding)
+                        modifier = Modifier
+                            .padding(innerPadding)
                             .fillMaxSize()
 
                     ) {
