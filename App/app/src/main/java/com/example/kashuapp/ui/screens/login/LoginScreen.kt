@@ -23,22 +23,64 @@ fun LoginScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp), // Margen a los lados
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .padding(horizontal = 24.dp)
+            .padding(vertical = 12.dp),// Margen a los lados
+//        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center // Centrado verticalmente
     ){
-        Text("xddx")
+        Text("Email")
+        inputEmail()
+
+        Text("Password")
+        inputPswd()
+
     }
 
 
 
 }
 
-// 8. LA VISTA PREVIA (Para verlo en Android Studio a la derecha)
-@Preview(showBackground = true, showSystemUi = true)
+
 @Composable
-fun LoginScreenPreview() {
-    MaterialTheme {
-        LoginScreen()
-    }
+fun inputEmail(){
+    var textState by remember { mutableStateOf("") }
+    OutlinedTextField(
+
+        value = textState,
+        onValueChange ={newText -> textState = newText},
+
+        placeholder = {Text("User@email.com")}
+
+
+
+
+    )
+
+
+
 }
+@Composable
+fun inputPswd() {
+    var textState by remember { mutableStateOf("") }
+
+    OutlinedTextField(
+
+        value = textState,
+        onValueChange = { newText -> textState = newText },
+
+        placeholder = { Text("*****") }
+
+
+    )
+
+}
+
+
+    // 8. LA VISTA PREVIA (Para verlo en Android Studio a la derecha)
+    @Preview(showBackground = true, showSystemUi = true)
+    @Composable
+    fun LoginScreenPreview() {
+        MaterialTheme {
+            LoginScreen()
+        }
+    }
