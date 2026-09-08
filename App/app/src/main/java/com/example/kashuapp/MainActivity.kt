@@ -30,12 +30,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
+
             LoginScreen()
-//
-//            loginScreen()
-//            onLoginSuccess = {
-//                Toast.makeText(this, "¡Bienvenido a KashuApp!", Toast.LENGTH_SHORT).show()
-//            })
+
+
 
 
         }
