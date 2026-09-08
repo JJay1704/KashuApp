@@ -1,4 +1,4 @@
-package com.example.kashuapp.core.navigation
+package com.example.kashuapp.ui.navigation
 
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem

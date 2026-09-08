@@ -1,6 +1,8 @@
 package com.example.kashuapp.domain.model
 
 data class User(
-    val user: String,
-    val pswd: String
+    val id: String,
+    val username: String,
+    val email: String,
+    val password: String
 )
