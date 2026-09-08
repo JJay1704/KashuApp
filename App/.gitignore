@@ -24,3 +24,8 @@ local.properties
 /.idea/codeStyles/Project.xml
 /.idea/runConfigurations.xml
 /.idea/vcs.xml
+
+# Google Services
+google-services.json
+google-services*.json
+google-services,json

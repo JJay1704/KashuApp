@@ -1,3 +1,5 @@
 /build
 
-google-services,json
+# Google Services
+google-services.json
+google-services*.json
