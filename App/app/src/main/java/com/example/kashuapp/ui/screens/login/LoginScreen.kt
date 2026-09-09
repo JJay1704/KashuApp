@@ -1,8 +1,10 @@
 package com.example.kashuapp.ui.screens.login
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -10,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -27,7 +30,6 @@ fun LoginScreen() {
 
     Scaffold(
 
-        modifier = Modifier
 
 
     ) { innerPadding ->
@@ -37,22 +39,21 @@ fun LoginScreen() {
 
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFC8C6C5))
-
+                .background(Color(0xFFF9FAFB))
                 .padding(innerPadding)
-        ){
 
+        ){
             Text(
                 text = "Kashu",
                 style = MaterialTheme.typography.headlineLarge, // Le da estilo de título grande
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .background(Color(0xFFF3F0EF))
+                    .background(Color.Red )
 
-
-                    .padding(top = 24.dp, start = 24.dp, end = 24.dp)
+//                    (0XFFFFFF)
+                    .clip(RoundedCornerShape(16.dp)) // Recorta el contenido
+                    .padding(top = 40.dp, start = 24.dp, end = 40.dp, bottom = 40.dp)
             )
-
 
         }
 
