@@ -35,9 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kashuapp.feature.auth.login.LoginScreen
 import com.kashuapp.ui.theme.KashuAppTheme
-import com.kashuapp.ui.theme.KashuDarkBackground
-import com.kashuapp.ui.theme.KashuLightBackground
-import com.kashuapp.ui.theme.KashuLightTitle
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
