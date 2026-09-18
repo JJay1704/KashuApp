@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,7 +19,6 @@ import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,16 +36,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kashuapp.R
 import com.kashuapp.ui.theme.KashuTheme
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit = {},
+    viewModel: LoginViewModel = remember { LoginViewModel() }, // 👈 1. Instancias el ViewModel
+    onLoginSuccess: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -73,18 +70,9 @@ fun LoginScreen(
             ),
             shadowElevation = 1.dp
         ) {
-            LogoText(fontsize = 40)
+            KashuLogo(fontsize = 40)
         }
-
-
-
-
-
-
-
-
         Spacer(modifier = Modifier.height(16.dp))
-
         Text(
             text = "Welcome to Kashu",
             color = KashuTheme.colors.title,
@@ -94,14 +82,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(10.dp))
         Subtitle("Log in to continue", KashuTheme.colors.subtitle)
         Spacer(modifier = Modifier.weight(0.9f))
-
-
-
-
-
-
-
-        CustomTextField(
+        KashuTextField(
             label = "Email",
             type = email,
             onType = { email = it },
@@ -111,7 +92,7 @@ fun LoginScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
         Spacer(modifier = Modifier.height(14.dp))
-        CustomTextField(
+        KashuTextField(
             label = "Password",
             extraLabel = "Forgot your password?",
             type = password,
@@ -119,7 +100,7 @@ fun LoginScreen(
             placeholder = "••••••••",
             iconInput = Icons.Default.Lock,
             colorPlaceHolder = Color.Gray,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
 
 
@@ -136,31 +117,19 @@ fun LoginScreen(
             }
             )
         Spacer(modifier = Modifier.height(14.dp))
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-
         ) {
-            Button(
-                onClick = onLoginSuccess,
+            KashuButton(
+                onClickFun = onLoginSuccess,
                 modifier = Modifier
-                    .weight(0.8f)
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = KashuTheme.colors.mainColor,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Text(
-                    text = "Log In →",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+                    .weight(0.8f),
+                text = "Log in ->",
+
+            )
+
             Spacer(modifier = Modifier.width(4.dp))
-            // 6. Botón Biometría
 
             OutlinedButton(
                 onClick = { /* Acción huella digital */ },
@@ -169,8 +138,8 @@ fun LoginScreen(
                     .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = KashuTheme.colors.surface,
+                    contentColor = KashuTheme.colors.mainColor
                 ),
                 border = BorderStroke(
                     width = 2.dp,
@@ -181,53 +150,17 @@ fun LoginScreen(
                 Icon(
                     imageVector = Icons.Default.Fingerprint,
                     contentDescription = "Biometric Login",
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = KashuTheme.colors.title
                 )
-
             }
-
-
         }
-
-
         Spacer(modifier = Modifier.height(20.dp))
-
         Row (modifier =  Modifier.fillMaxWidth())
         {
-            OutlinedButton(
-                onClick = {},
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                border = BorderStroke(
-                    width = 2.dp,
-                    color = MaterialTheme.colorScheme.outline
-                ),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_google),
-                    contentDescription = "Google Logo",
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(20.dp)
-                )
-
-            }
-
-
-
-
-
+            KashuSocialButton(
+                onClickFun = {}
+            )
         }
-
-
-
-
-
         Spacer(modifier = Modifier.weight(1f))
 
         Row(
@@ -235,7 +168,7 @@ fun LoginScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Don't Have a Account? ",
+                text = "Don't Have an Account? ",
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 14.sp
             )
@@ -246,60 +179,8 @@ fun LoginScreen(
                 fontSize = 14.sp,
                 modifier = Modifier.clickable { /* Navegar a registro */ }
             )
-
-
-
         }
-
-
-
-
-
-
-
         Spacer(modifier = Modifier.weight(0.2f))
     }
 }
 
-
-@Composable
-fun Subtitle(text: String, subtitleColor: Color ){
-
-    Text(
-        text = text,
-        color = subtitleColor,
-        fontSize = 15.sp
-    )
-}
-
-
-
-//
-//@Composable
-//fun PlatformButton(){
-//
-//    OutlinedButton(
-//        onClick = {},
-//        modifier = Modifier
-//            .width(100.dp)
-//            .height(48.dp),
-//        shape = RoundedCornerShape(12.dp),
-//        colors = ButtonDefaults.outlinedButtonColors(
-//            containerColor = inputSurfaceColor,
-//            contentColor = textPrimary
-//        ),
-//        border = BorderStroke(
-//            width = 2.dp,
-//            color = if (isDark) Color(0xFF37393F) else Color(0xFFE0E0E0)
-//        ),
-//    ) {
-//        Icon(
-//            painter = painterResource(id = R.drawable.ic_google),
-//            contentDescription = "Google Logo",
-//            tint = Color.Unspecified,
-//            modifier = Modifier.size(20.dp)
-//        )
-//
-//    }
-//
-//}

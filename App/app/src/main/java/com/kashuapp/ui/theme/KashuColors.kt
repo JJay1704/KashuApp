@@ -11,7 +11,9 @@ data class KashuColors(
     val mainBackground: Color,
     val surface : Color,
     val title : Color,
-    val subtitle : Color
+    val subtitle : Color,
+    val inputContainer : Color,
+    val inputText: Color,
 
 )
 

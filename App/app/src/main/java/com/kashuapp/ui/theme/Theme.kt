@@ -45,7 +45,9 @@ private val LightKashuLoginScheme= KashuColors(
     mainBackground =  LightBackground,
     surface = LightSurfaceLoging,
             title = LightTitle,
-    subtitle = LightSubtitleLogin
+    subtitle = LightSubtitleLogin,
+    inputContainer = Color.Red,
+    inputText = Color.Blue
 
     )
 
@@ -57,8 +59,9 @@ private val DarkKashuLoginScheme = KashuColors(
     mainBackground =  DarkBackground,
     surface = DarkSurfaceLogin,
     title = DarkTitle,
-    subtitle = DarkSubtitleLogin
-
+    subtitle = DarkSubtitleLogin,
+    inputContainer = Color.Red,
+    inputText = Color.Blue
 
 
 
