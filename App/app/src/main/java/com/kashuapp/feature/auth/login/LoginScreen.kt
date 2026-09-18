@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,12 +44,13 @@ import androidx.compose.ui.unit.sp
 import com.kashuapp.ui.theme.KashuTheme
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = remember { LoginViewModel() }, // 👈 1. Instancias el ViewModel
+    viewModelState: LoginViewModel = remember { LoginViewModel() }, // 👈 1. Instancias el ViewModel
     onLoginSuccess: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+//    var email by remember { mutableStateOf("") }
+//    var password by remember { mutableStateOf("") }
+//    var passwordVisible by remember { mutableStateOf(false) }
+    val uiState by viewModelState.uiState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -84,7 +86,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.weight(0.9f))
         KashuTextField(
             label = "Email",
-            type = email,
+            type = uiState.email,
             onType = { email = it },
             placeholder = "user@email.com",
             iconInput = Icons.Default.Email,
@@ -95,8 +97,8 @@ fun LoginScreen(
         KashuTextField(
             label = "Password",
             extraLabel = "Forgot your password?",
-            type = password,
-            onType = { password = it },
+            type = uiState.password,
+            onType = { onLoginView },
             placeholder = "••••••••",
             iconInput = Icons.Default.Lock,
             colorPlaceHolder = Color.Gray,
