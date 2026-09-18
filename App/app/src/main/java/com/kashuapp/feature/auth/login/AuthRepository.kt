@@ -12,7 +12,7 @@ class AuthRepository(
     suspend fun login(email: String, password: String): Result<FirebaseUser> {
          try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
-            val user = result.user
+            val user = result.user;
                 if (user != null){
                     return Result.success(user)
                 }else{
