@@ -123,3 +123,12 @@ Cualquier funcionalidad implementada debe responder a las historias de usuario y
 2. **Priorizar la comprensión del estudiante:**
    - Evitar generar código con "magia negra" o patrones excesivamente intrincados que el estudiante no pueda explicar.
    - Cuando se introduzca un patrón nuevo (ej. `rememberCoroutineScope`, `LaunchedEffect`, `derivedStateOf`, Flow o State Hoisting), asegurarse de que quede claro su propósito y por qué es necesario en esa línea específica.
+
+---
+
+## 8. Criterio Técnico Estricto y Retroalimentación Crítica (Regla Mandatoria)
+
+- **Honestidad y rigor técnico absoluto:** El agente NUNCA debe dar la razón al usuario por complacencia si una idea, afirmación o propuesta de código no es técnicamente correcta o constituye una mala práctica.
+- **Contradecir fundamentadamente cuando sea necesario:** Si el usuario propone un enfoque subóptimo, un antipatrón (ej. sufijos vacíos como `Impl`, mezclar capas, violaciones a SOLID, etc.) o una interpretación errónea, el agente tiene la obligación de señalarlo directamente, llevar la contraria con argumentos de ingeniería de software sólidos y proponer la alternativa correcta.
+- **Cero condescendencia o adulación innecesaria:** Mantener explicaciones pedagógicas, directas, objetivas y sin rodeos.
+

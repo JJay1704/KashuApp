@@ -1,4 +1,4 @@
-package com.kashuapp.feature.auth.login
+package com.kashuapp.ui.login
 
 
 
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +22,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.Modifier
@@ -37,25 +35,6 @@ import androidx.compose.ui.unit.sp
 import com.kashuapp.R
 import com.kashuapp.ui.theme.KashuTheme
 
-@Composable
-fun KashuLogo(
-    modifier: Modifier = Modifier,
-    fontsize : Int  = 14,
-    horizontalPadding: Int = 20,
-    verticalPadding: Int = 8
-){
-    Text(
-        text = "KASHU",
-        color = KashuTheme.colors.mainColor,
-        fontWeight = FontWeight.Bold,
-        fontSize = fontsize.sp,
-        letterSpacing = 2.sp,
-        modifier = modifier.padding(
-            horizontal = horizontalPadding.dp,
-            vertical = verticalPadding.dp
-        )    )
-
-}
 
 @Composable
 fun KashuTextField(
@@ -66,14 +45,14 @@ fun KashuTextField(
     type : String ="",
     onType : (String) -> Unit,
     placeholder : String = "",
+    isError: Boolean = false,
     colorPlaceHolder : Color = Color.Black,
     iconInput: ImageVector = Icons.Default.Email,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    trailingIcon: @Composable (() -> Unit)? = null // 👈 SOLO AGREGA ESTA LÍNEA
+    trailingIcon: @Composable (() -> Unit)?
 ) {
-    Column(
-    ) {
+    Column{
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -99,7 +78,8 @@ fun KashuTextField(
         value = type,
              onValueChange = onType ,
         placeholder = { Text(placeholder , color = colorPlaceHolder ) },
-        leadingIcon = {
+        isError = isError,
+             leadingIcon = {
             Icon(iconInput, contentDescription = label, tint = colorPlaceHolder)
         },
              trailingIcon = trailingIcon, // 👈 SOLO AGREGA ESTA LÍNEA
@@ -122,32 +102,6 @@ fun KashuTextField(
     }
     }
 
-@Composable
-fun KashuButton(
-    text: String = "",
-    onClickFun: () -> Unit,
-    modifier: Modifier = Modifier,
-    height: Int = 50,
-    rounded: Int = 12,
-    textSize : Int = 16
-) {
-    Button(
-        onClick = onClickFun,
-        modifier = modifier.height(height.dp),
-        shape = RoundedCornerShape(rounded.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = KashuTheme.colors.mainColor,
-            contentColor = Color.Black
-        )
-    ) {
-
-        Text(
-            text = text,
-            fontSize = textSize.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
 
 @Composable
 fun KashuSocialButton(

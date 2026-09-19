@@ -1,4 +1,4 @@
-package com.kashuapp.feature.auth.login
+package com.kashuapp.ui.login.view
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,9 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,16 +39,24 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kashuapp.core.composables.KashuButton
+import com.kashuapp.core.composables.KashuLogo
+import com.kashuapp.ui.login.KashuSocialButton
+import com.kashuapp.ui.login.KashuTextField
+import com.kashuapp.ui.login.Subtitle
+import com.kashuapp.ui.login.viewModel.LoginViewModel
 import com.kashuapp.ui.theme.KashuTheme
 @Composable
 fun LoginScreen(
-    viewModelState: LoginViewModel = remember { LoginViewModel() }, // 👈 1. Instancias el ViewModel
-    onLoginSuccess: () -> Unit = {}
+
+    onNavigateToHome: () -> Unit,
+    onNavigateToRegister: () -> Unit,
+    viewModel: LoginViewModel = remember { LoginViewModel() },
+
+
 ) {
-//    var email by remember { mutableStateOf("") }
-//    var password by remember { mutableStateOf("") }
-//    var passwordVisible by remember { mutableStateOf(false) }
-    val uiState by viewModelState.uiState.collectAsState()
+
+    val uiStateValues by viewModel.uiState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -86,50 +92,62 @@ fun LoginScreen(
         Spacer(modifier = Modifier.weight(0.9f))
         KashuTextField(
             label = "Email",
-            type = uiState.email,
-            onType = { email = it },
+            type = uiStateValues.email,
+
+            onType = { viewModel.onEmail(it) },
             placeholder = "user@email.com",
             iconInput = Icons.Default.Email,
             colorPlaceHolder = Color.Gray,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            trailingIcon = null
+
+
         )
         Spacer(modifier = Modifier.height(14.dp))
         KashuTextField(
             label = "Password",
             extraLabel = "Forgot your password?",
-            type = uiState.password,
-            onType = { onLoginView },
+            type = uiStateValues.password,
+            onType = { viewModel.onPassword(it) },
             placeholder = "••••••••",
             iconInput = Icons.Default.Lock,
             colorPlaceHolder = Color.Gray,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-
-
+            visualTransformation = if (uiStateValues.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
 
 
             trailingIcon = {
-                IconButton (onClick = { passwordVisible = !passwordVisible }) {
+                IconButton(onClick = { viewModel.onTogglePassword() }) {
                     Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                        imageVector = if (uiStateValues.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (uiStateValues.isPasswordVisible) "Hide password" else "Show password",
                         tint = Color.Gray
                     )
                 }
             }
-            )
+        )
         Spacer(modifier = Modifier.height(14.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
             KashuButton(
-                onClickFun = onLoginSuccess,
+
+
+                onClickFun = {
+                    viewModel.loginSuccess(
+                        onSucces = { onNavigateToHome()  }
+                    )
+                },
                 modifier = Modifier
                     .weight(0.8f),
                 text = "Log in ->",
 
-            )
+
+                )
+
+
+
 
             Spacer(modifier = Modifier.width(4.dp))
 
@@ -159,8 +177,17 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(20.dp))
         Row (modifier =  Modifier.fillMaxWidth())
         {
+
+            if (uiStateValues.errorMessage.isNotEmpty()) {
+                Text(
+                    text = uiStateValues.errorMessage,
+                    color = Color.Red,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
             KashuSocialButton(
-                onClickFun = {}
+                onClickFun = { }
             )
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -174,12 +201,15 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 14.sp
             )
+
+
             Text(
+                modifier = Modifier.clickable { onNavigateToRegister() },
                 text = "Sign Up",
                 color = KashuTheme.colors.mainColor,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                modifier = Modifier.clickable { /* Navegar a registro */ }
+
             )
         }
         Spacer(modifier = Modifier.weight(0.2f))
