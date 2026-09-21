@@ -1,6 +1,6 @@
-package com.kashuapp.ui.login.model
+package com.kashuapp.ui.login
 
-data class LoginScreenState(
+data class LoginState(
 
 
     val email: String = "",

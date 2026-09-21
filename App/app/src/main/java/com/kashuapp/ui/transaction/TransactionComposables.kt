@@ -6,12 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 
@@ -34,7 +31,7 @@ import com.kashuapp.ui.theme.KashuTheme
 
 @Composable
 
-fun cardAddTran(){
+fun CardAddTran(){
 
 
     Column(
@@ -51,8 +48,8 @@ fun cardAddTran(){
 
 
         ) {
-            Box(){
-                Column() {
+            Box{
+                Column {
 
                     Text(
                         fontSize = 20.sp,
@@ -106,13 +103,13 @@ fun cardAddTran(){
 
         }
         Spacer(Modifier.padding(10.dp))
-        balanceContainer(modifier = Modifier.padding(20.dp))
+        BalanceContainer(modifier = Modifier.padding(20.dp))
 
 
 
-        container(modifier = Modifier.padding(20.dp))
-        container(modifier = Modifier.padding(20.dp))
-        container(modifier = Modifier.padding(20.dp))
+        Container(modifier = Modifier.padding(20.dp))
+        Container(modifier = Modifier.padding(20.dp))
+        Container(modifier = Modifier.padding(20.dp))
 
 
 
@@ -131,15 +128,15 @@ fun cardAddTran(){
 
 
 @Composable
-fun container(modifier: Modifier){
+fun Container(modifier: Modifier){
 
-    Box(){
+    Box{
         Modifier.background(color = Color.Gray)
             .padding(30.dp)
 
-        Column() {
-            Row() { }
-            Row() { }
+        Column {
+            Row { }
+            Row { }
 
         }
     }
@@ -148,7 +145,7 @@ fun container(modifier: Modifier){
 }
 
 @Composable
-fun balanceContainer(modifier: Modifier){
+fun BalanceContainer(modifier: Modifier){
 
 
 
@@ -161,18 +158,16 @@ fun balanceContainer(modifier: Modifier){
 
         contentAlignment = Alignment.Center
     ){
-        Column(
-
-        ) {
+        Column{
             Text(
                 color = KashuTheme.colors.subtitle,
                 text= "Monto a registrar",
                  )
 
 
-            Box(){
+            Box{
 
-                Row() {
+                Row {
 
                     Text(text= "S/.", fontSize = 40.sp)
                     OutlinedTextField(

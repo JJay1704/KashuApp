@@ -1,6 +1,6 @@
 package com.kashuapp.ui.home
 
-import android.text.style.BackgroundColorSpan
+
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -9,9 +9,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+
 import androidx.compose.ui.window.Popup
 import com.kashuapp.ui.theme.KashuTheme
 

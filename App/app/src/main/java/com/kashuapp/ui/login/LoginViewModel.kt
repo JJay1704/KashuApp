@@ -1,20 +1,19 @@
-package com.kashuapp.ui.login.viewModel
+package com.kashuapp.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kashuapp.data.SupabaseAuthRepository
-import com.kashuapp.data.IAuthRepository
-import com.kashuapp.ui.login.model.LoginScreenState
+import com.kashuapp.data.auth.AuthRepository
+import com.kashuapp.data.auth.IAuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val repositoryFireBase : IAuthRepository = SupabaseAuthRepository()
+    private val repositoryFireBase : IAuthRepository = AuthRepository()
 ) : ViewModel(){
 
-    private val _uiState = MutableStateFlow(LoginScreenState())
+    private val _uiState = MutableStateFlow(LoginState())
     val uiState  = _uiState.asStateFlow()
 
 
@@ -23,9 +22,9 @@ class LoginViewModel(
     fun onEmail (newEmail: String){
         _uiState.update { it.copy(email = newEmail, errorMessage = "" )}
     }
-    fun onPassword (newPaswword: String){
+    fun onPassword (newPassword: String){
 
-        _uiState.update { it.copy(password= newPaswword, errorMessage = "" )}
+        _uiState.update { it.copy(password= newPassword, errorMessage = "" )}
 
     }
 
@@ -37,10 +36,13 @@ class LoginViewModel(
     }
 
     fun loginSuccess (email : String = uiState.value.email, password : String =uiState.value.password ,  onSucces : ()->Unit) {
+        if (email.isBlank() || password.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Por favor, ingresa tu correo y contraseña") }
+            return
+        }
 
-    viewModelScope.launch {
-
-        _uiState.update { it.copy(isLoading = true, errorMessage = "") }
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = "") }
 
 
 

@@ -13,12 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.kashuapp.ui.home.view.HomeScreen
-import com.kashuapp.ui.login.view.LoginScreen
-import com.kashuapp.ui.register.view.RegisterView
+import com.kashuapp.ui.home.HomeScreen
+import com.kashuapp.ui.login.LoginScreen
+import com.kashuapp.ui.signUp.RegisterView
 import com.kashuapp.ui.theme.KashuAppTheme
 
-import com.kashuapp.ui.transaction.view.TransAddView
 
 
 class MainActivity : ComponentActivity() {
@@ -41,9 +40,8 @@ class MainActivity : ComponentActivity() {
 
                             LoginScreen(
                                 onNavigateToHome = {
-                                    navController.navigate("xd") {
-                                        // Esto borra el login del historial para que si
-                                        // el usuario presiona "atrás" en el celular, no vuelva al login
+                                    navController.navigate("home") {
+
                                         popUpTo("login") { inclusive = true }
                                     }
                                 },

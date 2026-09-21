@@ -15,6 +15,7 @@ object KashuSupaBase {
 
         install(Auth)
         install(Postgrest)
+
     }
 
     val auth get() = client.auth

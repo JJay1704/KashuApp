@@ -1,4 +1,4 @@
-package com.kashuapp.ui.register.view
+package com.kashuapp.ui.signUp
 
 
 import androidx.compose.foundation.BorderStroke
@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -42,9 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuLogo
-import com.kashuapp.ui.login.KashuTextField
+import com.kashuapp.core.composables.KashuTextField
 import com.kashuapp.ui.login.Subtitle
-import com.kashuapp.ui.register.viewModel.RegisterViewModel
 import com.kashuapp.ui.theme.KashuTheme
 @Composable
 fun RegisterView(
@@ -52,7 +53,6 @@ fun RegisterView(
     onNavigateToLogin: () -> Unit,
     viewModel: RegisterViewModel = remember { RegisterViewModel() }
 ) {
-    // 1. Observamos el estado del RegisterViewModel
     val uiState by viewModel.uiState.collectAsState()
     Column(
         modifier = Modifier
@@ -63,7 +63,6 @@ fun RegisterView(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(20.dp))
-        // 2. Logo
         Surface(
             shape = RoundedCornerShape(4.dp),
             color = KashuTheme.colors.surface,
@@ -73,7 +72,6 @@ fun RegisterView(
             KashuLogo(fontsize = 40)
         }
         Spacer(modifier = Modifier.height(16.dp))
-        // 3. Título y Subtítulo
         Text(
             text = "Create an Account",
             color = KashuTheme.colors.title,
@@ -83,32 +81,20 @@ fun RegisterView(
         Spacer(modifier = Modifier.height(8.dp))
         Subtitle("Sign up to get started", KashuTheme.colors.subtitle)
         Spacer(modifier = Modifier.height(24.dp))
-
-
-        KashuTextField(
+        KashuTextField (
             label = "Name",
-            type = uiState.name,
+            type = uiState.fullName,
             onType = { viewModel.onName(it) },
             placeholder = "Juan Manuel",
             iconInput = Icons.Default.VerifiedUser,
             colorPlaceHolder = Color.Gray,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                capitalization = KeyboardCapitalization.Words
+            ),
             trailingIcon = null
         )
         Spacer(modifier = Modifier.height(14.dp))
-
-        KashuTextField(
-            label = "Last Name",
-            type = uiState.lastName,
-            onType = { viewModel.onLastName(it) },
-            placeholder = "Perez Alvarez",
-            iconInput = Icons.Default.VerifiedUser,
-            colorPlaceHolder = Color.Gray,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            trailingIcon = null
-        )
-        Spacer(modifier = Modifier.height(14.dp))
-
         KashuTextField(
             label = "Email",
             type = uiState.email,
@@ -119,6 +105,41 @@ fun RegisterView(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             trailingIcon = null
         )
+        Spacer(modifier = Modifier.height(14.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            KashuTextField(
+                modifier = Modifier.weight(1f),
+                label = "Father Name",
+                type = uiState.fatherName,
+                onType = { viewModel.onFatherName(it) },
+                placeholder = "Perez",
+                iconInput = Icons.Default.Person,
+                colorPlaceHolder = Color.Gray,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    capitalization = KeyboardCapitalization.Words
+                ),
+                trailingIcon = null
+            )
+
+            KashuTextField(
+                modifier = Modifier.weight(1f),
+                label = "Mother Name",
+                type = uiState.motherName,
+                onType = { viewModel.onMotherName(it) },
+                placeholder = "Vilca",
+                iconInput = Icons.Default.Person,
+                colorPlaceHolder = Color.Gray,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    capitalization = KeyboardCapitalization.Words
+                ),
+                trailingIcon = null
+            )
+        }
         Spacer(modifier = Modifier.height(14.dp))
 
         KashuTextField(
@@ -141,7 +162,6 @@ fun RegisterView(
             }
         )
         Spacer(modifier = Modifier.height(14.dp))
-
         KashuTextField(
             label = "Confirm Password",
             type = uiState.confirmPassword,
@@ -162,7 +182,6 @@ fun RegisterView(
             }
         )
         Spacer(modifier = Modifier.height(10.dp))
-
         if (uiState.errorMessage.isNotBlank()) {
             Text(
                 text = uiState.errorMessage,
@@ -173,7 +192,6 @@ fun RegisterView(
             )
         }
         Spacer(modifier = Modifier.height(14.dp))
-
         KashuButton(
             onClickFun = {
                 viewModel.register(onSuccess = onNavigateToHome)
@@ -182,7 +200,6 @@ fun RegisterView(
             text = if (uiState.isLoading) "Creating Account..." else "Sign Up ->"
         )
         Spacer(modifier = Modifier.height(24.dp))
-
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically

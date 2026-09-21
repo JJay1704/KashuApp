@@ -1,9 +1,11 @@
-package com.kashuapp.ui.register.model
+package com.kashuapp.ui.signUp
 
-data class RegisterScreenState(
+data class RegisterState(
 
-    val name : String = "",
+    val fullName : String = "",
     val lastName : String = "",
+    val fatherName : String = "",
+    val motherName : String = "",
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",

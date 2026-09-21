@@ -1,4 +1,4 @@
-package com.kashuapp.ui.login.view
+package com.kashuapp.ui.login
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,10 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuLogo
-import com.kashuapp.ui.login.KashuSocialButton
-import com.kashuapp.ui.login.KashuTextField
-import com.kashuapp.ui.login.Subtitle
-import com.kashuapp.ui.login.viewModel.LoginViewModel
+import com.kashuapp.core.composables.KashuTextField
 import com.kashuapp.ui.theme.KashuTheme
 @Composable
 fun LoginScreen(
@@ -90,7 +87,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(10.dp))
         Subtitle("Log in to continue", KashuTheme.colors.subtitle)
         Spacer(modifier = Modifier.weight(0.9f))
-        KashuTextField(
+        KashuTextField (
             label = "Email",
             type = uiStateValues.email,
 

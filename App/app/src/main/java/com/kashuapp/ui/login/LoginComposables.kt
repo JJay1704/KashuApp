@@ -4,103 +4,30 @@ package com.kashuapp.ui.login
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
+
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.VisualTransformation
+
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kashuapp.R
 import com.kashuapp.ui.theme.KashuTheme
 
 
-@Composable
-fun KashuTextField(
-    label  : String = "",
-    sizeLabel : Int = 14,
-    extraLabel : String = "",
-    onExtraClick: () -> Unit = {},
-    type : String ="",
-    onType : (String) -> Unit,
-    placeholder : String = "",
-    isError: Boolean = false,
-    colorPlaceHolder : Color = Color.Black,
-    iconInput: ImageVector = Icons.Default.Email,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    trailingIcon: @Composable (() -> Unit)?
-) {
-    Column{
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            if(label.isNotBlank()){
-                Text(
-                    fontSize = sizeLabel.sp,
-                    text = label,
-                    color = KashuTheme.colors.title
-                )
-            }
-            if (extraLabel.isNotBlank()){
-                Text(
-                    fontSize = sizeLabel.sp,
-                    text = extraLabel,
-                    color = KashuTheme.colors.mainColor,
-                    modifier = Modifier.clickable { onExtraClick() }, // 👈 Le agregamos esto
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-         OutlinedTextField(
-        value = type,
-             onValueChange = onType ,
-        placeholder = { Text(placeholder , color = colorPlaceHolder ) },
-        isError = isError,
-             leadingIcon = {
-            Icon(iconInput, contentDescription = label, tint = colorPlaceHolder)
-        },
-             trailingIcon = trailingIcon, // 👈 SOLO AGREGA ESTA LÍNEA
-
-             visualTransformation = visualTransformation,
-        singleLine = true,
-        keyboardOptions = keyboardOptions,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Color.Unspecified ,
-            unfocusedContainerColor = Color.Unspecified,
-            focusedBorderColor = KashuTheme.colors.mainColor,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-            focusedTextColor = KashuTheme.colors.title,
-            unfocusedTextColor = colorPlaceHolder
-        )
-
-        )
-    }
-    }
 
 
 @Composable

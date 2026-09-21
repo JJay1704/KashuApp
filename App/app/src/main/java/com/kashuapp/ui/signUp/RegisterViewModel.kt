@@ -1,38 +1,38 @@
-package com.kashuapp.ui.register.viewModel
+package com.kashuapp.ui.signUp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kashuapp.data.IAuthRepository
-import com.kashuapp.data.SupabaseAuthRepository
-import com.kashuapp.ui.register.model.RegisterScreenState
+import com.kashuapp.data.auth.AuthRepository
+import com.kashuapp.data.auth.IAuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class RegisterViewModel(    private val authRepository: IAuthRepository = SupabaseAuthRepository()
+class RegisterViewModel(    private val authRepository: IAuthRepository = AuthRepository()
 ): ViewModel() {
-    private val _uiState = MutableStateFlow(RegisterScreenState())
+    private val _uiState = MutableStateFlow(RegisterState())
     val uiState  = _uiState.asStateFlow()
 
 
-    fun onLastName(newLastName:String){
 
-
-        _uiState.update { it.copy(lastName = newLastName, errorMessage = "") }
-
-
-    }
 
     fun onName(newLastName:String){
+        _uiState.update { it.copy(fullName = newLastName, errorMessage = "") }
+    }
 
+    fun onFatherName(fatherName: String){
 
-        _uiState.update { it.copy(name = newLastName, errorMessage = "") }
+        _uiState.update { it.copy(fatherName = fatherName , errorMessage = "") }
 
 
     }
+    fun onMotherName(motherName: String){
+
+        _uiState.update { it.copy(motherName = motherName , errorMessage = "") }
 
 
+    }
 
     fun onEmail(newEmail: String) {
         _uiState.update { it.copy(email = newEmail, errorMessage = "") }
@@ -59,7 +59,12 @@ class RegisterViewModel(    private val authRepository: IAuthRepository = Supaba
         val email = uiState.value.email.trim()
         val pass = uiState.value.password
         val confirm = uiState.value.confirmPassword
-        // 1. Validaciones locales
+        val givenName = uiState.value.fullName
+        val fatherName = uiState.value.fatherName
+        val motherName = uiState.value.motherName
+
+
+
         if (email.isBlank() || !email.contains("@")) {
             _uiState.update { it.copy(errorMessage = "Ingresa un correo electrónico válido") }
             return
@@ -72,16 +77,16 @@ class RegisterViewModel(    private val authRepository: IAuthRepository = Supaba
             _uiState.update { it.copy(errorMessage = "Las contraseñas no coinciden") }
             return
         }
-        // 2. Si todo está bien, llamamos a Supabase
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = "") }
-            val result = authRepository.signUp(email, pass)
+            val result = authRepository.signUp(email, pass, givenName,fatherName,motherName, fatherName + motherName  )
             _uiState.update { it.copy(isLoading = false) }
             result.onSuccess {
-                onSuccess() // Navega directo al Home
+                onSuccess()
             }
-            result.onFailure {
-                _uiState.update { it.copy(errorMessage = "Error al crear la cuenta o correo ya registrado") }
+            result.onFailure {error ->
+                _uiState.update { it.copy(errorMessage = error.message ?: "Error desconocido") }
             }
         }
     }

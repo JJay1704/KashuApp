@@ -25,15 +25,20 @@ KashuApp/
 ├── App/                            # Proyecto Android Studio (Gradle)
 │   ├── app/
 │   │   ├── src/main/java/com/kashuapp/
-│   │   │   ├── feature/            # Módulos organizados por características de negocio
-│   │   │   │   ├── auth/           # Login, registro, recuperación de contraseña
-│   │   │   │   │   └── login/      # LoginScreen.kt, ViewModels asociados
-│   │   │   │   ├── home/           # Dashboard principal, saldo total, patrimonio neto
-│   │   │   │   ├── transaction/    # Registro, edición y filtrado de gastos/ingresos
-│   │   │   │   ├── budget/         # Presupuestos por categoría y alertas
-│   │   │   │   └── savings/        # Metas de ahorro y avance porcentual
-│   │   │   ├── ui/theme/           # Sistema de diseño (Color.kt, Theme.kt, Type.kt)
-│   │   │   └── MainActivity.kt     # Punto de entrada de la actividad principal
+│   │   │   ├── core/               # Componentes reutilizables y navegación global
+│   │   │   │   ├── composables/    # Botones, logos y widgets genéricos
+│   │   │   │   └── navBar/         # HomeTab y estructura de pestañas
+│   │   │   ├── data/               # Repositorios y cliente backend (Supabase)
+│   │   │   │   ├── KashuSupaBase.kt
+│   │   │   │   ├── IAuthRepository.kt / SupabaseAuthRepository.kt
+│   │   │   │   └── ITransactionRepository.kt / SupabaseTransactionRepository.kt
+│   │   │   ├── ui/                 # Vistas y ViewModels organizados por pantalla/módulo
+│   │   │   │   ├── home/           # Dashboard principal, saldo y resumen
+│   │   │   │   ├── login/          # LoginScreen, LoginViewModel, LoginScreenState
+│   │   │   │   ├── register/       # Registro de nuevos usuarios
+│   │   │   │   ├── transaction/    # Historial y registro de transacciones
+│   │   │   │   └── theme/          # Sistema de diseño (Color.kt, Theme.kt, Type.kt)
+│   │   │   └── MainActivity.kt     # Punto de entrada de la actividad y NavHost
 │   │   └── build.gradle.kts        # Configuración y dependencias del módulo app
 │   ├── gradle/libs.versions.toml   # Catálogo centralizado de versiones (Version Catalog)
 │   ├── build.gradle.kts            # Configuración raíz de Gradle
@@ -55,7 +60,8 @@ KashuApp/
 | **UI Toolkit** | Jetpack Compose + Material 3 (`androidx.compose.material3`) |
 | **Compose BOM** | `2026.02.01` (definida en `libs.versions.toml`) |
 | **SDK Android** | `minSdk = 24` (Android 7.0 Nougat), `targetSdk = 37`, `compileSdk = 37` |
-| **Backend & Servicios** | Firebase (Firebase BOM `34.19.0`, Analytics, Auth, Google Sign-In) |
+| **Backend & Base de Datos** | Supabase (Supabase BOM `3.1.4`, Auth, Postgrest Database con PostgreSQL + RLS, Ktor OkHttp) |
+| **Serialización** | Kotlinx Serialization (`kotlinx.serialization`) |
 | **Gestor de Construcción** | Gradle KTS con Version Catalogs (`libs.versions.toml`) |
 
 ---
@@ -63,7 +69,7 @@ KashuApp/
 ## 4. Estándares de Arquitectura y Código
 
 ### 4.1. Arquitectura Recomendada (MVVM + Clean Architecture)
-- **UI Layer (`feature/<modulo>/...`)**:
+- **UI Layer (`ui/<modulo>/...`)**:
   - Pantallas Composable (`Screen.kt`) puramente declarativas.
   - **State Hoisting**: Los composables deben recibir el estado (State) y emitir eventos mediante lambdas (`onAction: () -> Unit`). Evitar instanciar o mutar estado global directamente dentro del composable.
   - Separar componentes reutilizables en funciones composables pequeñas y privadas si aplican solo a esa pantalla, o en componentes compartidos si son globales.
@@ -71,7 +77,7 @@ KashuApp/
   - Utilizar `ViewModel` (`androidx.lifecycle.viewmodel.compose`) para manejar el estado de la UI (`StateFlow` / `asStateFlow()`).
   - Nunca colocar llamadas a APIs, lógica de negocio o cálculos financieros complejos directamente dentro de una función `@Composable`.
 - **Data Layer**:
-  - Repositorios (`Repository`) como fuente única de verdad entre la UI/ViewModel y los servicios de persistencia (Firebase / Room / DataStore).
+  - Repositorios (`Repository`) como fuente única de verdad entre la UI/ViewModel y los servicios de persistencia (Supabase / DataStore / Room).
 
 ### 4.2. Sistema de Diseño y Temas (Dark & Light Mode)
 - Usar siempre la paleta definida en `com.kashuapp.ui.theme`:
@@ -131,4 +137,11 @@ Cualquier funcionalidad implementada debe responder a las historias de usuario y
 - **Honestidad y rigor técnico absoluto:** El agente NUNCA debe dar la razón al usuario por complacencia si una idea, afirmación o propuesta de código no es técnicamente correcta o constituye una mala práctica.
 - **Contradecir fundamentadamente cuando sea necesario:** Si el usuario propone un enfoque subóptimo, un antipatrón (ej. sufijos vacíos como `Impl`, mezclar capas, violaciones a SOLID, etc.) o una interpretación errónea, el agente tiene la obligación de señalarlo directamente, llevar la contraria con argumentos de ingeniería de software sólidos y proponer la alternativa correcta.
 - **Cero condescendencia o adulación innecesaria:** Mantener explicaciones pedagógicas, directas, objetivas y sin rodeos.
+
+### 8.1. Freno de Mano Proactivo: Evaluación de Trade-offs antes de Construir
+- **Advertir antes de ejecutar:** Cuando el usuario proponga una idea o diseño de datos, el agente tiene la **obligación estricta de evaluar los trade-offs de antemano**:
+  1. ¿Genera redundancia masiva o desperdicio de almacenamiento en la base de datos (ej. duplicar catálogos que deberían ser globales)?
+  2. ¿Constituye una pérdida de tiempo o sobreingeniería que complique innecesariamente el mantenimiento o la sustentación académica?
+  3. ¿Se desvía de cómo se resuelve este problema en arquitecturas y aplicaciones del mundo real?
+- **Protocolo de objeción inmediata:** Si se detecta cualquiera de estos riesgos, el agente **NO debe proceder a escribir código o esquemas obedeciendo ciegamente la instrucción**. Debe detenerse, explicar con argumentos directos por qué ese camino es problemático y presentar la alternativa estándar de la industria antes de continuar.
 
