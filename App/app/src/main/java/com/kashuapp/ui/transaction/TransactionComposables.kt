@@ -55,7 +55,7 @@ fun CardAddTran(){
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         text = "Add Transaction")
-                    Text("xdxd")
+
 
                 }
 

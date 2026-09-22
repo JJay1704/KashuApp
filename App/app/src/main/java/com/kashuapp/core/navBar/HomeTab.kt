@@ -26,13 +26,9 @@ sealed class HomeTab(
         icon = Icons.AutoMirrored.Filled.ReceiptLong
     )
 
-    data object  Intento : HomeTab(
-        title=  " pruibeas",
-        icon = Icons.Default.SwipeUpAlt
-    )
 
     companion object {
         val tabs: List<HomeTab>
-            get() = listOf(Home, Goals, Transaction, Intento)
+            get() = listOf(Home, Goals, Transaction)
     }
 }

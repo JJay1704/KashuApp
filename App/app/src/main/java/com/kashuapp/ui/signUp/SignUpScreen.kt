@@ -31,7 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +41,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuLogo
 import com.kashuapp.core.composables.KashuTextField
@@ -51,7 +51,7 @@ import com.kashuapp.ui.theme.KashuTheme
 fun RegisterView(
     onNavigateToHome: () -> Unit,
     onNavigateToLogin: () -> Unit,
-    viewModel: RegisterViewModel = remember { RegisterViewModel() }
+    viewModel: SignUpVM = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     Column(
@@ -59,7 +59,7 @@ fun RegisterView(
             .fillMaxSize()
             .background(KashuTheme.colors.mainBackground)
             .padding(horizontal = 24.dp, vertical = 24.dp)
-            .verticalScroll(rememberScrollState()), // Por si el teclado tapa los campos
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(20.dp))

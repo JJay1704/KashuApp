@@ -9,15 +9,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class RegisterViewModel(    private val authRepository: IAuthRepository = AuthRepository()
+class SignUpVM(private val authRepository: IAuthRepository = AuthRepository()
 ): ViewModel() {
-    private val _uiState = MutableStateFlow(RegisterState())
+    private val _uiState = MutableStateFlow(SignUpState())
     val uiState  = _uiState.asStateFlow()
-
-
-
-
-    fun onName(newLastName:String){
+        fun onName(newLastName:String){
         _uiState.update { it.copy(fullName = newLastName, errorMessage = "") }
     }
 
@@ -69,8 +65,8 @@ class RegisterViewModel(    private val authRepository: IAuthRepository = AuthRe
             _uiState.update { it.copy(errorMessage = "Ingresa un correo electrónico válido") }
             return
         }
-        if (pass.length < 6) {
-            _uiState.update { it.copy(errorMessage = "La contraseña debe tener al menos 6 caracteres") }
+        if (pass.length < 6 || !pass.contains("@"))  {
+            _uiState.update { it.copy(errorMessage = "La contraseña debe tener al menos 6 caracteres y @") }
             return
         }
         if (pass != confirm) {
@@ -78,9 +74,12 @@ class RegisterViewModel(    private val authRepository: IAuthRepository = AuthRe
             return
         }
 
+
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = "") }
-            val result = authRepository.signUp(email, pass, givenName,fatherName,motherName, fatherName + motherName  )
+            val result = authRepository.signUp(email, pass, givenName,fatherName,motherName, "${fatherName} ${motherName} " )
+
             _uiState.update { it.copy(isLoading = false) }
             result.onSuccess {
                 onSuccess()

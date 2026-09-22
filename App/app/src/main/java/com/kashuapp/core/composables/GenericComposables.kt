@@ -35,15 +35,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kashuapp.ui.theme.KashuTheme
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.CircularProgressIndicator
 
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
 
 import androidx.compose.runtime.getValue
 
@@ -51,6 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun KashuLogo(
@@ -79,7 +86,9 @@ fun KashuButton(
     height: Int = 50,
     rounded: Int = 12,
     textSize : Int = 16,
-    textColor : Color = KashuTheme.colors.title
+    textColor : Color = KashuTheme.colors.title,
+    enabled: Boolean = true,
+    isLoading: Boolean = false
 ) {
     Button(
 
@@ -100,11 +109,73 @@ fun KashuButton(
             fontSize = textSize.sp,
             fontWeight = FontWeight.Bold,
             color = textColor
+
+
+
+
+        )
+
+    if (isLoading){
+
+        CircularProgressIndicator(
+            modifier = Modifier.size(22.dp),
+            color = textColor,
+            strokeWidth = 2.5.dp
+        )
+    }else{
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            text = text,
+            fontSize = textSize.sp,
+            fontWeight = FontWeight.Bold,
+            color = textColor
         )
     }
+
+    }
 }
+@Composable
+fun KashuMenuButton(
+
+    initials: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: Dp = 38.dp,
+    backgroundColor : Color = KashuTheme.colors.mainColor,
+    textColor : Color = Color.White
+
+) {
+
+    Surface(
+        modifier = modifier.size(size),
+        shape = CircleShape,
+        color = backgroundColor,
+        shadowElevation = 0.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onClick
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = initials.uppercase(),
+                color = textColor,
+                fontWeight = FontWeight.Bold,
+                fontSize = (size.value * 0.38).sp
+            )
+        }
+    }
 
 
+
+
+}
 
 
 @Composable
@@ -141,7 +212,7 @@ fun KashuTextField(
                     fontSize = sizeLabel.sp,
                     text = extraLabel,
                     color = KashuTheme.colors.mainColor,
-                    modifier = Modifier.clickable { onExtraClick() }, // 👈 Le agregamos esto
+                    modifier = Modifier.clickable { onExtraClick() },
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -156,7 +227,7 @@ fun KashuTextField(
             leadingIcon = {
                 Icon(iconInput, contentDescription = label, tint = colorPlaceHolder)
             },
-            trailingIcon = trailingIcon, // 👈 SOLO AGREGA ESTA LÍNEA
+            trailingIcon = trailingIcon,
 
             visualTransformation = visualTransformation,
             singleLine = true,
@@ -204,7 +275,7 @@ fun <T> KashuDropdownField(
         }
         Box(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
-                value = if (selectedValue.isEmpty()) placeholder else selectedValue,
+                value = selectedValue.ifEmpty { placeholder },
                 onValueChange = {},
                 readOnly = true,
                 enabled = false,
@@ -229,14 +300,12 @@ fun <T> KashuDropdownField(
                     }
                 }
             )
-            // Capa invisible para capturar el clic en cualquier parte del campo
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { isExpanded = true }
             )
-            // Menú flotante
             DropdownMenu(
                 expanded = isExpanded,
                 onDismissRequest = { isExpanded = false },
@@ -260,7 +329,6 @@ fun <T> KashuDropdownField(
                         }
                     )
                 }
-                // Opción extra opcional (ej: + Agregar nueva categoría)
                 if (extraActionLabel != null && onExtraActionClick != null) {
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 4.dp),

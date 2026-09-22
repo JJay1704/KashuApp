@@ -145,3 +145,54 @@ Cualquier funcionalidad implementada debe responder a las historias de usuario y
   3. ¿Se desvía de cómo se resuelve este problema en arquitecturas y aplicaciones del mundo real?
 - **Protocolo de objeción inmediata:** Si se detecta cualquiera de estos riesgos, el agente **NO debe proceder a escribir código o esquemas obedeciendo ciegamente la instrucción**. Debe detenerse, explicar con argumentos directos por qué ese camino es problemático y presentar la alternativa estándar de la industria antes de continuar.
 
+---
+
+## 9. Protocolo de Verificación para Entrega T1 (Checklist Mandatorio)
+
+Cuando el usuario pregunte *"¿el proyecto está listo para el T1?"*, *"¿estamos listos para la entrega 1?"*, *"verifica el T1"* o cualquier variante similar, el agente **DEBE activar inmediatamente una auditoría estricta del código fuente** contra el alcance oficial del T1.
+
+### 9.1. Alcance y Criterios de Aceptación del T1
+El agente debe evaluar punto por punto los siguientes requerimientos:
+
+1. **HU-01 / RF-01: Autenticación y Acceso Seguro**
+   - **HU-01:** *Como usuario quiero registrarme e iniciar sesión con mi correo electrónico y una contraseña, para poder acceder a mi perfil de forma segura y privada desde cualquier dispositivo.*
+   - **RF-01:** *El sistema debe permitir al usuario registrarse e iniciar sesión ingresando un correo electrónico válido y una contraseña segura, validando que el correo no esté registrado previamente.*
+   - **Acción:** El usuario ingresa un correo electrónico válido y una contraseña segura en el formulario de acceso o creación de cuenta.
+   - **Resultado esperado:** El sistema valida credenciales únicas y no repetidas, otorgando acceso mediante una sesión activa o rechazando con un mensaje de error genérico/adecuado.
+
+2. **HU-03 / RF-03: Registro Manual de Transacciones e Impacto en Balance**
+   - **HU-03:** *Como usuario quiero registrar manualmente mis ingresos, gastos especificando monto, fecha, hora, categoría y cuenta para llevar control detallado de mi dinero.*
+   - **RF-03:** *El sistema debe proveer una interfaz para el registro manual seleccionando el tipo de movimiento (ingreso o gasto).*
+   - **Acción:** El usuario ingresa una transacción seleccionando tipo, monto mayor a cero (`> 0`), fecha, hora, categoría y cuenta.
+   - **Resultado esperado:** El sistema valida los datos obligatorios, almacena el movimiento e impacta directamente en el balance de la cuenta seleccionada.
+
+3. **HU-04 / RF-04: Gestión de Categorías de Gasto**
+   - **HU-04:** *Como usuario quiero clasificar y renombrar mis categorías de gasto, para organizar la información financiera según mi criterio.*
+   - **RF-04:** *El sistema debe permitir al usuario crear, editar el nombre y eliminar o desactivar categorías personalizadas de gasto.*
+   - **Acción:** El usuario crea, renombra o desactiva categorías y les asigna identificadores visuales (ícono y color).
+   - **Resultado esperado:** El sistema actualiza el catálogo personal y lo refleja en todas las vistas operativas (ej. selectores en el registro de transacciones).
+
+4. **Arquitectura de Software (MVVM + Clean Architecture) y Principios SOLID**
+   - **Arquitectura y Jetpack Compose:**
+     - **State Hoisting:** Composables puramente declarativos que reciben estado inmutable y emiten eventos por lambdas (`onAction: () -> Unit`). Cero lógica de negocio o llamadas a repositorios dentro de `@Composable`.
+     - **UI Layer / ViewModel:** Manejo de estado centralizado con `StateFlow` / `asStateFlow()`, corrutinas en `viewModelScope` y modelado explícito de estados (`Loading`, `Success`, `Error`).
+     - **Data Layer:** Repositorios como fuente única de verdad desacoplados del cliente de base de datos/red.
+   - **Principios SOLID:**
+     - **S (Single Responsibility):** Clases, ViewModels y Composables con una única razón para cambiar.
+     - **O (Open/Closed):** Jerarquías de estados y eventos modeladas con `sealed class` / `sealed interface`.
+     - **L (Liskov Substitution):** Implementaciones de repositorios sustituibles sin romper el contrato esperado.
+     - **I (Interface Segregation):** Interfaces segregadas y concisas (ej. `IAuthRepository`, `ITransactionRepository`, `ICategoryRepository`), sin métodos innecesarios.
+     - **D (Dependency Inversion):** Los ViewModels dependen de contratos/interfaces (`IRepository`), no de implementaciones concretas o SDKs acoplados.
+
+### 9.2. Formato del Reporte de Verificación T1
+La respuesta del agente debe estructurarse obligatoriamente con el siguiente formato:
+
+- **Tabla de Estado Funcional T1 (HU / RF):**
+  - Columnas: *Requisito / HU*, *Criterio Evaluado*, *Estado* (`[OK] Cumplido`, `[PARCIAL] En progreso`, `[PENDIENTE] No implementado`), *Evidencia / Ubicación en Código* (archivo y componente/línea).
+- **Tabla de Auditoría Técnica (Arquitectura MVVM & SOLID):**
+  - Columnas: *Principio / Pilar*, *Criterio Evaluado*, *Estado* (`[OK]`, `[VIOLACIÓN]`, `[PARCIAL]`), *Evidencia / Ubicación en Código*.
+- **Análisis de Gaps y Pendientes Críticos:**
+  - Lista detallada de lo que falta para cumplir tanto funcionalmente como técnicamente (validaciones, endpoints, acoplamientos, violaciones de capas).
+- **Veredicto Final Riguroso:**
+  - Dictamen claro: **"LISTO PARA T1"** o **"NO ESTÁ LISTO PARA T1"**, fundamentando exactamente qué bloquea la entrega sin complacencias.
+

@@ -11,7 +11,7 @@ data class Account(
     val id: String = "",
     @SerialName("user_id") val userId: String? = null,
     val name: String,
-    val type: String = "banco",                         // ej: "banco", "efectivo", "billetera_digital"
+    val type: String = "banco",
     @SerialName("initial_balance") val initialBalance: Double = 0.0,
     @SerialName("current_balance") val currentBalance: Double = 0.0,
     val currency: String = "PEN",

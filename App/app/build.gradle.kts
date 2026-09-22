@@ -1,7 +1,10 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+
 }
 
 android {
@@ -11,6 +14,18 @@ android {
     }
 
     defaultConfig {
+
+        val properties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            properties.load(localPropertiesFile.inputStream())
+        }
+        val supabaseUrl = properties.getProperty("SUPABASE_URL") ?: ""
+        val supabaseKey = properties.getProperty("SUPABASE_KEY") ?: ""
+        buildConfigField("String", "SUPABASE_URL", supabaseUrl)
+        buildConfigField("String", "SUPABASE_KEY", supabaseKey)
+
+
         applicationId = "com.kashuapp"
         minSdk = 24
         targetSdk = 37
@@ -33,6 +48,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -46,6 +62,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

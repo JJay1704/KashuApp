@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kashuapp.data.auth.AuthRepository
+import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.category.Category
 import com.kashuapp.data.category.CategoryRepository
 import com.kashuapp.data.category.ICategoryRepository
@@ -17,7 +19,7 @@ class TransactionVM(
 
     private val transRepo: ITransactionRepository = TransactionRepository(),
     private val catRepo: ICategoryRepository = CategoryRepository(),
-
+    private val authRepo : IAuthRepository = AuthRepository()
     ): ViewModel() {
 
     var transactions by mutableStateOf<List<Transaction>>(emptyList())
@@ -25,12 +27,13 @@ class TransactionVM(
 
 
 
+
+
     fun loadCategories() {
         viewModelScope.launch {
-            catRepo.getAllCateg().onSuccess { categories = it }
+            catRepo.getAllCateg(authRepo.getCurrentUserId().id).onSuccess { categories = it }
         }
     }
-    // Busca el nombre de la categoría según el ID de la transacción
     fun getCategoryName(categoryId: String): String {
         return categories.find { it.id == categoryId }?.name ?: "Sin categoría"
     }

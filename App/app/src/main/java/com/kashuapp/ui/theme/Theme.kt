@@ -53,34 +53,16 @@ private val DarkKashuLoginScheme = KashuScheme(
 @Composable
 fun KashuAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-
     val currentColors = if (darkTheme) DarkKashuLoginScheme else LightKashuLoginScheme
-
-//    val colorScheme = when {
-//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-//            val context = LocalContext.current
-//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-//        }
-//
-//        darkTheme -> DarkColorScheme
-//        else -> LightColorScheme
-//    }
 
     CompositionLocalProvider(LocalKashuColors provides currentColors) {
         MaterialTheme(
             typography = Typography,
             content = content
         )
-
-//    MaterialTheme(
-//        colorScheme = valKashuColors,
-//        typography = Typography,
-//        content = content
-//    )
     }
 }
 

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Transaction(
 
-    val id: String ? = null,
+    val id: String? = null,
     @SerialName("user_id") val userId: String? = null,
     @SerialName("account_id") val accountId: String,
     @SerialName("category_id") val categoryId: String,

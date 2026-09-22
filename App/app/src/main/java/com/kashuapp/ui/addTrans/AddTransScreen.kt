@@ -1,4 +1,5 @@
 package com.kashuapp.ui.addTrans
+
 import java.text.SimpleDateFormat
 import java.util.Locale
 import androidx.compose.foundation.background
@@ -26,9 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -41,18 +40,21 @@ import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.core.composables.KashuTextField
 import com.kashuapp.ui.theme.KashuTheme
 import java.util.Calendar
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransact(
 
-    viewModel: AddTransVM = remember { AddTransVM( ) },
+    viewModel: AddTransVM = viewModel(),
 
     onDismiss: () -> Unit = {},
 
+    onNavigateToCategory: () -> Unit = {},
 
 
 ) {
-    LaunchedEffect (Unit) {
+    LaunchedEffect(Unit) {
         viewModel.loadCategories()
         viewModel.loadAccounts()
         val calendar = Calendar.getInstance()
@@ -62,18 +64,10 @@ fun AddTransact(
         viewModel.onTime(timeFormat.format(calendar.time))
 
 
-
     }
     val uiState by viewModel.uiStateTran.collectAsState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-
-    var errorMessage by remember { mutableStateOf("") }
-
-
-
-
-    var isCreatingNewCategory by remember { mutableStateOf(false) }
 
 
     ModalBottomSheet(
@@ -117,8 +111,7 @@ fun AddTransact(
                     rounded = 10,
                     backColor = if (uiState.type != "INCOME") Color(0xFFEF4444) else Color.Transparent,
                     textColor = if (uiState.type != "INCOME") Color.White else KashuTheme.colors.subtitle,
-                    onClickFun = { viewModel.onType("EXPENSE") }
-                )
+                    onClickFun = { viewModel.onType("EXPENSE") })
 
 
 
@@ -129,8 +122,7 @@ fun AddTransact(
                     rounded = 10,
                     backColor = if (uiState.type == "INCOME") KashuTheme.colors.mainColor else Color.Transparent,
                     textColor = if (uiState.type == "INCOME") Color.Black else KashuTheme.colors.subtitle,
-                    onClickFun = { viewModel.onType("INCOME") }
-                )
+                    onClickFun = { viewModel.onType("INCOME") })
 
             }
 
@@ -141,7 +133,7 @@ fun AddTransact(
 
             KashuTextField(
                 label = "Amount (S/.)",
-                type =uiState.amount,
+                type = uiState.amount,
                 onType = { viewModel.onAmount(it) },
                 placeholder = "0.00",
                 colorPlaceHolder = KashuTheme.colors.subtitle,
@@ -164,8 +156,7 @@ fun AddTransact(
                 itemLabel = { it.name },
                 onItemSelected = { selectedAccount ->
                     viewModel.onAccount(selectedAccount)
-                }
-            )
+                })
 
 
 
@@ -179,15 +170,17 @@ fun AddTransact(
                 icon = Icons.Default.Category,
                 items = viewModel.categories,
                 itemLabel = { it.name },
-                onItemSelected = {
-                    selectedCategory -> viewModel.onCategory(selectedCategory)
+                onItemSelected = { selectedCategory ->
+                    viewModel.onCategory(selectedCategory)
 
 
-
-                                 },
+                },
                 extraActionLabel = "Agregar nueva categoría",
-                onExtraActionClick = { isCreatingNewCategory = true }
-            )
+                onExtraActionClick = {
+                    onDismiss()
+
+                    onNavigateToCategory()
+                })
 
 
 
@@ -203,14 +196,12 @@ fun AddTransact(
                 KashuDatePickerField(
                     modifier = Modifier.weight(0.5f),
                     selectedDate = uiState.date,
-                    onDateSelected = { viewModel.onDate(it)}
-                )
+                    onDateSelected = { viewModel.onDate(it) })
 
                 KashuTimePickerField(
                     modifier = Modifier.weight(0.5f),
                     selectedTime = uiState.time,
-                    onTimeSelected = {viewModel.onTime(it) }
-                )
+                    onTimeSelected = { viewModel.onTime(it) })
 
 
             }
@@ -227,12 +218,10 @@ fun AddTransact(
                 trailingIcon = null
             )
 
-            if (errorMessage.isNotEmpty()) {
+            if (uiState.errorMessage.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = errorMessage,
-                    color = Color(0xFFEF4444),
-                    fontSize = 12.sp
+                    text = uiState.errorMessage, color = Color(0xFFEF4444), fontSize = 12.sp
                 )
             }
 
@@ -246,7 +235,7 @@ fun AddTransact(
             KashuButton(
                 modifier = Modifier.fillMaxWidth(),
 
-                        text = "Save Transaction",
+                text = "Save Transaction",
                 onClickFun = {
                     viewModel.postTrans(
                         date = uiState.date,
@@ -255,36 +244,10 @@ fun AddTransact(
                             onDismiss()
                         },
 
-                    )
+                        )
                 },
 
-            )
+                )
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-//@Composable
-//fun AddTransactionSheet(
-//    onDismiss: () -> Unit = {},
-//    onSaveTransaction: (
-//        amount: Double,
-//        type: String,
-//        category: String,
-//        account: String,
-//        description: String,
-//        date: String,
-//        time: String
-//    ) -> Unit = { _, _, _, _, _, _, _ -> }
-//) {
-//    AddTransact(onDismiss = onDismiss, onSaveTransaction = onSaveTransaction)
-//}

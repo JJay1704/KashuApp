@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
-    private val repositoryFireBase : IAuthRepository = AuthRepository()
+class LoginVM(
+    private val authRepo : IAuthRepository = AuthRepository()
 ) : ViewModel(){
 
     private val _uiState = MutableStateFlow(LoginState())
@@ -46,14 +46,9 @@ class LoginViewModel(
 
 
 
-        val result = repositoryFireBase.login(email,password)
+        val result = authRepo.login(email,password)
 
         _uiState.update { it.copy(isLoading = false) }
-
-
-
-
-
 
 
         result.onSuccess {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -21,20 +22,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuLogo
 import com.kashuapp.core.navBar.HomeTab
+import com.kashuapp.ui.menu.KashuHomeMenu
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.TransactionView
 
 @Composable
-fun HomeScreen() {
-    var selectedTab by remember { mutableStateOf<HomeTab>(HomeTab.Home) }
-    var mostrarDialogo by remember { mutableStateOf(false) }
+fun HomeScreen(
 
+    onNavigateToCategory: () -> Unit = {}
+
+) {
+    var selectedTab by remember { mutableStateOf<HomeTab>(HomeTab.Home) }
     Scaffold(
-        containerColor = KashuTheme.colors.mainBackground,
-        bottomBar = {
+        containerColor = KashuTheme.colors.mainBackground, bottomBar = {
             NavigationBar(
                 containerColor = KashuTheme.colors.surface
             ) {
@@ -44,8 +46,7 @@ fun HomeScreen() {
                         onClick = { selectedTab = tab },
                         icon = {
                             Icon(
-                                imageVector = tab.icon,
-                                contentDescription = tab.title
+                                imageVector = tab.icon, contentDescription = tab.title
                             )
                         },
                         label = { Text(text = tab.title) },
@@ -59,8 +60,7 @@ fun HomeScreen() {
                     )
                 }
             }
-        }
-    ) { innerPadding ->
+        }) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -68,28 +68,31 @@ fun HomeScreen() {
         ) {
             when (selectedTab) {
                 is HomeTab.Home -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 24.dp, vertical = 24.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            KashuLogo(
-                                fontsize = 20,
-                                horizontalPadding = 0,
-                                verticalPadding = 0
-                            )
-                            KashuButton(
-                                onClickFun = { mostrarDialogo = true },
-                                text = "+"
-                            )
-                        }
+
+
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+
+                    )
+
+
+                    {
+
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+
+                                Box{
+
+                                    KashuHomeMenu(  onNavigateToCategory = onNavigateToCategory)
+
+                                }
+                            }
+
                     }
                 }
+
                 is HomeTab.Goals -> {
                     Box(
                         modifier = Modifier
@@ -98,36 +101,22 @@ fun HomeScreen() {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Metas de Ahorro",
-                            color = KashuTheme.colors.subtitle
+                            text = "Metas de Ahorro", color = KashuTheme.colors.subtitle
                         )
                     }
                 }
-                is HomeTab.Transaction -> {
 
+                is HomeTab.Transaction -> {
                     Column(
-                        modifier= Modifier.fillMaxSize()
-                        .padding(horizontal = 24.dp, vertical = 24.dp)
-                    ) {
-                        TransactionView()
-                    }
-                }
-                is HomeTab.Intento -> {
-                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(24.dp),
-                        contentAlignment = Alignment.Center
+                            .padding(horizontal = 24.dp, vertical = 24.dp)
                     ) {
-                        Text(
-                            text = "Pantalla de Prueba (Intento)",
-                            color = KashuTheme.colors.subtitle
-                        )
+                        TransactionView(onNavigateToCategory = onNavigateToCategory)
                     }
                 }
+
             }
-
-
         }
     }
 }

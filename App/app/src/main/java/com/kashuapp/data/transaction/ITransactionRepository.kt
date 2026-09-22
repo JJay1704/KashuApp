@@ -6,12 +6,7 @@ interface ITransactionRepository {
 
 
     suspend fun getAll(): Result<List<Transaction>>
-    suspend fun postTrans (trans : Transaction) : Result<PostgrestResult>
-
-
-
-
-
+    suspend fun postTrans(trans: Transaction): Result<Unit>
 
 
 }

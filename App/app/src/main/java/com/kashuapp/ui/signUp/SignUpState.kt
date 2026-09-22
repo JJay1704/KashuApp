@@ -1,6 +1,6 @@
 package com.kashuapp.ui.signUp
 
-data class RegisterState(
+data class SignUpState(
 
     val fullName : String = "",
     val lastName : String = "",
