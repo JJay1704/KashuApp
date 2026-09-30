@@ -1,4 +1,5 @@
 package com.kashuapp.core.composables
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,10 +63,10 @@ import androidx.compose.ui.unit.Dp
 @Composable
 fun KashuLogo(
     modifier: Modifier = Modifier,
-    fontsize : Int  = 14,
+    fontsize: Int = 14,
     horizontalPadding: Int = 20,
     verticalPadding: Int = 8
-){
+) {
     Text(
         text = "KASHU",
         color = KashuTheme.colors.mainColor,
@@ -75,8 +76,10 @@ fun KashuLogo(
         modifier = modifier.padding(
             horizontal = horizontalPadding.dp,
             vertical = verticalPadding.dp
-        )    )
+        )
+    )
 }
+
 @Composable
 fun KashuButton(
     modifier: Modifier = Modifier,
@@ -85,14 +88,14 @@ fun KashuButton(
     backColor: Color = KashuTheme.colors.mainColor,
     height: Int = 50,
     rounded: Int = 12,
-    textSize : Int = 16,
-    textColor : Color = KashuTheme.colors.title,
+    textSize: Int = 16,
+    textColor: Color = KashuTheme.colors.title,
     enabled: Boolean = true,
     isLoading: Boolean = false
 ) {
     Button(
 
-                onClick = onClickFun,
+        onClick = onClickFun,
         modifier = modifier.height(height.dp),
         shape = RoundedCornerShape(rounded.dp),
         colors = ButtonDefaults.buttonColors(
@@ -101,7 +104,7 @@ fun KashuButton(
         ),
         contentPadding = PaddingValues(0.dp),
 
-    ) {
+        ) {
         Text(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
@@ -111,30 +114,29 @@ fun KashuButton(
             color = textColor
 
 
-
-
         )
 
-    if (isLoading){
+        if (isLoading) {
 
-        CircularProgressIndicator(
-            modifier = Modifier.size(22.dp),
-            color = textColor,
-            strokeWidth = 2.5.dp
-        )
-    }else{
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            text = text,
-            fontSize = textSize.sp,
-            fontWeight = FontWeight.Bold,
-            color = textColor
-        )
-    }
+            CircularProgressIndicator(
+                modifier = Modifier.size(22.dp),
+                color = textColor,
+                strokeWidth = 2.5.dp
+            )
+        } else {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                text = text,
+                fontSize = textSize.sp,
+                fontWeight = FontWeight.Bold,
+                color = textColor
+            )
+        }
 
     }
 }
+
 @Composable
 fun KashuMenuButton(
 
@@ -142,8 +144,8 @@ fun KashuMenuButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     size: Dp = 38.dp,
-    backgroundColor : Color = KashuTheme.colors.mainColor,
-    textColor : Color = Color.White
+    backgroundColor: Color = KashuTheme.colors.mainColor,
+    textColor: Color = Color.White
 
 ) {
 
@@ -173,23 +175,21 @@ fun KashuMenuButton(
     }
 
 
-
-
 }
 
 
 @Composable
 fun KashuTextField(
     modifier: Modifier = Modifier,
-    label  : String = "",
-    sizeLabel : Int = 14,
-    extraLabel : String = "",
+    label: String = "",
+    sizeLabel: Int = 14,
+    extraLabel: String = "",
     onExtraClick: () -> Unit = {},
-    type : String ="",
-    onType : (String) -> Unit,
-    placeholder : String = "",
+    type: String = "",
+    onType: (String) -> Unit,
+    placeholder: String = "",
     isError: Boolean = false,
-    colorPlaceHolder : Color = Color.Black,
+    colorPlaceHolder: Color = Color.Black,
     iconInput: ImageVector = Icons.Default.Email,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -203,14 +203,14 @@ fun KashuTextField(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if(label.isNotBlank()){
+            if (label.isNotBlank()) {
                 Text(
                     fontSize = sizeLabel.sp,
                     text = label,
                     color = KashuTheme.colors.title
                 )
             }
-            if (extraLabel.isNotBlank()){
+            if (extraLabel.isNotBlank()) {
                 Text(
                     fontSize = sizeLabel.sp,
                     text = extraLabel,
@@ -223,18 +223,20 @@ fun KashuTextField(
         OutlinedTextField(
 
 
-                    value = type,
-            onValueChange = onType ,
-            placeholder = { Text(placeholder , color = colorPlaceHolder ) },
+            value = type,
+            onValueChange = onType,
+            placeholder = { Text(placeholder, color = colorPlaceHolder) },
             isError = isError,
             supportingText = {
 
 
-                if (isError && !errorMessage.isNullOrBlank()){
+                if (isError && !errorMessage.isNullOrBlank()) {
 
-                    Text(text = errorMessage,
+                    Text(
+                        text = errorMessage,
                         color = Color.Red,
-                        fontSize = 12.sp)
+                        fontSize = 12.sp
+                    )
 
                 }
             },
@@ -251,7 +253,7 @@ fun KashuTextField(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.Unspecified ,
+                focusedContainerColor = Color.Unspecified,
                 unfocusedContainerColor = Color.Unspecified,
                 errorTextColor = KashuTheme.colors.title,
                 errorBorderColor = Color.Red,
@@ -271,8 +273,6 @@ fun KashuTextField(
 }
 
 
-
-
 @Composable
 fun <T> KashuDropdownField(
     modifier: Modifier = Modifier,
@@ -284,8 +284,13 @@ fun <T> KashuDropdownField(
     itemLabel: (T) -> String = { it.toString() },
     onItemSelected: (T) -> Unit,
     extraActionLabel: String? = null,
-    onExtraActionClick: (() -> Unit)? = null
+    onExtraActionClick: (() -> Unit)? = null,
+    hasError: Boolean = false,
+    labelError: String? = null
+
 ) {
+
+
     var isExpanded by remember { mutableStateOf(false) }
     Column(modifier = modifier.fillMaxWidth()) {
         if (label.isNotBlank()) {
@@ -315,7 +320,7 @@ fun <T> KashuDropdownField(
                     Icon(icon, contentDescription = label)
                 },
                 trailingIcon = {
-                    IconButton (onClick = { isExpanded = !isExpanded }) {
+                    IconButton(onClick = { isExpanded = !isExpanded }) {
                         Icon(
                             imageVector = if (isExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                             contentDescription = "Desplegar"
@@ -323,6 +328,7 @@ fun <T> KashuDropdownField(
                     }
                 }
             )
+
             Box(
                 modifier = Modifier
                     .matchParentSize()
@@ -352,6 +358,9 @@ fun <T> KashuDropdownField(
                         }
                     )
                 }
+
+
+
                 if (extraActionLabel != null && onExtraActionClick != null) {
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 4.dp),
@@ -377,9 +386,28 @@ fun <T> KashuDropdownField(
                             isExpanded = false
                             onExtraActionClick()
                         }
+
+
                     )
                 }
+
             }
+
+
         }
+
+
+
+        if (hasError && !labelError.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = labelError,
+                color = Color(0xFFEF4444),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+
+
     }
 }

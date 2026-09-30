@@ -56,15 +56,26 @@ class AddTransVM(
     }
 
 
-    fun onType(newType: String) {
+    fun onType(SelectedType: String) {
 
-        _uiStateTran.update { it.copy(type = newType) }
+        _uiStateTran.update { it.copy(selectedTypeTrans = SelectedType) }
 
 
     }
 
     fun onAmount(newAmount: String) {
-        _uiStateTran.update { it.copy(amount = newAmount) }
+        _uiStateTran.update { it.copy(amount = newAmount, isAmountError = null) }
+    }
+
+    fun onAccount(newAccount: Account) {
+        _uiStateTran.update {
+            it.copy(
+                accountName = newAccount.name,
+                accountId = newAccount.id,
+                isAccountError = null,
+
+                )
+        }
     }
 
     fun onCategory(newCategory: Category) {
@@ -72,19 +83,12 @@ class AddTransVM(
             it.copy(
 
                 categoryName = newCategory.name,
-                categoryId = newCategory.id ?: ""
+                categoryId = newCategory.id ?: "",
+                isCategoryError = null
             )
         }
     }
 
-    fun onAccount(newAccount: Account) {
-        _uiStateTran.update {
-            it.copy(
-                accountName = newAccount.name,
-                accountId = newAccount.id
-            )
-        }
-    }
 
     fun onDate(newDate: String) {
         _uiStateTran.update { it.copy(date = newDate) }
@@ -106,21 +110,38 @@ class AddTransVM(
 
         val stateValues = _uiStateTran.value
         val amountDouble = stateValues.amount.toDoubleOrNull()
-        if (amountDouble == null || amountDouble <= 0.0) {
-            _uiStateTran.update { it.copy(errorMessage = "Ingresa un monto válido mayor a 0") }
+
+
+        val errorAmount =
+            if (amountDouble == null || amountDouble <= 0.0) "Ingrese monto valido mayor a 0  " else null
+
+        val errorAccount =
+            if (stateValues.accountId.isBlank()) "Seleccione Cuenta valida" else null
+
+        val errorCategory =
+            if (stateValues.categoryId.isBlank()) "Seleccione Categoria valida" else null
+
+        val hasAnyError = errorAmount != null || errorAccount != null || errorCategory != null
+        if (hasAnyError) {
+            _uiStateTran.update {
+                it.copy(
+                    isAmountError = errorAmount,
+                    isAccountError = errorAccount,
+                    isCategoryError = errorCategory,
+
+                    )
+            }
             return
         }
-        if (stateValues.accountId.isBlank() || stateValues.categoryId.isBlank()) {
-            _uiStateTran.update { it.copy(errorMessage = "Selecciona una cuenta y una categoría") }
-            return
-        }
+
+
         val transPost = Transaction(
 
             userId = currentUserId.id,
-            amount = amountDouble,
+            amount = amountDouble!!,
             accountId = stateValues.accountId,
             categoryId = stateValues.categoryId,
-            type = stateValues.type.ifEmpty { "EXPENSE" },
+            type = stateValues.selectedTypeTrans.ifEmpty { "EXPENSE" },
             description = stateValues.description,
             transactionDate = "$date $time"
         )

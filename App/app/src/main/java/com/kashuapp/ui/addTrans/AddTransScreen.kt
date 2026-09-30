@@ -53,7 +53,7 @@ fun AddTransact(
     onNavigateToCategory: () -> Unit = {},
 
 
-) {
+    ) {
     LaunchedEffect(Unit) {
         viewModel.loadCategories()
         viewModel.loadAccounts()
@@ -62,8 +62,6 @@ fun AddTransact(
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         viewModel.onDate(dateFormat.format(calendar.time))
         viewModel.onTime(timeFormat.format(calendar.time))
-
-
     }
     val uiState by viewModel.uiStateTran.collectAsState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -109,8 +107,8 @@ fun AddTransact(
                     text = "Expense",
                     height = 42,
                     rounded = 10,
-                    backColor = if (uiState.type != "INCOME") Color(0xFFEF4444) else Color.Transparent,
-                    textColor = if (uiState.type != "INCOME") Color.White else KashuTheme.colors.subtitle,
+                    backColor = if (uiState.selectedTypeTrans != "INCOME") Color(0xFFEF4444) else Color.Transparent,
+                    textColor = if (uiState.selectedTypeTrans != "INCOME") Color.White else KashuTheme.colors.subtitle,
                     onClickFun = { viewModel.onType("EXPENSE") })
 
 
@@ -120,8 +118,8 @@ fun AddTransact(
                     text = "Income",
                     height = 42,
                     rounded = 10,
-                    backColor = if (uiState.type == "INCOME") KashuTheme.colors.mainColor else Color.Transparent,
-                    textColor = if (uiState.type == "INCOME") Color.Black else KashuTheme.colors.subtitle,
+                    backColor = if (uiState.selectedTypeTrans == "INCOME") KashuTheme.colors.mainColor else Color.Transparent,
+                    textColor = if (uiState.selectedTypeTrans == "INCOME") Color.Black else KashuTheme.colors.subtitle,
                     onClickFun = { viewModel.onType("INCOME") })
 
             }
@@ -139,10 +137,11 @@ fun AddTransact(
                 colorPlaceHolder = KashuTheme.colors.subtitle,
                 iconInput = Icons.Default.AttachMoney,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                trailingIcon = null
+                trailingIcon = null,
+                isError =uiState.isAmountError!=null,
+                errorMessage = uiState.isAmountError
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
 
 
 
@@ -150,20 +149,24 @@ fun AddTransact(
             KashuDropdownField(
                 label = "Account",
                 selectedValue = uiState.accountName,
-
                 icon = Icons.Default.AccountCircle,
                 items = viewModel.accounts,
                 itemLabel = { it.name },
                 onItemSelected = { selectedAccount ->
                     viewModel.onAccount(selectedAccount)
-                })
+
+                },
+                hasError = uiState.isAccountError!= null,
+                labelError = uiState.isAccountError
+            )
 
 
 
             Spacer(modifier = Modifier.height(16.dp))
 
             KashuDropdownField(
-
+                hasError = uiState.isCategoryError!= null,
+                labelError = uiState.isCategoryError,
                 label = "Category",
                 selectedValue = uiState.categoryName,
                 placeholder = "Seleccionar categoría",
@@ -227,11 +230,6 @@ fun AddTransact(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-
-
-
-
-
             KashuButton(
                 modifier = Modifier.fillMaxWidth(),
 
@@ -246,8 +244,7 @@ fun AddTransact(
 
                         )
                 },
-
-                )
+            )
         }
     }
 }

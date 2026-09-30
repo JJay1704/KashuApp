@@ -7,17 +7,29 @@ import kotlinx.serialization.SerialName
 data class AddTransState(
     val id: String? = null,
     val userId: String ?= null,
-    val type: String = "",
-    val description: String = "",
+
+    val selectedTypeTrans : String = "EXPENSE",
+
     val amount: String = "",
-    val accountName: String = "",
+    val isAmountError: String?=null,
+
     val accountId: String = "",
-    val categoryName: String = "",
+    val accountName: String = "",
+    val isAccountError: String?=null,
+
     val categoryId: String = "",
-    val selectedAccount: Account? = null,
-    val selectedCategory: Category? = null,
+    val categoryName: String = "",
+    val isCategoryError: String?=null,
+
     val date: String = "",
     val time: String = "",
+    val description: String = "",
+
+//
+//    val categories: List<Category> = emptyList(),
+//    val accounts: List<Account> = emptyList(),
+    val selectedAccount: Account? = null,
+    val selectedCategory: Category? = null,
     val errorMessage : String = "",
 
 
