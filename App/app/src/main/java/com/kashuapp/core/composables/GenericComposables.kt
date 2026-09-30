@@ -193,7 +193,10 @@ fun KashuTextField(
     iconInput: ImageVector = Icons.Default.Email,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    trailingIcon: @Composable (() -> Unit)?
+    trailingIcon: @Composable (() -> Unit)?,
+    errorMessage: String? = null
+
+
 ) {
     Column(modifier = modifier) {
         Row(
@@ -224,6 +227,19 @@ fun KashuTextField(
             onValueChange = onType ,
             placeholder = { Text(placeholder , color = colorPlaceHolder ) },
             isError = isError,
+            supportingText = {
+
+
+                if (isError && !errorMessage.isNullOrBlank()){
+
+                    Text(text = errorMessage,
+                        color = Color.Red,
+                        fontSize = 12.sp)
+
+                }
+            },
+
+
             leadingIcon = {
                 Icon(iconInput, contentDescription = label, tint = colorPlaceHolder)
             },
@@ -237,6 +253,11 @@ fun KashuTextField(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.Unspecified ,
                 unfocusedContainerColor = Color.Unspecified,
+                errorTextColor = KashuTheme.colors.title,
+                errorBorderColor = Color.Red,
+                errorLeadingIconColor = Color.Red,
+                errorTrailingIconColor = Color.Red,
+                errorPlaceholderColor = colorPlaceHolder,
                 focusedBorderColor = KashuTheme.colors.mainColor,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                 focusedTextColor = KashuTheme.colors.title,
@@ -244,6 +265,8 @@ fun KashuTextField(
             )
 
         )
+
+
     }
 }
 

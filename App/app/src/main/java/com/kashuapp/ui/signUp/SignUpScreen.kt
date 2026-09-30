@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +46,7 @@ import com.kashuapp.core.composables.KashuLogo
 import com.kashuapp.core.composables.KashuTextField
 import com.kashuapp.ui.login.Subtitle
 import com.kashuapp.ui.theme.KashuTheme
+
 @Composable
 fun RegisterView(
     onNavigateToHome: () -> Unit,
@@ -81,7 +81,9 @@ fun RegisterView(
         Spacer(modifier = Modifier.height(8.dp))
         Subtitle("Sign up to get started", KashuTheme.colors.subtitle)
         Spacer(modifier = Modifier.height(24.dp))
-        KashuTextField (
+        KashuTextField(
+            errorMessage = uiState.isFullNameError,
+
             label = "Name",
             type = uiState.fullName,
             onType = { viewModel.onName(it) },
@@ -89,43 +91,50 @@ fun RegisterView(
             iconInput = Icons.Default.VerifiedUser,
             colorPlaceHolder = Color.Gray,
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                capitalization = KeyboardCapitalization.Words
+                keyboardType = KeyboardType.Text, capitalization = KeyboardCapitalization.Words
             ),
-            trailingIcon = null
+            trailingIcon = null,
+            isError = uiState.isFullNameError != null
         )
-        Spacer(modifier = Modifier.height(14.dp))
+//        Spacer(modifier = Modifier.height(14.dp))
         KashuTextField(
             label = "Email",
+            errorMessage = uiState.isEmailError,
+
             type = uiState.email,
             onType = { viewModel.onEmail(it) },
             placeholder = "user@email.com",
             iconInput = Icons.Default.Email,
             colorPlaceHolder = Color.Gray,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            trailingIcon = null
+            trailingIcon = null,
+            isError = uiState.isEmailError != null
         )
-        Spacer(modifier = Modifier.height(14.dp))
+//        Spacer(modifier = Modifier.height(14.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             KashuTextField(
                 modifier = Modifier.weight(1f),
                 label = "Father Name",
+                errorMessage = uiState.isErrorFatherName,
+
                 type = uiState.fatherName,
                 onType = { viewModel.onFatherName(it) },
                 placeholder = "Perez",
                 iconInput = Icons.Default.Person,
                 colorPlaceHolder = Color.Gray,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    capitalization = KeyboardCapitalization.Words
+                    keyboardType = KeyboardType.Text, capitalization = KeyboardCapitalization.Words
                 ),
-                trailingIcon = null
+                trailingIcon = null,
+                isError = uiState.isErrorFatherName != null
+
             )
 
             KashuTextField(
+                errorMessage = uiState.isErrorMotherName,
+
                 modifier = Modifier.weight(1f),
                 label = "Mother Name",
                 type = uiState.motherName,
@@ -134,15 +143,16 @@ fun RegisterView(
                 iconInput = Icons.Default.Person,
                 colorPlaceHolder = Color.Gray,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    capitalization = KeyboardCapitalization.Words
+                    keyboardType = KeyboardType.Text, capitalization = KeyboardCapitalization.Words
                 ),
                 trailingIcon = null
             )
         }
-        Spacer(modifier = Modifier.height(14.dp))
+//        Spacer(modifier = Modifier.height(14.dp))
 
         KashuTextField(
+            isError = uiState.isPasswordError != null,
+            errorMessage = uiState.isPasswordError,
             label = "Password",
             type = uiState.password,
             onType = { viewModel.onPassword(it) },
@@ -159,10 +169,12 @@ fun RegisterView(
                         tint = Color.Gray
                     )
                 }
-            }
-        )
-        Spacer(modifier = Modifier.height(14.dp))
+            })
+//        Spacer(modifier = Modifier.height(14.dp))
         KashuTextField(
+            errorMessage = uiState.confirmPasswordError,
+
+            isError = uiState.confirmPasswordError != null,
             label = "Confirm Password",
             type = uiState.confirmPassword,
             onType = { viewModel.onConfirmPassword(it) },
@@ -179,9 +191,8 @@ fun RegisterView(
                         tint = Color.Gray
                     )
                 }
-            }
-        )
-        Spacer(modifier = Modifier.height(10.dp))
+            })
+//        Spacer(modifier = Modifier.height(10.dp))
         if (uiState.errorMessage.isNotBlank()) {
             Text(
                 text = uiState.errorMessage,
@@ -206,7 +217,7 @@ fun RegisterView(
         ) {
             Text(
                 text = "Already have an account? ",
-                color = MaterialTheme.colorScheme.primary,
+                color = KashuTheme.colors.title,
                 fontSize = 14.sp
             )
             Text(
@@ -214,8 +225,7 @@ fun RegisterView(
                 color = KashuTheme.colors.mainColor,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                modifier = Modifier.clickable { onNavigateToLogin() }
-            )
+                modifier = Modifier.clickable { onNavigateToLogin() })
         }
     }
 }

@@ -192,7 +192,7 @@ fun LoginScreen(
             ) {
                 Text(
                     text = "Don't Have an Account? ",
-                    color = MaterialTheme.colorScheme.primary,
+                    color = KashuTheme.colors.title,
                     fontSize = 14.sp
                 )
                 Text(
