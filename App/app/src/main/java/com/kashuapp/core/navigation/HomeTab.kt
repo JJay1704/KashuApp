@@ -1,10 +1,9 @@
-package com.kashuapp.core.navBar
+package com.kashuapp.core.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.SwipeUpAlt
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class HomeTab(

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -22,8 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kashuapp.core.composables.KashuLogo
-import com.kashuapp.core.navBar.HomeTab
+import com.kashuapp.core.navigation.HomeTab
 import com.kashuapp.ui.menu.KashuHomeMenu
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.TransactionView
