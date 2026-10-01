@@ -1,11 +1,8 @@
 package com.kashuapp.ui.addTrans
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kashuapp.data.KashuSupaBase
 import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.transaction.TransactionRepository
 import com.kashuapp.data.accounts.Account
@@ -28,8 +25,7 @@ class AddTransVM(
     private val accountRepo: IAccountRepository = AccountRepository(),
     private val authrepo: IAuthRepository = AuthRepository()
 ) : ViewModel() {
-    var categories by mutableStateOf<List<Category>>(emptyList())
-    var accounts by mutableStateOf<List<Account>>(emptyList())
+
     private val _uiStateTran = MutableStateFlow(AddTransState())
     val uiStateTran = _uiStateTran.asStateFlow()
     fun loadCategories() {
@@ -38,8 +34,8 @@ class AddTransVM(
             val userId = authrepo.getCurrentUserId().id
 
             val result = catRepo.getAllCateg(userId)
-            result.onSuccess { listaDesdeBaseDeDatos ->
-                categories = listaDesdeBaseDeDatos
+            result.onSuccess { listFromDB ->
+                _uiStateTran.update { it.copy(categories = listFromDB) }
             }
             result.onFailure { error ->
                 println("Error al cargar categorías: ${error.message}")
@@ -50,15 +46,19 @@ class AddTransVM(
     fun loadAccounts() {
         viewModelScope.launch {
             val resultAcc = accountRepo.getAllAccount()
-            resultAcc.onSuccess { listdatabase -> accounts = listdatabase }
+            resultAcc.onSuccess { listDB ->
+                _uiStateTran.update { it.copy(accounts = listDB) }
+
+
+            }
             resultAcc.onFailure { error -> println(error.message) }
         }
     }
 
 
-    fun onType(SelectedType: String) {
+    fun onType(selectedType: String) {
 
-        _uiStateTran.update { it.copy(selectedTypeTrans = SelectedType) }
+        _uiStateTran.update { it.copy(selectedTypeTrans = selectedType) }
 
 
     }
@@ -77,7 +77,6 @@ class AddTransVM(
                 )
         }
     }
-
     fun onCategory(newCategory: Category) {
         _uiStateTran.update {
             it.copy(
@@ -88,35 +87,23 @@ class AddTransVM(
             )
         }
     }
-
-
     fun onDate(newDate: String) {
         _uiStateTran.update { it.copy(date = newDate) }
     }
-
     fun onTime(newTime: String) {
         _uiStateTran.update { it.copy(time = newTime) }
     }
-
     fun onDescription(newDescription: String) {
         _uiStateTran.update { it.copy(description = newDescription) }
     }
-
     fun postTrans(date: String, time: String, onSuccess: () -> Unit) {
-
-
         val currentUserId = authrepo.getCurrentUserId()
-
-
         val stateValues = _uiStateTran.value
         val amountDouble = stateValues.amount.toDoubleOrNull()
-
-
         val errorAmount =
             if (amountDouble == null || amountDouble <= 0.0) "Ingrese monto valido mayor a 0  " else null
 
-        val errorAccount =
-            if (stateValues.accountId.isBlank()) "Seleccione Cuenta valida" else null
+        val errorAccount = if (stateValues.accountId.isBlank()) "Seleccione Cuenta valida" else null
 
         val errorCategory =
             if (stateValues.categoryId.isBlank()) "Seleccione Categoria valida" else null
@@ -128,15 +115,11 @@ class AddTransVM(
                     isAmountError = errorAmount,
                     isAccountError = errorAccount,
                     isCategoryError = errorCategory,
-
                     )
             }
             return
         }
-
-
         val transPost = Transaction(
-
             userId = currentUserId.id,
             amount = amountDouble!!,
             accountId = stateValues.accountId,
@@ -149,13 +132,10 @@ class AddTransVM(
             val resultPost = transRepo.postTrans(transPost)
             resultPost.onSuccess {
                 onSuccess()
-
             }
             resultPost.onFailure { error -> println(error) }
         }
     }
-
-
 }
 
 

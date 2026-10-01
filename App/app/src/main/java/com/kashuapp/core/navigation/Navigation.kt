@@ -16,7 +16,7 @@ import com.kashuapp.ui.theme.KashuAppTheme
 
 
 @Composable
-fun Navigation(){
+fun Navigation() {
 
 
     KashuAppTheme() {
@@ -28,45 +28,43 @@ fun Navigation(){
                 navController = navController,
                 startDestination = "login"
 
-            ){
-                composable ("login")
-                {
+            ) {
+                composable("login") {
 
-                    LoginScreen(
-                        onNavigateToHome = {
-                            navController.navigate("home") {
+                    LoginScreen(onNavigateToHome = {
+                        navController.navigate("home") {
 
-                                popUpTo("login") { inclusive = true }
-                            }
-                        },
-                        onNavigateToRegister = {
-                            navController.navigate("register")
+                            popUpTo("login") { inclusive = true }
                         }
-                    )
+                    }, onNavigateToRegister = {
+                        navController.navigate("register")
+                    })
                 }
-                composable("home"){
-                    HomeScreen(
-                        onNavigateToCategory = {
-                            navController.navigate("category")
+                composable("home") {
+                    HomeScreen(onNavigateToCategory = {
+                        navController.navigate("category")
+                    }, onLogout = {
+
+                        navController.navigate("login") {
+
+                            popUpTo(0) { inclusive = true }
                         }
+                    }
 
                     )
 
                 }
-                composable("register"){
-                    RegisterView(
-                        onNavigateToHome = {
-                            navController.navigate("home")
-                        },
-                        onNavigateToLogin = {navController.navigate("login")})
+                composable("register") {
+                    RegisterView(onNavigateToHome = {
+                        navController.navigate("home")
+                    }, onNavigateToLogin = { navController.navigate("login") })
 
                 }
 
 
-                composable ("category"){
+                composable("category") {
                     CategoryScreen(
-                        onBackToHome = {navController.navigate("home")}
-                    )
+                        onBackToHome = { navController.navigate("home") })
                 }
 
             }

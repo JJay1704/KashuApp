@@ -7,6 +7,8 @@ interface IAuthRepository {
 
     suspend fun login(email: String, password: String): Result<UserInfo>
 
+
+    suspend fun logOut():Result<Unit>
     suspend fun signUp(
         email: String,
         password: String,

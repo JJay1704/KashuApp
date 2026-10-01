@@ -56,7 +56,9 @@ fun KashuHomeMenu(
     size: Dp = 38.dp,
     onNavigateToCategory: () -> Unit = {},
     onTabSelected: (String) -> Unit = {},
-    viewModel: MenuVM = viewModel()
+    onCloseMenu: () -> Unit = {},
+    viewModel: MenuVM = viewModel(),
+            onLogout: () -> Unit = {}
 
 
 ) {
@@ -70,15 +72,16 @@ fun KashuHomeMenu(
     val initials = userTexts[1]
 
     KashuMenuButton(
-        initials = initials,
-        size = size,
-        modifier = modifier,
-        onClick = { isMenuOpen = true }
+
+        initials = initials, size = size, modifier = modifier, onClick = { isMenuOpen = true }
+
+
+
+
     )
     if (isMenuOpen) {
         Dialog(
-            onDismissRequest = { isMenuOpen = false },
-            properties = DialogProperties(
+            onDismissRequest = { isMenuOpen = false }, properties = DialogProperties(
                 usePlatformDefaultWidth = false,
                 dismissOnBackPress = true,
                 dismissOnClickOutside = true
@@ -90,8 +93,7 @@ fun KashuHomeMenu(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { isMenuOpen = false }
-            ) {
+                    ) { isMenuOpen = false }) {
                 AnimatedVisibility(
                     visible = isMenuOpen,
                     enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(),
@@ -101,7 +103,7 @@ fun KashuHomeMenu(
                     ModalDrawerSheet(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .width(200.dp)
+                            .width(250.dp)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
@@ -141,10 +143,7 @@ fun KashuHomeMenu(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 KashuMenuButton(
-                                    initials = initials,
-                                    size = 50.dp,
-                                    onClick = {}
-                                )
+                                    initials = initials, size = 50.dp, onClick = {})
                                 Column {
                                     Text(
                                         text = userName,
@@ -172,22 +171,23 @@ fun KashuHomeMenu(
 
 
 
-                            MenuTab.tabs.forEach {tab -> KashuitemMenu(
-                                title = tab.title,
-                                icon = tab.icon,
-                                isSelected = selectedTab== tab,
-                                onClick = {
+                            MenuTab.tabs.forEach { tab ->
+                                KashuitemMenu(
+                                    title = tab.title,
+                                    icon = tab.icon,
+                                    isSelected = selectedTab == tab,
+                                    onClick = {
 
-                                    selectedTab = tab
-                                    isMenuOpen = false
-                                    when (tab){
+                                        selectedTab = tab
+                                        isMenuOpen = false
+                                        when (tab) {
 
-                                        is MenuTab.Categories -> onNavigateToCategory()
-                                        is MenuTab.Profile -> { }
-                                        is MenuTab.Settings -> { }
-                                    }
-                                }
-                            )}
+                                            is MenuTab.Categories -> onNavigateToCategory()
+                                            is MenuTab.Profile -> {}
+                                            is MenuTab.Settings -> {}
+                                        }
+                                    })
+                            }
 
 
 
@@ -214,6 +214,7 @@ fun KashuHomeMenu(
                                 ),
                                 onClick = {
                                     isMenuOpen = false
+                                    viewModel.logOut(onSuccess = onLogout)
                                     onTabSelected("Cerrar Sesión")
                                 },
                                 modifier = Modifier.padding(vertical = 4.dp)

@@ -78,20 +78,15 @@ fun TransactionView(
             Box(
                 modifier = Modifier.weight(0.8f),
             ) {
-                KashuLogo(
-                    fontsize = 20,
-                    horizontalPadding = 0,
-                    verticalPadding = 0
-                )
 
             }
 
-            KashuButton(
-                modifier = Modifier.weight(0.2f),
-                height = 36,
-                onClickFun = { mostrarDialogo = true },
-                text = "+"
-            )
+//            KashuButton(
+//                modifier = Modifier.weight(0.2f),
+//                height = 36,
+//                onClickFun = { mostrarDialogo = true },
+//                text = "+"
+//            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -13,14 +13,19 @@ import com.kashuapp.data.category.ICategoryRepository
 import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.data.transaction.TransactionRepository
+import com.kashuapp.ui.category.CategoryState
+import com.kashuapp.ui.login.LoginState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class TransactionVM(
 
     private val transRepo: ITransactionRepository = TransactionRepository(),
     private val catRepo: ICategoryRepository = CategoryRepository(),
-    private val authRepo : IAuthRepository = AuthRepository()
-    ): ViewModel() {
+    private val authRepo: IAuthRepository = AuthRepository()
+) : ViewModel() {
 
     var transactions by mutableStateOf<List<Transaction>>(emptyList())
     var categories by mutableStateOf<List<Category>>(emptyList())
@@ -34,25 +39,27 @@ class TransactionVM(
             catRepo.getAllCateg(authRepo.getCurrentUserId().id).onSuccess { categories = it }
         }
     }
+
     fun getCategoryName(categoryId: String): String {
         return categories.find { it.id == categoryId }?.name ?: "Sin categoría"
     }
-fun getTrans() {
 
-    viewModelScope.launch {
+    fun getTrans() {
 
-        val result = transRepo.getAll()
-        result.onSuccess { list ->
-            transactions = list
+        viewModelScope.launch {
+
+            val result = transRepo.getAll()
+            result.onSuccess { list ->
+                transactions = list
 
 
-    }
-        result.onFailure { error ->
-            println("Error al obtener transacciones: ${error.message}")
+            }
+            result.onFailure { error ->
+                println("Error al obtener transacciones: ${error.message}")
             }
 
-}
+        }
 
-}
+    }
 
 }

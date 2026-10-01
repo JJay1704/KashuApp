@@ -79,8 +79,14 @@ class AuthRepository : IAuthRepository {
     }
 
 
-
-
+    override suspend fun logOut(): Result<Unit> {
+        return try {
+            KashuSupaBase.auth.signOut()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
 
     override suspend fun signUp(

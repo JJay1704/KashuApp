@@ -49,8 +49,10 @@ import androidx.compose.material3.CircularProgressIndicator
 
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBar
 
 import androidx.compose.runtime.getValue
 
@@ -59,6 +61,10 @@ import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kashuapp.ui.addTrans.AddTransact
+import com.kashuapp.ui.menu.KashuHomeMenu
+import com.kashuapp.ui.transaction.TransactionVM
 
 @Composable
 fun KashuLogo(
@@ -74,8 +80,7 @@ fun KashuLogo(
         fontSize = fontsize.sp,
         letterSpacing = 2.sp,
         modifier = modifier.padding(
-            horizontal = horizontalPadding.dp,
-            vertical = verticalPadding.dp
+            horizontal = horizontalPadding.dp, vertical = verticalPadding.dp
         )
     )
 }
@@ -119,9 +124,7 @@ fun KashuButton(
         if (isLoading) {
 
             CircularProgressIndicator(
-                modifier = Modifier.size(22.dp),
-                color = textColor,
-                strokeWidth = 2.5.dp
+                modifier = Modifier.size(22.dp), color = textColor, strokeWidth = 2.5.dp
             )
         } else {
             Text(
@@ -162,8 +165,7 @@ fun KashuMenuButton(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = onClick
-                ),
-            contentAlignment = Alignment.Center
+                ), contentAlignment = Alignment.Center
         ) {
             Text(
                 text = initials.uppercase(),
@@ -200,14 +202,11 @@ fun KashuTextField(
 ) {
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (label.isNotBlank()) {
                 Text(
-                    fontSize = sizeLabel.sp,
-                    text = label,
-                    color = KashuTheme.colors.title
+                    fontSize = sizeLabel.sp, text = label, color = KashuTheme.colors.title
                 )
             }
             if (extraLabel.isNotBlank()) {
@@ -233,9 +232,7 @@ fun KashuTextField(
                 if (isError && !errorMessage.isNullOrBlank()) {
 
                     Text(
-                        text = errorMessage,
-                        color = Color.Red,
-                        fontSize = 12.sp
+                        text = errorMessage, color = Color.Red, fontSize = 12.sp
                     )
 
                 }
@@ -295,9 +292,7 @@ fun <T> KashuDropdownField(
     Column(modifier = modifier.fillMaxWidth()) {
         if (label.isNotBlank()) {
             Text(
-                text = label,
-                fontSize = 14.sp,
-                color = KashuTheme.colors.title
+                text = label, fontSize = 14.sp, color = KashuTheme.colors.title
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
@@ -326,15 +321,13 @@ fun <T> KashuDropdownField(
                             contentDescription = "Desplegar"
                         )
                     }
-                }
-            )
+                })
 
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { isExpanded = true }
-            )
+                    .clickable { isExpanded = true })
             DropdownMenu(
                 expanded = isExpanded,
                 onDismissRequest = { isExpanded = false },
@@ -344,19 +337,16 @@ fun <T> KashuDropdownField(
             ) {
                 items.forEach { item ->
                     val text = itemLabel(item)
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = text,
-                                color = if (text == selectedValue) KashuTheme.colors.mainColor else KashuTheme.colors.title,
-                                fontWeight = if (text == selectedValue) FontWeight.Bold else FontWeight.Normal
-                            )
-                        },
-                        onClick = {
-                            onItemSelected(item)
-                            isExpanded = false
-                        }
-                    )
+                    DropdownMenuItem(text = {
+                        Text(
+                            text = text,
+                            color = if (text == selectedValue) KashuTheme.colors.mainColor else KashuTheme.colors.title,
+                            fontWeight = if (text == selectedValue) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }, onClick = {
+                        onItemSelected(item)
+                        isExpanded = false
+                    })
                 }
 
 
@@ -366,26 +356,24 @@ fun <T> KashuDropdownField(
                         modifier = Modifier.padding(vertical = 4.dp),
                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                     )
-                    DropdownMenuItem(
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Agregar",
-                                    tint = KashuTheme.colors.mainColor
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "+ $extraActionLabel",
-                                    color = KashuTheme.colors.mainColor,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        },
-                        onClick = {
-                            isExpanded = false
-                            onExtraActionClick()
+                    DropdownMenuItem(text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Agregar",
+                                tint = KashuTheme.colors.mainColor
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "+ $extraActionLabel",
+                                color = KashuTheme.colors.mainColor,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
+                    }, onClick = {
+                        isExpanded = false
+                        onExtraActionClick()
+                    }
 
 
                     )
@@ -411,3 +399,44 @@ fun <T> KashuDropdownField(
 
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+
+@Composable
+fun KashuTopBar(
+    modifier: Modifier = Modifier,
+    onNavigateToCategory: () -> Unit = {},
+    onLogout: () -> Unit = {},
+    onNewTrans: () -> Unit = {},
+
+
+    ) {
+
+    TopAppBar(modifier = Modifier.padding(horizontal = 15.dp), navigationIcon = {
+
+        KashuHomeMenu(
+            onNavigateToCategory = onNavigateToCategory, onLogout = onLogout
+        )
+    }, title = {
+
+        KashuLogo(
+            fontsize = 20, horizontalPadding = 4
+        )
+    }, actions = {
+        IconButton(
+            onClick = onNewTrans, Modifier.background(color = KashuTheme.colors.mainColor)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Nueva Transacción",
+                tint = KashuTheme.colors.title
+            )
+        }
+
+//
+
+    }
+
+    )
+}
+

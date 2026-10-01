@@ -150,7 +150,7 @@ fun AddTransact(
                 label = "Account",
                 selectedValue = uiState.accountName,
                 icon = Icons.Default.AccountCircle,
-                items = viewModel.accounts,
+                items =uiState.accounts,
                 itemLabel = { it.name },
                 onItemSelected = { selectedAccount ->
                     viewModel.onAccount(selectedAccount)
@@ -171,7 +171,7 @@ fun AddTransact(
                 selectedValue = uiState.categoryName,
                 placeholder = "Seleccionar categoría",
                 icon = Icons.Default.Category,
-                items = viewModel.categories,
+                items = uiState.categories,
                 itemLabel = { it.name },
                 onItemSelected = { selectedCategory ->
                     viewModel.onCategory(selectedCategory)

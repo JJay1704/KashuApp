@@ -1,11 +1,8 @@
 package com.kashuapp.ui.home
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -21,22 +18,40 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.kashuapp.core.composables.KashuTopBar
 import com.kashuapp.core.navigation.HomeTab
-import com.kashuapp.ui.menu.KashuHomeMenu
+import com.kashuapp.ui.addTrans.AddTransact
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.TransactionView
 
 @Composable
 fun HomeScreen(
 
-    onNavigateToCategory: () -> Unit = {}
-
+    onNavigateToCategory: () -> Unit = {}, onLogout: () -> Unit = {}
 ) {
+
+
+    var showAddTransaction by remember { mutableStateOf(false) }
+    // 👉 2. El modal vive a nivel de pantalla completa:
+    if (showAddTransaction) {
+        AddTransact(
+            onDismiss = { showAddTransaction = false }, onNavigateToCategory = onNavigateToCategory
+        )
+    }
+
     var selectedTab by remember { mutableStateOf<HomeTab>(HomeTab.Home) }
     Scaffold(
-        containerColor = KashuTheme.colors.mainBackground, bottomBar = {
+        containerColor = KashuTheme.colors.mainBackground,
+
+        topBar = {
+
+            KashuTopBar(
+                onNavigateToCategory = onNavigateToCategory,
+                onLogout = onLogout,
+                onNewTrans = { showAddTransaction = true })
+        }, bottomBar = {
             NavigationBar(
-                containerColor = KashuTheme.colors.surface
+                containerColor = KashuTheme.colors.surface,
             ) {
                 HomeTab.tabs.forEach { tab ->
                     NavigationBarItem(
@@ -58,7 +73,10 @@ fun HomeScreen(
                     )
                 }
             }
+
         }) { innerPadding ->
+
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -66,29 +84,6 @@ fun HomeScreen(
         ) {
             when (selectedTab) {
                 is HomeTab.Home -> {
-
-
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-
-                    )
-
-
-                    {
-
-                            Row(
-                                Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-
-                                Box{
-
-                                    KashuHomeMenu(  onNavigateToCategory = onNavigateToCategory)
-
-                                }
-                            }
-
-                    }
                 }
 
                 is HomeTab.Goals -> {
@@ -113,7 +108,6 @@ fun HomeScreen(
                         TransactionView(onNavigateToCategory = onNavigateToCategory)
                     }
                 }
-
             }
         }
     }
