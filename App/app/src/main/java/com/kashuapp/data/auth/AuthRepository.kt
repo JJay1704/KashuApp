@@ -24,12 +24,12 @@ class AuthRepository : IAuthRepository {
 
 
 
-            if (user != null) {
+            return if (user != null) {
 
 
-                return Result.success(user)
+                Result.success(user)
             } else {
-                return Result.failure(Exception("Usuario no encontrado"))
+                Result.failure(Exception("Usuario no encontrado"))
 
             }
 
@@ -113,10 +113,10 @@ class AuthRepository : IAuthRepository {
 
             }
             val user = KashuSupaBase.auth.currentUserOrNull()
-            if (user != null) {
-                return Result.success(user)
+            return if (user != null) {
+                Result.success(user)
             } else {
-                return Result.failure(Exception("Error al registrar el usuario"))
+                Result.failure(Exception("Error al registrar el usuario"))
             }
         } catch (e: Exception) {
             return Result.failure(e)

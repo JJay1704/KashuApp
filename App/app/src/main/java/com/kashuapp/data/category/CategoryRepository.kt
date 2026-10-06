@@ -2,7 +2,6 @@ package com.kashuapp.data.category
 
 
 import com.kashuapp.data.KashuSupaBase
-import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 
@@ -31,8 +30,8 @@ class CategoryRepository : ICategoryRepository {
                 newCat.userId?.let { put("user_id", it) }
                 put("name", newCat.name)
                 put("type", newCat.type)
-                put("icon", if (newCat.icon.isBlank()) "category" else newCat.icon)
-                put("color", if (newCat.color.isBlank()) "#34D399" else newCat.color)
+                put("icon", newCat.icon.ifBlank { "category" })
+                put("color", newCat.color.ifBlank { "#34D399" })
                 put("is_default", false)
             }
             val response = KashuSupaBase.db.from("category")
@@ -50,8 +49,8 @@ class CategoryRepository : ICategoryRepository {
             val json = kotlinx.serialization.json.buildJsonObject {
                 put("name", cat.name)
                 put("type", cat.type)
-                put("icon", if (cat.icon.isBlank()) "category" else cat.icon)
-                put("color", if (cat.color.isBlank()) "#34D399" else cat.color)
+                put("icon", cat.icon.ifBlank { "category" })
+                put("color", cat.color.ifBlank { "#34D399" })
             }
             KashuSupaBase.db.from("category").update(json) {
                 filter {

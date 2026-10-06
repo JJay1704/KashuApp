@@ -1,6 +1,5 @@
 package com.kashuapp.data.transaction
 
-import io.github.jan.supabase.postgrest.result.PostgrestResult
 
 interface ITransactionRepository {
 

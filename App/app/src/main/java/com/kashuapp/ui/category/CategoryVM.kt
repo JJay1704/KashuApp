@@ -1,4 +1,4 @@
-package com.kashuapp.ui.category.list
+package com.kashuapp.ui.category
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,7 +7,6 @@ import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.category.Category
 import com.kashuapp.data.category.CategoryRepository
 import com.kashuapp.data.category.ICategoryRepository
-import com.kashuapp.ui.category.form.CategoryState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -18,7 +17,7 @@ class CategoryVM(
     private val authRepo: IAuthRepository = AuthRepository()
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CategoryState())
+    private val _uiState = MutableStateFlow(CategoryFormState())
     val uiState = _uiState.asStateFlow()
 
     init {
@@ -82,7 +81,7 @@ class CategoryVM(
                     icon = "category",
                     color = "#34D399"
                 )
-                catRepo.createCategory(newCat).map { Unit }
+                catRepo.createCategory(newCat).map {  }
             }
 
             result.onSuccess {

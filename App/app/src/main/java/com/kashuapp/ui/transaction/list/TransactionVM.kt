@@ -5,7 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.kashuapp.data.auth.AuthRepository
+import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.category.Category
+import com.kashuapp.data.category.CategoryRepository
+import com.kashuapp.data.category.ICategoryRepository
 
 import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.transaction.Transaction
@@ -16,20 +20,51 @@ class TransactionVM(
 
     private val transRepo: ITransactionRepository = TransactionRepository(),
 
-
-    ) : ViewModel() {
+    private val catRepo: ICategoryRepository = CategoryRepository(),
+    private val authRepo: IAuthRepository = AuthRepository()
+) : ViewModel() {
 
     init {
-        getTrans()
-
+        loadData()
     }
 
     var transactions by mutableStateOf<List<Transaction>>(emptyList())
     var categories by mutableStateOf<List<Category>>(emptyList())
 
 
+    fun loadData() {
+
+        viewModelScope.launch {
+
+            val currentUser = authRepo.getCurrentUserId()
+            val resultTrans = transRepo.getAll()
+            val resultCat = catRepo.getAllCateg(currentUser.id)
+            resultTrans.onSuccess { list ->
+                transactions = list
+
+
+            }
+            resultTrans.onFailure { error ->
+                println("Error al obtener transacciones: ${error.message}")
+            }
+
+            resultCat.onSuccess { list ->
+                categories = list
+
+
+            }
+            resultCat.onFailure { error ->
+                println("Error al obtener transacciones: ${error.message}")
+            }
+        }
+
+
+    }
+
+
     fun getCategoryName(categoryId: String): String {
         return categories.find { it.id == categoryId }?.name ?: "Sin categoría"
+
     }
 
 
@@ -50,5 +85,7 @@ class TransactionVM(
         }
 
     }
+
+
 
 }

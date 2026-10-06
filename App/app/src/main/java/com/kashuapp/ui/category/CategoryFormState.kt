@@ -1,8 +1,8 @@
-package com.kashuapp.ui.category.form
+package com.kashuapp.ui.category
 
 import com.kashuapp.data.category.Category
 
-data class CategoryState(
+data class CategoryFormState(
     val categories: List<Category> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,

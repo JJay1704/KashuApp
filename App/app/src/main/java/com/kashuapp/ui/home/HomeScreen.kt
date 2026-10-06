@@ -1,4 +1,5 @@
 package com.kashuapp.ui.home
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,10 +18,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.core.composables.KashuTopBar
 import com.kashuapp.core.navigation.HomeTab
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.form.AddTransact
+import com.kashuapp.ui.transaction.list.TransactionVM
 import com.kashuapp.ui.transaction.list.TransactionView
 
 @Composable
@@ -30,15 +33,14 @@ fun HomeScreen(
 ) {
 
 
-
+    val transactionListVM: TransactionVM = viewModel()
     var showAddTransaction by remember { mutableStateOf(false) }
     if (showAddTransaction) {
         AddTransact(
-            onDismiss = { showAddTransaction = false }, onNavigateToCategory = onNavigateToCategory
+            onDismiss = { showAddTransaction = false
+                        transactionListVM.getTrans()}, onNavigateToCategory = onNavigateToCategory
         )
     }
-
-
 
 
     var selectedTab by remember { mutableStateOf<HomeTab>(HomeTab.Home) }
@@ -107,7 +109,10 @@ fun HomeScreen(
                             .fillMaxSize()
                             .padding(horizontal = 24.dp, vertical = 24.dp)
                     ) {
-                        TransactionView(onNavigateToCategory = onNavigateToCategory)
+                        TransactionView(
+                            viewModel = transactionListVM,
+                            onNavigateToCategory = onNavigateToCategory
+                        )
                     }
                 }
             }
