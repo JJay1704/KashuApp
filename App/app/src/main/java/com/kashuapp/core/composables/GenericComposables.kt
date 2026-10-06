@@ -53,6 +53,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 
 import androidx.compose.runtime.getValue
 
@@ -61,10 +62,8 @@ import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kashuapp.ui.addTrans.AddTransact
 import com.kashuapp.ui.menu.KashuHomeMenu
-import com.kashuapp.ui.transaction.TransactionVM
+
 
 @Composable
 fun KashuLogo(
@@ -412,30 +411,40 @@ fun KashuTopBar(
 
     ) {
 
-    TopAppBar(modifier = Modifier.padding(horizontal = 15.dp), navigationIcon = {
+    TopAppBar(
 
-        KashuHomeMenu(
-            onNavigateToCategory = onNavigateToCategory, onLogout = onLogout
-        )
-    }, title = {
 
-        KashuLogo(
-            fontsize = 20, horizontalPadding = 4
-        )
-    }, actions = {
-        IconButton(
-            onClick = onNewTrans, Modifier.background(color = KashuTheme.colors.mainColor)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Nueva Transacción",
-                tint = KashuTheme.colors.title
+        modifier = Modifier
+            .padding(horizontal = 15.dp),
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = KashuTheme.colors.mainBackground
+        ),
+
+
+        navigationIcon = {
+
+            KashuHomeMenu(
+                onNavigateToCategory = onNavigateToCategory, onLogout = onLogout
             )
-        }
+        }, title = {
+
+            KashuLogo(
+                fontsize = 20, horizontalPadding = 4
+            )
+        }, actions = {
+            IconButton(
+                onClick = onNewTrans, Modifier.background(color = KashuTheme.colors.mainColor)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Nueva Transacción",
+                    tint = KashuTheme.colors.title
+                )
+            }
 
 //
 
-    }
+        }
 
     )
 }

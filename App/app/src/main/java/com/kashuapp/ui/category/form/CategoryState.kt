@@ -1,4 +1,4 @@
-package com.kashuapp.ui.category
+package com.kashuapp.ui.category.form
 
 import com.kashuapp.data.category.Category
 

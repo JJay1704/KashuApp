@@ -1,4 +1,4 @@
-package com.kashuapp.ui.category
+package com.kashuapp.ui.category.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.data.category.Category
+import com.kashuapp.ui.category.form.CategoryForm
 import com.kashuapp.ui.theme.KashuTheme
 
 @Composable
@@ -122,7 +122,7 @@ fun CategoryScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(uiState.categories, key = { it.id ?: it.name }) { category ->
+                    items(uiState.categories, key = { it.id?: it.name }) { category ->
                         CategoryItemCard(
                             category = category,
                             onEditClick = { viewModel.openEdit(category) },
@@ -155,6 +155,7 @@ private fun CategoryItemCard(
     category: Category,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
+
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),

@@ -1,7 +1,5 @@
-package com.kashuapp.ui.addTrans
+package com.kashuapp.ui.transaction.form
 
-import java.text.SimpleDateFormat
-import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -35,18 +32,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.core.composables.KashuTextField
 import com.kashuapp.ui.theme.KashuTheme
+import com.kashuapp.ui.transaction.KashuDatePickerField
+import com.kashuapp.ui.transaction.KashuTimePickerField
+import java.text.SimpleDateFormat
 import java.util.Calendar
-import androidx.lifecycle.viewmodel.compose.viewModel
+import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransact(
 
-    viewModel: AddTransVM = viewModel(),
+    viewModel: TransactionFormVM = viewModel(),
 
     onDismiss: () -> Unit = {},
 
@@ -138,7 +140,7 @@ fun AddTransact(
                 iconInput = Icons.Default.AttachMoney,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 trailingIcon = null,
-                isError =uiState.isAmountError!=null,
+                isError = uiState.isAmountError != null,
                 errorMessage = uiState.isAmountError
             )
 
@@ -150,13 +152,13 @@ fun AddTransact(
                 label = "Account",
                 selectedValue = uiState.accountName,
                 icon = Icons.Default.AccountCircle,
-                items =uiState.accounts,
+                items = uiState.accounts,
                 itemLabel = { it.name },
                 onItemSelected = { selectedAccount ->
                     viewModel.onAccount(selectedAccount)
 
                 },
-                hasError = uiState.isAccountError!= null,
+                hasError = uiState.isAccountError != null,
                 labelError = uiState.isAccountError
             )
 
@@ -165,7 +167,7 @@ fun AddTransact(
             Spacer(modifier = Modifier.height(16.dp))
 
             KashuDropdownField(
-                hasError = uiState.isCategoryError!= null,
+                hasError = uiState.isCategoryError != null,
                 labelError = uiState.isCategoryError,
                 label = "Category",
                 selectedValue = uiState.categoryName,
@@ -248,3 +250,6 @@ fun AddTransact(
         }
     }
 }
+
+
+

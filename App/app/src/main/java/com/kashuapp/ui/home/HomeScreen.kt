@@ -1,5 +1,4 @@
 package com.kashuapp.ui.home
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,9 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kashuapp.core.composables.KashuTopBar
 import com.kashuapp.core.navigation.HomeTab
-import com.kashuapp.ui.addTrans.AddTransact
 import com.kashuapp.ui.theme.KashuTheme
-import com.kashuapp.ui.transaction.TransactionView
+import com.kashuapp.ui.transaction.form.AddTransact
+import com.kashuapp.ui.transaction.list.TransactionView
 
 @Composable
 fun HomeScreen(
@@ -31,13 +30,16 @@ fun HomeScreen(
 ) {
 
 
+
     var showAddTransaction by remember { mutableStateOf(false) }
-    // 👉 2. El modal vive a nivel de pantalla completa:
     if (showAddTransaction) {
         AddTransact(
             onDismiss = { showAddTransaction = false }, onNavigateToCategory = onNavigateToCategory
         )
     }
+
+
+
 
     var selectedTab by remember { mutableStateOf<HomeTab>(HomeTab.Home) }
     Scaffold(

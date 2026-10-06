@@ -1,4 +1,4 @@
-package com.kashuapp.ui.category
+package com.kashuapp.ui.category.form
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

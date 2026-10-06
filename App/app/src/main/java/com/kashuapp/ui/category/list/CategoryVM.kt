@@ -1,4 +1,4 @@
-package com.kashuapp.ui.category
+package com.kashuapp.ui.category.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,6 +7,7 @@ import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.category.Category
 import com.kashuapp.data.category.CategoryRepository
 import com.kashuapp.data.category.ICategoryRepository
+import com.kashuapp.ui.category.form.CategoryState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

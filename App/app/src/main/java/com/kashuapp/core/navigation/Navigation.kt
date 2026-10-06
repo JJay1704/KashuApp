@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.kashuapp.ui.category.CategoryScreen
+import com.kashuapp.ui.category.list.CategoryScreen
 import com.kashuapp.ui.home.HomeScreen
 import com.kashuapp.ui.login.LoginScreen
 import com.kashuapp.ui.signUp.RegisterView
