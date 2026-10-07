@@ -407,7 +407,7 @@ fun KashuTopBar(
     onNavigateToCategory: () -> Unit = {},
     onLogout: () -> Unit = {},
     onNewTrans: () -> Unit = {},
-
+    onNavigateToAccount: () -> Unit = {},
 
     ) {
 
@@ -424,7 +424,8 @@ fun KashuTopBar(
         navigationIcon = {
 
             KashuHomeMenu(
-                onNavigateToCategory = onNavigateToCategory, onLogout = onLogout
+                onNavigateToCategory = onNavigateToCategory, onLogout = onLogout,
+                onAccount = onNavigateToAccount,
             )
         }, title = {
 

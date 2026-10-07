@@ -55,10 +55,12 @@ fun KashuHomeMenu(
     modifier: Modifier = Modifier,
     size: Dp = 38.dp,
     onNavigateToCategory: () -> Unit = {},
+
     onTabSelected: (String) -> Unit = {},
     onCloseMenu: () -> Unit = {},
     viewModel: MenuVM = viewModel(),
-            onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onAccount : ()-> Unit = {}
 
 
 ) {
@@ -74,8 +76,6 @@ fun KashuHomeMenu(
     KashuMenuButton(
 
         initials = initials, size = size, modifier = modifier, onClick = { isMenuOpen = true }
-
-
 
 
     )
@@ -183,8 +183,10 @@ fun KashuHomeMenu(
                                         when (tab) {
 
                                             is MenuTab.Categories -> onNavigateToCategory()
+                                            is MenuTab.Accounts -> onAccount()
                                             is MenuTab.Profile -> {}
                                             is MenuTab.Settings -> {}
+
                                         }
                                     })
                             }

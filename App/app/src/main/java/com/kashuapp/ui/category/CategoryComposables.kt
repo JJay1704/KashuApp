@@ -29,8 +29,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kashuapp.data.account.Account
 import com.kashuapp.data.category.Category
 import com.kashuapp.ui.theme.KashuTheme
+
+
+
+@Composable
+fun AccountItemCard(
+    account : Account,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+){
+
+
+
+}
 
 
 @Composable

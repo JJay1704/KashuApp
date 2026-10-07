@@ -22,8 +22,13 @@ sealed class MenuTab(
         title = "Configuración",
         icon = Icons.Default.Settings
     )
+    data object Accounts : MenuTab(
+
+        title = "Accounts",
+        icon  = Icons.Default.Person
+    )
     companion object {
         val tabs: List<MenuTab>
-            get() = listOf(Categories, Profile, Settings)
+            get() = listOf(Categories, Profile, Settings, Accounts)
     }
 }

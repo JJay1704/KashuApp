@@ -1,6 +1,6 @@
 package com.kashuapp.ui.transaction.form
 
-import com.kashuapp.data.accounts.Account
+import com.kashuapp.data.account.Account
 import com.kashuapp.data.category.Category
 
 data class TransactionFormState(

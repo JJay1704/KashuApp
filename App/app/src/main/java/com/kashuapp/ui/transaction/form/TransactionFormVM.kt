@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kashuapp.data.accounts.Account
-import com.kashuapp.data.accounts.AccountRepository
-import com.kashuapp.data.accounts.IAccountRepository
+import com.kashuapp.data.account.Account
+import com.kashuapp.data.account.AccountRepository
+import com.kashuapp.data.account.IAccountRepository
 import com.kashuapp.data.auth.AuthRepository
 import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.category.Category
@@ -47,7 +47,8 @@ class TransactionFormVM(
 
     fun loadAccounts() {
         viewModelScope.launch {
-            val resultAcc = accountRepo.getAllAccount()
+            val currentUser = authRepo.getCurrentUserId()
+            val resultAcc = accountRepo.getAllAccount(currentUser.id)
             resultAcc.onSuccess { listDB ->
                 _uiStateTran.update { it.copy(accounts = listDB) }
 
@@ -78,8 +79,9 @@ class TransactionFormVM(
         _uiStateTran.update {
             it.copy(
                 accountName = newAccount.name,
-                accountId = newAccount.id,
-                isAccountError = null,
+
+                accountId = newAccount.id ?: "",
+                isAccountError = null
 
                 )
         }

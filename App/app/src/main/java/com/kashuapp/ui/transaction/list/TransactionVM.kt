@@ -35,10 +35,8 @@ class TransactionVM(
     fun loadData() {
 
         viewModelScope.launch {
-
-            val currentUser = authRepo.getCurrentUserId()
             val resultTrans = transRepo.getAll()
-            val resultCat = catRepo.getAllCateg(currentUser.id)
+            val resultCat = catRepo.getAllCateg(authRepo.getCurrentUserId().id)
             resultTrans.onSuccess { list ->
                 transactions = list
 

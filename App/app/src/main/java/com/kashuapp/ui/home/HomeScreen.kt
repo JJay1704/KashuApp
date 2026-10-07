@@ -29,7 +29,11 @@ import com.kashuapp.ui.transaction.list.TransactionView
 @Composable
 fun HomeScreen(
 
-    onNavigateToCategory: () -> Unit = {}, onLogout: () -> Unit = {}
+    onNavigateToCategory: () -> Unit = {},
+    onLogout: () -> Unit = {},
+    onNavigateToAccount: () -> Unit = {},
+
+
 ) {
 
 
@@ -37,8 +41,10 @@ fun HomeScreen(
     var showAddTransaction by remember { mutableStateOf(false) }
     if (showAddTransaction) {
         AddTransact(
-            onDismiss = { showAddTransaction = false
-                        transactionListVM.getTrans()}, onNavigateToCategory = onNavigateToCategory
+            onDismiss = {
+                showAddTransaction = false
+                transactionListVM.getTrans()
+            }, onNavigateToCategory = onNavigateToCategory
         )
     }
 
@@ -51,6 +57,7 @@ fun HomeScreen(
 
             KashuTopBar(
                 onNavigateToCategory = onNavigateToCategory,
+                onNavigateToAccount = onNavigateToAccount,
                 onLogout = onLogout,
                 onNewTrans = { showAddTransaction = true })
         }, bottomBar = {

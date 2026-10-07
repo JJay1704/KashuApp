@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.kashuapp.ui.account.list.AccountScreen
 import com.kashuapp.ui.category.CategoryScreen
 import com.kashuapp.ui.home.HomeScreen
 import com.kashuapp.ui.login.LoginScreen
@@ -19,7 +20,7 @@ import com.kashuapp.ui.theme.KashuAppTheme
 fun Navigation() {
 
 
-    KashuAppTheme() {
+    KashuAppTheme{
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             val navController = rememberNavController()
 
@@ -43,7 +44,8 @@ fun Navigation() {
                 composable("home") {
                     HomeScreen(onNavigateToCategory = {
                         navController.navigate("category")
-                    }, onLogout = {
+
+                    }, onNavigateToAccount = { navController.navigate("account") }, onLogout = {
 
                         navController.navigate("login") {
 
@@ -65,6 +67,12 @@ fun Navigation() {
                 composable("category") {
                     CategoryScreen(
                         onBackToHome = { navController.navigate("home") })
+                }
+                composable("account") {
+
+                    AccountScreen(
+                        onBackToHome = { navController.navigate("home") })
+
                 }
 
             }
