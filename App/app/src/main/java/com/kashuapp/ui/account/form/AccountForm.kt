@@ -32,9 +32,6 @@ import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.core.composables.KashuTextField
 import com.kashuapp.data.account.Account
 import com.kashuapp.ui.theme.KashuTheme
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,12 +45,6 @@ fun AccountForm(
 ) {
 
 
-    LaunchedEffect(Unit) {
-        val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-
-    }
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
 
@@ -168,7 +159,7 @@ fun AccountForm(
                 Spacer(modifier = Modifier.height(12.dp))
                 KashuButton(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Eliminar Cuenta",
+                    text = "Delete Account",
                     backColor = Color(0xFFEF4444),
                     textColor = Color.White,
                     onClickFun = {

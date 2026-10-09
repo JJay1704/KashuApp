@@ -242,6 +242,7 @@ fun AddTransact(
                         time = uiState.time,
                         onSuccess = {
                             onDismiss()
+
                         },
 
                         )

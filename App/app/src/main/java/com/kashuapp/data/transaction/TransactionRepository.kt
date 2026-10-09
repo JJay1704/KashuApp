@@ -6,24 +6,19 @@ import com.kashuapp.data.KashuSupaBase
 class TransactionRepository : ITransactionRepository {
 
 
-    override suspend fun getAll(): Result<List<Transaction>> {
-
+    override suspend fun getAll(userId: String, accountId: String?): Result<List<Transaction>> {
         try {
-
-
-            val tableTrans = KashuSupaBase.db.from("transaction").select().decodeList<Transaction>()
-
-
-
+            val tableTrans = KashuSupaBase.db.from("transaction").select {
+                filter {
+                    if (!accountId.isNullOrBlank()) {
+                        eq("account_id", accountId)
+                    }
+                }
+            }.decodeList<Transaction>()
             return Result.success(tableTrans)
-
         } catch (e: Exception) {
-
             return Result.failure(e)
-
         }
-
-
     }
 
 

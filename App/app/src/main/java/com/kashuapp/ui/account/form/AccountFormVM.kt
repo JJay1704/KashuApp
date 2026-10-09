@@ -183,9 +183,9 @@ class AccountFormVM(
         val state = _uiState.value
         val userId = authRepo.getCurrentUserId().id
 
-        val nameError = if (state.name.trim().isBlank()) "El nombre es obligatorio" else null
-        val typeError = if (state.selectedAccountType == null) "Selecciona un tipo de cuenta" else null
-        val currencyError = if (state.selectedCurrency == null) "Selecciona una moneda" else null
+        val nameError = if (state.name.trim().isBlank()) "Name is obligatory" else null
+        val typeError = if (state.selectedAccountType == null) "Select a account type" else null
+        val currencyError = if (state.selectedCurrency == null) "Select a currency" else null
 
         val balanceParsed = if (state.initialBalance.trim().isBlank()) {
             0.0
@@ -193,7 +193,7 @@ class AccountFormVM(
             state.initialBalance.trim().replace(',', '.').toDoubleOrNull()
         }
         val balanceError = if (balanceParsed == null || balanceParsed < 0.0) {
-            "Ingrese un saldo válido (>= 0)"
+            "Set a valid value"
         } else {
             null
         }
@@ -228,7 +228,7 @@ class AccountFormVM(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Ya existe una cuenta con el mismo nombre, tipo y moneda"
+                        errorMessage = "Account is already existed"
                     )
                 }
                 return@launch

@@ -62,7 +62,38 @@ import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.ViewModel
+import com.kashuapp.ui.account.list.AccountVM
 import com.kashuapp.ui.menu.KashuHomeMenu
+
+
+@Composable
+fun BalanceCard(
+    balance: String,
+) {
+
+
+    Row(
+
+    ) {
+        Text(
+            text = "Balance",
+            color = KashuTheme.colors.title
+        )
+
+
+
+
+        Text(
+
+
+            text = balance,
+            color = KashuTheme.colors.title
+        )
+    }
+
+
+}
 
 
 @Composable
@@ -95,7 +126,9 @@ fun KashuButton(
     textSize: Int = 16,
     textColor: Color = KashuTheme.colors.title,
     enabled: Boolean = true,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    weight: FontWeight = FontWeight.Bold,
+    horizontalPadding: Int = 16
 ) {
     Button(
 
@@ -106,19 +139,9 @@ fun KashuButton(
             containerColor = backColor,
             contentColor = Color.Black,
         ),
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(horizontal = horizontalPadding.dp, vertical = 0.dp),
 
         ) {
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            text = text,
-            fontSize = textSize.sp,
-            fontWeight = FontWeight.Bold,
-            color = textColor
-
-
-        )
 
         if (isLoading) {
 
@@ -131,7 +154,7 @@ fun KashuButton(
                 textAlign = TextAlign.Center,
                 text = text,
                 fontSize = textSize.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = weight,
                 color = textColor
             )
         }
@@ -414,9 +437,7 @@ fun KashuTopBar(
     TopAppBar(
 
 
-        modifier = Modifier
-            .padding(horizontal = 15.dp),
-        colors = TopAppBarDefaults.topAppBarColors(
+        modifier = Modifier.padding(horizontal = 15.dp), colors = TopAppBarDefaults.topAppBarColors(
             containerColor = KashuTheme.colors.mainBackground
         ),
 

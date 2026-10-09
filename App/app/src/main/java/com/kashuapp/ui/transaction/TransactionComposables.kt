@@ -43,6 +43,7 @@ import com.kashuapp.ui.theme.KashuTheme
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
 @Composable
 fun KashuDatePickerField(
     modifier: Modifier = Modifier,
@@ -70,9 +71,7 @@ fun KashuDatePickerField(
     Column(modifier = modifier) {
         if (label.isNotBlank()) {
             Text(
-                text = label,
-                fontSize = 14.sp,
-                color = KashuTheme.colors.title
+                text = label, fontSize = 14.sp, color = KashuTheme.colors.title
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
@@ -96,19 +95,15 @@ fun KashuDatePickerField(
                         contentDescription = label,
                         tint = KashuTheme.colors.mainColor
                     )
-                }
-            )
+                })
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { datePickerDialog.show() }
-            )
+                    .clickable { datePickerDialog.show() })
         }
     }
 }
-
-
 
 
 @Composable
@@ -125,24 +120,18 @@ fun KashuTimePickerField(
 
     val timePickerDialog = remember {
         TimePickerDialog(
-            context,
-            { _, hourOfDay, minute ->
+            context, { _, hourOfDay, minute ->
                 calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
                 calendar.set(Calendar.MINUTE, minute)
                 onTimeSelected(timeFormat.format(calendar.time))
-            },
-            calendar.get(Calendar.HOUR_OF_DAY),
-            calendar.get(Calendar.MINUTE),
-            is24Hour
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), is24Hour
         )
     }
 
     Column(modifier = modifier) {
         if (label.isNotBlank()) {
             Text(
-                text = label,
-                fontSize = 14.sp,
-                color = KashuTheme.colors.title
+                text = label, fontSize = 14.sp, color = KashuTheme.colors.title
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
@@ -166,29 +155,27 @@ fun KashuTimePickerField(
                         contentDescription = label,
                         tint = KashuTheme.colors.mainColor
                     )
-                }
-            )
+                })
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { timePickerDialog.show() }
-            )
+                    .clickable { timePickerDialog.show() })
         }
     }
 }
 
 
-
-
 @Composable
 fun TransactionItemCard(
-    item: Transaction, categoryName: String
+    item: Transaction, categoryName: String,
+    accountName : String
 ) {
     val isIncome = item.type.equals("INCOME", ignoreCase = true)
     val amountColor = if (isIncome) Color(0xFF10B981) else Color(0xFFEF4444)
     val amountPrefix = if (isIncome) "+ S/." else "- S/."
     val iconVector = if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
+
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -230,7 +217,7 @@ fun TransactionItemCard(
                         color = KashuTheme.colors.title
                     )
                     Text(
-                        text = if (!item.description.isNullOrBlank()) "${item.transactionDate} · ${item.description}" else item.transactionDate,
+                        text =accountName,
                         fontSize = 12.sp,
                         color = KashuTheme.colors.subtitle,
                         maxLines = 1

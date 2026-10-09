@@ -60,7 +60,7 @@ KashuApp/
 | **UI Toolkit** | Jetpack Compose + Material 3 (`androidx.compose.material3`) |
 | **Compose BOM** | `2026.02.01` (definida en `libs.versions.toml`) |
 | **SDK Android** | `minSdk = 24` (Android 7.0 Nougat), `targetSdk = 37`, `compileSdk = 37` |
-| **Backend & Base de Datos** | Supabase (Supabase BOM `3.1.4`, Auth, Postgrest Database con PostgreSQL + RLS, Ktor OkHttp) |
+| **Backend & Base de Datos** | Supabase (Supabase BOM `3.1.4`, Auth, Postgrest Database con PostgreSQL + RLS, Ktor OkHttp). **Nota de Arquitectura:** El cálculo y actualización de `current_balance` en `account` está delegado a un Trigger en PostgreSQL (Supabase) para garantizar consistencia transaccional ACID. La app móvil únicamente refresca las cuentas tras operaciones sobre transacciones. |
 | **Serialización** | Kotlinx Serialization (`kotlinx.serialization`) |
 | **Gestor de Construcción** | Gradle KTS con Version Catalogs (`libs.versions.toml`) |
 

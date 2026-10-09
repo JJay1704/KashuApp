@@ -35,16 +35,7 @@ import com.kashuapp.ui.theme.KashuTheme
 
 
 
-@Composable
-fun AccountItemCard(
-    account : Account,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
-){
 
-
-
-}
 
 
 @Composable
