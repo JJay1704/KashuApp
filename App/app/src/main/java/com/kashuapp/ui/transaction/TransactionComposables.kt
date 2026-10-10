@@ -169,7 +169,8 @@ fun KashuTimePickerField(
 @Composable
 fun TransactionItemCard(
     item: Transaction, categoryName: String,
-    accountName : String
+    accountName : String,
+    onClickCard : ()-> Unit
 ) {
     val isIncome = item.type.equals("INCOME", ignoreCase = true)
     val amountColor = if (isIncome) Color(0xFF10B981) else Color(0xFFEF4444)
@@ -178,6 +179,7 @@ fun TransactionItemCard(
 
 
     Card(
+        onClick = onClickCard,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = KashuTheme.colors.surface)

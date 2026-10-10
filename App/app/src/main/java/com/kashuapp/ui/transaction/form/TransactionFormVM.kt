@@ -34,29 +34,111 @@ class TransactionFormVM(
     var categories by mutableStateOf<List<Category>>(emptyList())
 
 
-    fun loadCategories() {
+    fun initForm(
+        trans: Transaction?,
+        defaultDate: String,
+        defaultTime: String,
+        initialAccountName: String = "",
+
+        initialCategoryName: String = ""
+    ) {
+        if (trans != null) {
+            val rawDate = trans.transactionDate.replace("T", " ").trim()
+            val dateParts = rawDate.split(" ")
+            val date =
+                if (dateParts.isNotEmpty() && dateParts[0].length >= 10) dateParts[0].substring(
+                    0,
+                    10
+                ) else defaultDate
+            val time = if (dateParts.size > 1 && dateParts[1].length >= 5) dateParts[1].substring(
+                0,
+                5
+            ) else defaultTime
+
+            _uiStateTran.value = TransactionFormState(
+                id = trans.id,
+                userId = trans.userId,
+                selectedTypeTrans = trans.type,
+                amount = trans.amount.toString(),
+                accountId = trans.accountId,
+                accountName = initialAccountName,
+                categoryId = trans.categoryId,
+                categoryName = initialCategoryName,
+                date = date,
+                time = time,
+                description = trans.description ?: "",
+                isEditing = true
+            )
+        } else {
+            _uiStateTran.value = TransactionFormState(
+                date = defaultDate,
+                time = defaultTime,
+                isEditing = false
+            )
+        }
+
         viewModelScope.launch {
             val userId = authRepo.getCurrentUserId().id
-            catRepo.getAllCateg(userId).onSuccess { list ->
-                categories = list
+            val catList = catRepo.getAllCateg(userId).getOrDefault(emptyList())
+            val accList = accountRepo.getAllAccount(userId).getOrDefault(emptyList())
+            categories = catList
 
-                _uiStateTran.update { it.copy(categories = list) }
+            val account = accList.find { it.id == _uiStateTran.value.accountId }
+            val category = catList.find { it.id == _uiStateTran.value.categoryId }
+
+            _uiStateTran.update { current ->
+                current.copy(
+                    categories = catList,
+                    accounts = accList,
+                    accountName = account?.name ?: current.accountName,
+                    categoryName = category?.name ?: current.categoryName
+                )
             }
         }
     }
 
-    fun loadAccounts() {
+    fun deleteTrans(transId: String?, onSuccess: () -> Unit) {
+        if (transId == null) return
+
         viewModelScope.launch {
-            val currentUser = authRepo.getCurrentUserId()
-            val resultAcc = accountRepo.getAllAccount(currentUser.id)
-            resultAcc.onSuccess { listDB ->
-                _uiStateTran.update { it.copy(accounts = listDB) }
 
+            val result = transRepo.deleteTrans(transId)
+            result.onSuccess {
+                onSuccess()
+                resetForm()
+            }
+            result.onFailure { error ->
+                println(error)
 
             }
-            resultAcc.onFailure { error -> println(error.message) }
+
+
         }
     }
+//
+//    fun loadCategories() {
+//        viewModelScope.launch {
+//            val userId = authRepo.getCurrentUserId().id
+//            catRepo.getAllCateg(userId).onSuccess { list ->
+//                categories = list
+//
+//                _uiStateTran.update { it.copy(categories = list) }
+//            }
+//        }
+//    }
+//
+//    fun loadAccounts() {
+//        viewModelScope.launch {
+//            val currentUser = authRepo.getCurrentUserId()
+//            val resultAcc = accountRepo.getAllAccount(currentUser.id)
+//            resultAcc.onSuccess { listDB ->
+//                _uiStateTran.update { it.copy(accounts = listDB) }
+//
+//
+//            }
+//            resultAcc.onFailure { error -> println(error.message) }
+//        }
+//    }
 
     fun onType(selectedType: String) {
 
@@ -80,10 +162,9 @@ class TransactionFormVM(
             it.copy(
                 accountName = newAccount.name,
 
-                accountId = newAccount.id ?: "",
-                isAccountError = null
+                accountId = newAccount.id ?: "", isAccountError = null
 
-                )
+            )
         }
     }
 
@@ -135,6 +216,7 @@ class TransactionFormVM(
             return
         }
         val transPost = Transaction(
+            id = stateValues.id,
             userId = currentUserId.id,
             amount = amountDouble!!,
             accountId = stateValues.accountId,
@@ -144,7 +226,13 @@ class TransactionFormVM(
             transactionDate = "$date $time"
         )
         viewModelScope.launch {
-            val resultPost = transRepo.postTrans(transPost)
+            val resultPost = if (stateValues.id != null) {
+
+                transRepo.updateTrans(transPost)
+            } else {
+                transRepo.postTrans(transPost)
+
+            }
             resultPost.onSuccess {
                 onSuccess()
 

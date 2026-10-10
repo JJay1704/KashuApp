@@ -30,7 +30,7 @@ import androidx.compose.foundation.lazy.items
 import com.kashuapp.core.composables.BalanceCard
 
 import com.kashuapp.core.composables.KashuButton
-import com.kashuapp.ui.account.list.AccountVM
+import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.ui.transaction.TransactionItemCard
 
 
@@ -40,6 +40,10 @@ fun TransactionView(
     onNavigateToCategory: () -> Unit = {}
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    var selectedTransactionToEdit by remember { mutableStateOf<Transaction?>(null) }
+
+
+
 
     LaunchedEffect(Unit) {
         viewModel.getTrans(null)
@@ -147,9 +151,21 @@ fun TransactionView(
                     val itemCategory = viewModel.getCategoryName(item.categoryId)
                     val itemAccount = viewModel.getAccountName(item.accountId)
                     TransactionItemCard(
-                        item = item, categoryName = itemCategory, accountName = itemAccount
+                        item = item, categoryName = itemCategory, accountName = itemAccount, onClickCard = {selectedTransactionToEdit = item}
                     )
                 }
+            }
+            if (selectedTransactionToEdit != null) {
+                AddTransact(
+                    item = selectedTransactionToEdit,
+                    accountName = viewModel.getAccountName(selectedTransactionToEdit?.accountId),
+                    categoryName = viewModel.getCategoryName(selectedTransactionToEdit?.categoryId?: ""),
+                    onDismiss = {
+                        selectedTransactionToEdit = null
+                        viewModel.getTrans(viewModel.selectedAccountId)
+                    },
+                    onNavigateToCategory = onNavigateToCategory
+                )
             }
         }
     }

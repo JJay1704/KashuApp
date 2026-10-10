@@ -1,9 +1,47 @@
 package com.kashuapp.data.transaction
 
 import com.kashuapp.data.KashuSupaBase
+import com.kashuapp.ui.transaction.form.TransactionFormState
+import kotlin.Result
 
 
 class TransactionRepository : ITransactionRepository {
+
+
+    override suspend fun deleteTrans(transId: String): Result<Unit>{
+
+
+        return try {
+            KashuSupaBase.db.from("transaction").delete {
+                filter {
+                    eq("id", transId)
+                }
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateTrans(trans: Transaction): Result<Unit> {
+        return try {
+
+
+            KashuSupaBase.db.from("transaction").update (trans){
+
+                filter {
+                    eq("id", trans.id ?: "")
+                }
+
+            }
+            Result.success(Unit)
+        }
+        catch (e : Exception){
+            Result.failure(e)
+        }
+
+
+    }
 
 
     override suspend fun getAll(userId: String, accountId: String?): Result<List<Transaction>> {

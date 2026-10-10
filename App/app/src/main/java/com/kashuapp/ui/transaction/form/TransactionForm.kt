@@ -36,6 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.core.composables.KashuTextField
+import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.KashuDatePickerField
 import com.kashuapp.ui.transaction.KashuTimePickerField
@@ -53,17 +54,24 @@ fun AddTransact(
     onDismiss: () -> Unit = {},
 
     onNavigateToCategory: () -> Unit = {},
-
+    item: Transaction? = null,
+    accountName: String = "",
+    categoryName: String = "",
 
     ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadCategories()
-        viewModel.loadAccounts()
+    LaunchedEffect(item) {
+
+//        viewModel.loadCategories()
+//        viewModel.loadAccounts()
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        viewModel.onDate(dateFormat.format(calendar.time))
-        viewModel.onTime(timeFormat.format(calendar.time))
+        val date = dateFormat.format(calendar.time)
+        val time = timeFormat.format(calendar.time)
+        viewModel.initForm(
+            item, date, time, initialAccountName = accountName,
+            initialCategoryName = categoryName
+        )
     }
     val uiState by viewModel.uiStateTran.collectAsState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -85,7 +93,7 @@ fun AddTransact(
         ) {
 
             Text(
-                text = "Add Transaction",
+                text = if (uiState.isEditing) "Edit Transaction" else "Add Transaction",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = KashuTheme.colors.title
@@ -235,7 +243,7 @@ fun AddTransact(
             KashuButton(
                 modifier = Modifier.fillMaxWidth(),
 
-                text = "Save Transaction",
+                text = if (uiState.isEditing) "Update Transaction" else "Save Transaction",
                 onClickFun = {
                     viewModel.postTrans(
                         date = uiState.date,
@@ -248,9 +256,32 @@ fun AddTransact(
                         )
                 },
             )
+            if (uiState.isEditing) {
+                Spacer(modifier = Modifier.height(14.dp))
+
+                KashuButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    backColor = Color.Red,
+                    text = "Delete Transaction",
+                    onClickFun = {
+                        viewModel.deleteTrans(
+                            transId = item?.id,
+                            onSuccess = {
+                                onDismiss()
+
+                            },
+
+                            )
+                    },
+                )
+
+
+            }
+
         }
     }
 }
+
 
 
 

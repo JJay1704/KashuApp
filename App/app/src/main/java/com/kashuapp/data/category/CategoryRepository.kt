@@ -52,7 +52,7 @@ class CategoryRepository : ICategoryRepository {
                 put("icon", cat.icon.ifBlank { "category" })
                 put("color", cat.color.ifBlank { "#34D399" })
             }
-            KashuSupaBase.db.from("category").update(json) {
+            KashuSupaBase.db.from("category").update(cat) {
                 filter {
                     eq("id", cat.id ?: "")
                 }
