@@ -10,7 +10,8 @@ interface ITransactionRepository {
         categoryId: String?= null,
         date: String?= null,
         startDate: String? = null,
-        endDate: String?= null
+        endDate: String?= null,
+        type : String? = null
     ): Result<List<Transaction>>
 
     suspend fun postTrans(trans: Transaction): Result<Unit>

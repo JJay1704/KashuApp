@@ -29,6 +29,7 @@ import com.kashuapp.ui.transaction.form.AddTransact
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Category
 import com.kashuapp.core.composables.BalanceCard
@@ -113,6 +114,22 @@ fun TransactionView(
 
                     )
                 }
+                item {
+
+
+                    KashuDropdownField(
+                        fillMaxWidth = false,
+                        selectedValue = viewModel.selectedType ?: "",
+                        placeholder = "Type",
+                        icon = Icons.Default.AddCircleOutline,
+                        items = viewModel.transactionTypes,
+                        itemLabel = { if (it == "EXPENSE") "Gasto" else "Ingreso" },
+                        onItemSelected = { type -> viewModel.selectedType(type) },
+                        isFilter = true,
+                        onClearFilter = { viewModel.selectedType(null) }
+                    )
+                }
+
 
                 item {
                     KashuDropdownField(
@@ -129,6 +146,7 @@ fun TransactionView(
                         }
                     )
                 }
+
             }
         }
         Spacer(modifier = Modifier.height(6.dp))

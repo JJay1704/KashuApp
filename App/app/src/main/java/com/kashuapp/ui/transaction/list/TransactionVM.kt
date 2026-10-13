@@ -27,7 +27,7 @@ import java.util.Locale
 class TransactionVM(
     private val transRepo: ITransactionRepository = TransactionRepository(),
     private val catRepo: ICategoryRepository = CategoryRepository(),
-    private var authRepo: IAuthRepository = AuthRepository(),
+    private val authRepo: IAuthRepository = AuthRepository(),
     private val accountRepo: IAccountRepository = AccountRepository()
 
 ) : ViewModel() {
@@ -52,11 +52,13 @@ class TransactionVM(
 
     var selectedAccount by mutableStateOf<Account?>(null)
     var selectedCategory by mutableStateOf<Category?>(null)
+    val transactionTypes = listOf("EXPENSE", "INCOME")
+    var selectedType by mutableStateOf<String?>(null)
 
-
-    // Calcula el rango de fechas (Inicio, Fin) en formato YYYY-MM-DD
-
-
+    fun selectedType(Type: String?) {
+        selectedType = Type
+        getTrans()
+    }
     fun getDateRange(option: String): Pair<String, String?> {
 
         val calendar = Calendar.getInstance()
@@ -100,12 +102,12 @@ class TransactionVM(
             val resultTrans = transRepo.getAll(userId, null, null, null)
             val resultCat = catRepo.getAllCateg(userId)
             val resultAccount = accountRepo.getAllAccount(userId)
-            resultTrans.onSuccess { list -> transactions = list }
+            resultTrans.onSuccess { list -> transactions = list.sortedByDescending {it.transactionDate}  }
             resultTrans.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
             resultCat.onSuccess { list -> categories = list }
             resultCat.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
             resultAccount.onSuccess { list -> accounts = list }
-            resultTrans.onFailure { error -> println("Error al obtener cuentas: ${error.message}") }
+            resultAccount.onFailure { error -> println("Error al obtener cuentas: ${error.message}") }
         }
     }
 
@@ -134,7 +136,8 @@ class TransactionVM(
     fun getTrans(
         filterAccount: String? = selectedAccount?.id,
         filterCategory: String? = selectedCategory?.id,
-        period: String? = selectedPeriod
+        period: String? = selectedPeriod,
+        type: String ? = selectedType
 
 
 
@@ -144,7 +147,7 @@ class TransactionVM(
 
             val (startDate, endDate) = if (period != null) getDateRange(period) else Pair(null, null)
 
-            val result = transRepo.getAll(userId, filterAccount, filterCategory, null, startDate, endDate)
+            val result = transRepo.getAll(userId, filterAccount, filterCategory, null, startDate, endDate, type)
             result.onSuccess { list -> transactions = list }
             result.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
             val resultAccount = accountRepo.getAllAccount(userId)

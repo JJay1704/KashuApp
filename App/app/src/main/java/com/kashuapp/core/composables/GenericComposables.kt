@@ -67,6 +67,40 @@ import com.kashuapp.ui.menu.KashuHomeMenu
 
 
 @Composable
+fun NetWorthCard(
+
+
+    accountNetWorth: String
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(KashuTheme.colors.surface)
+            .padding(vertical = 20.dp, horizontal = 20.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Text(
+                modifier = Modifier.padding(vertical = 5.dp),
+                text = "Net Worth",
+                fontSize = 20.sp,
+                color = KashuTheme.colors.subtitle
+            )
+            Text(
+                text = accountNetWorth, fontSize = 30.sp, color = KashuTheme.colors.title
+            )
+        }
+
+    }
+
+
+}
+
+
+@Composable
 fun BalanceCard(
     balance: String,
 ) {
@@ -325,8 +359,7 @@ fun <T> KashuDropdownField(
             ) {
                 Row(
                     modifier = (if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier).padding(
-                        horizontal = 14.dp,
-                        vertical = 14.dp
+                        horizontal = 14.dp, vertical = 14.dp
                     ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -378,12 +411,10 @@ fun <T> KashuDropdownField(
                                 fontWeight = if (isAllSelected) FontWeight.Bold else FontWeight.Normal
 
                             )
-                        },
-                        onClick = {
+                        }, onClick = {
                             onClearFilter()// Notifica para limpiar el filtro (null)
                             isExpanded = false
-                        }
-                    )
+                        })
                 }
 
 

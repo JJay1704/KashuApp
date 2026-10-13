@@ -43,12 +43,13 @@ class TransactionRepository : ITransactionRepository {
 
 
     override suspend fun getAll(
-        userId: String ,
-        accountId: String? ,
+        userId: String,
+        accountId: String?,
         categoryId: String?,
         date: String?,
-        startDate: String? ,
-        endDate: String?
+        startDate: String?,
+        endDate: String?,
+        type: String?
     ): Result<List<Transaction>> {
         try {
             val tableTrans = KashuSupaBase.db.from("transaction").select {
@@ -65,6 +66,12 @@ class TransactionRepository : ITransactionRepository {
                     }
                     if (!endDate.isNullOrBlank()) {
                         lte("transaction_date", endDate)
+                    }
+
+                    if (!type.isNullOrBlank()) {
+
+                        eq("type", type)
+
                     }
                 }
             }.decodeList<Transaction>()

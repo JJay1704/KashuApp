@@ -32,7 +32,7 @@ fun HomeScreen(
     onNavigateToCategory: () -> Unit = {},
     onLogout: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
-
+    homeVM: HomeVM = viewModel()
 
 ) {
 
@@ -44,6 +44,7 @@ fun HomeScreen(
             onDismiss = {
                 showAddTransaction = false
                 transactionListVM.getTrans()
+                homeVM.loadData()
             }, onNavigateToCategory = onNavigateToCategory
         )
     }
@@ -95,6 +96,9 @@ fun HomeScreen(
         ) {
             when (selectedTab) {
                 is HomeTab.Home -> {
+
+
+                    HomeView()
                 }
 
                 is HomeTab.Goals -> {
@@ -120,6 +124,7 @@ fun HomeScreen(
                             viewModel = transactionListVM,
                             onNavigateToCategory = onNavigateToCategory
                         )
+
                     }
                 }
             }

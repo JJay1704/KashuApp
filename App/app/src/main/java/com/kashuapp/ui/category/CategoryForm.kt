@@ -120,7 +120,7 @@ fun CategoryForm(
 
             KashuButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = if (categoryToEdit == null) "Crear Categoría" else "Guardar Cambios",
+                text = if (categoryToEdit == null) "Create Category" else "Save",
                 isLoading = isLoading,
                 onClickFun = {
                     onSave(name, selectedType)
@@ -131,7 +131,7 @@ fun CategoryForm(
                 Spacer(modifier = Modifier.height(12.dp))
                 KashuButton(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Eliminar Categoría",
+                    text = "Delete Category",
                     backColor = Color(0xFFEF4444),
                     textColor = Color.White,
                     onClickFun = {
