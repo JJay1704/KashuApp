@@ -1,14 +1,13 @@
 package com.kashuapp.data.transaction
 
 import com.kashuapp.data.KashuSupaBase
-import com.kashuapp.ui.transaction.form.TransactionFormState
 import kotlin.Result
 
 
 class TransactionRepository : ITransactionRepository {
 
 
-    override suspend fun deleteTrans(transId: String): Result<Unit>{
+    override suspend fun deleteTrans(transId: String): Result<Unit> {
 
 
         return try {
@@ -27,7 +26,7 @@ class TransactionRepository : ITransactionRepository {
         return try {
 
 
-            KashuSupaBase.db.from("transaction").update (trans){
+            KashuSupaBase.db.from("transaction").update(trans) {
 
                 filter {
                     eq("id", trans.id ?: "")
@@ -35,8 +34,7 @@ class TransactionRepository : ITransactionRepository {
 
             }
             Result.success(Unit)
-        }
-        catch (e : Exception){
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -44,12 +42,29 @@ class TransactionRepository : ITransactionRepository {
     }
 
 
-    override suspend fun getAll(userId: String, accountId: String?): Result<List<Transaction>> {
+    override suspend fun getAll(
+        userId: String ,
+        accountId: String? ,
+        categoryId: String?,
+        date: String?,
+        startDate: String? ,
+        endDate: String?
+    ): Result<List<Transaction>> {
         try {
             val tableTrans = KashuSupaBase.db.from("transaction").select {
                 filter {
+
                     if (!accountId.isNullOrBlank()) {
                         eq("account_id", accountId)
+                    }
+                    if (!categoryId.isNullOrBlank()) {
+                        eq("category_id", categoryId)
+                    }
+                    if (!startDate.isNullOrBlank()) {
+                        gte("transaction_date", startDate)
+                    }
+                    if (!endDate.isNullOrBlank()) {
+                        lte("transaction_date", endDate)
                     }
                 }
             }.decodeList<Transaction>()

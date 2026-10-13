@@ -27,9 +27,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.form.AddTransact
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Category
 import com.kashuapp.core.composables.BalanceCard
-
-import com.kashuapp.core.composables.KashuButton
+import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.ui.transaction.TransactionItemCard
 
@@ -37,13 +40,12 @@ import com.kashuapp.ui.transaction.TransactionItemCard
 @Composable
 fun TransactionView(
     viewModel: TransactionVM = viewModel(),
-    onNavigateToCategory: () -> Unit = {}
-) {
+    onNavigateToCategory: () -> Unit = {},
+
+    ) {
+
     var showDialog by remember { mutableStateOf(false) }
     var selectedTransactionToEdit by remember { mutableStateOf<Transaction?>(null) }
-
-
-
 
     LaunchedEffect(Unit) {
         viewModel.getTrans(null)
@@ -78,34 +80,55 @@ fun TransactionView(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
+
                 item {
-                    val isAllSelected = viewModel.selectedAccountId == null
 
-                    KashuButton(
-                        backColor = KashuTheme.colors.surface,
-                        text = "All",
-                        textColor = if (isAllSelected) KashuTheme.colors.mainColor else KashuTheme.colors.title,
-                        textSize = 12,
-                        weight = FontWeight.Normal,
-                        onClickFun = {
+                    KashuDropdownField(
+                        fillMaxWidth = false,
+                        selectedValue = viewModel.selectedAccount?.name?: "",
+                        placeholder = "Account",
+                        icon = Icons.Default.AccountCircle,
+                        items = viewModel.accounts,
+                        itemLabel = { it.name },
+                        onItemSelected = { selectedAccount -> viewModel.selectAccount(selectedAccount) },
+                        isFilter = true,
+                        onClearFilter = {viewModel.selectAccount(null)}
+                    )
 
-                            viewModel.selectAccount(null)
-                        })
+
                 }
 
-                items(viewModel.accounts) { item ->
-                    val isThisSelected = (viewModel.selectedAccountId == item.id)
-                    KashuButton(
-                        weight = FontWeight.Normal,
-                        backColor = KashuTheme.colors.surface,
-                        textSize = 12,
-                        text = item.name,
-                        textColor = if (isThisSelected) KashuTheme.colors.mainColor else KashuTheme.colors.title,
-                        onClickFun = {
-                            viewModel.selectAccount(item.id)
-                        })
+                item {
+
+                    KashuDropdownField(
+                        fillMaxWidth = false,
+                        selectedValue = viewModel.selectedCategory?.name?: "",
+                        placeholder = "Category",
+                        icon = Icons.Default.Category,
+                        items = viewModel.categories,
+                        itemLabel = { it.name },
+                        onItemSelected = { selectedCategory -> viewModel.selectCategory(selectedCategory) },
+                        isFilter = true,
+                        onClearFilter = {viewModel.selectCategory(null)}
+
+                    )
                 }
 
+                item {
+                    KashuDropdownField(
+                        fillMaxWidth = false,
+                        selectedValue = viewModel.selectedPeriod ?: "",
+                        placeholder = "Date",
+                        icon = Icons.Default.CalendarToday,
+                        items = viewModel.periods,
+                        itemLabel = { it },
+                        onItemSelected = { selectedPeriod -> viewModel.selectPeriod(selectedPeriod) },
+                        isFilter = true,
+                        onClearFilter = {
+                            viewModel.selectPeriod(null)
+                        }
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(6.dp))
@@ -119,10 +142,10 @@ fun TransactionView(
                 color = KashuTheme.colors.title
             )
 
-            if (viewModel.selectedAccountId != null) {
+            if (viewModel.selectedAccount != null) {
                 Box {
                     BalanceCard(
-                        balance = viewModel.getBalance(viewModel.selectedAccountId)
+                        balance = viewModel.getBalance(viewModel.selectedAccount?.id?: "")
                     )
                 }
             }
@@ -151,18 +174,22 @@ fun TransactionView(
                     val itemCategory = viewModel.getCategoryName(item.categoryId)
                     val itemAccount = viewModel.getAccountName(item.accountId)
                     TransactionItemCard(
-                        item = item, categoryName = itemCategory, accountName = itemAccount, onClickCard = {selectedTransactionToEdit = item}
-                    )
+                        item = item,
+                        categoryName = itemCategory,
+                        accountName = itemAccount,
+                        onClickCard = { selectedTransactionToEdit = item })
                 }
             }
             if (selectedTransactionToEdit != null) {
                 AddTransact(
                     item = selectedTransactionToEdit,
                     accountName = viewModel.getAccountName(selectedTransactionToEdit?.accountId),
-                    categoryName = viewModel.getCategoryName(selectedTransactionToEdit?.categoryId?: ""),
+                    categoryName = viewModel.getCategoryName(
+                        selectedTransactionToEdit?.categoryId ?: ""
+                    ),
                     onDismiss = {
                         selectedTransactionToEdit = null
-                        viewModel.getTrans(viewModel.selectedAccountId)
+                        viewModel.getTrans()
                     },
                     onNavigateToCategory = onNavigateToCategory
                 )

@@ -1,5 +1,6 @@
 package com.kashuapp.core.composables
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,8 +63,6 @@ import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.ViewModel
-import com.kashuapp.ui.account.list.AccountVM
 import com.kashuapp.ui.menu.KashuHomeMenu
 
 
@@ -71,30 +70,16 @@ import com.kashuapp.ui.menu.KashuHomeMenu
 fun BalanceCard(
     balance: String,
 ) {
-
-
     Row(
-
     ) {
         Text(
-            text = "Balance",
-            color = KashuTheme.colors.title
+            text = "Balance", color = KashuTheme.colors.title
         )
-
-
-
-
         Text(
-
-
-            text = balance,
-            color = KashuTheme.colors.title
+            text = balance, color = KashuTheme.colors.title
         )
     }
-
-
 }
-
 
 @Composable
 fun KashuLogo(
@@ -295,68 +280,113 @@ fun KashuTextField(
 @Composable
 fun <T> KashuDropdownField(
     modifier: Modifier = Modifier,
+    fillMaxWidth: Boolean = true,
     label: String = "",
     selectedValue: String,
-    placeholder: String = "Seleccionar $selectedValue",
-    icon: ImageVector,
+    placeholder: String = "Seleccionar",
+    icon: ImageVector? = null,
     items: List<T>,
     itemLabel: (T) -> String = { it.toString() },
     onItemSelected: (T) -> Unit,
     extraActionLabel: String? = null,
     onExtraActionClick: (() -> Unit)? = null,
     hasError: Boolean = false,
-    labelError: String? = null
-
+    labelError: String? = null,
+    isFilter: Boolean = false,
+    onClearFilter: () -> Unit = {}
 ) {
-
-
     var isExpanded by remember { mutableStateOf(false) }
-    Column(modifier = modifier.fillMaxWidth()) {
+
+    Column(
+        modifier = if (fillMaxWidth) modifier.fillMaxWidth() else modifier
+    ) {
         if (label.isNotBlank()) {
             Text(
                 text = label, fontSize = 14.sp, color = KashuTheme.colors.title
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = selectedValue.ifEmpty { placeholder },
-                onValueChange = {},
-                readOnly = true,
-                enabled = false,
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    disabledTextColor = if (selectedValue.isEmpty()) KashuTheme.colors.subtitle else KashuTheme.colors.title,
-                    disabledBorderColor = MaterialTheme.colorScheme.outline,
-                    disabledContainerColor = Color.Transparent,
-                    disabledLeadingIconColor = KashuTheme.colors.subtitle,
-                    disabledTrailingIconColor = KashuTheme.colors.subtitle
-                ),
+
+        Box(
+            modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier
+        ) {
+            Surface(
+                modifier = (if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
+                    .clip(
+                        RoundedCornerShape(12.dp)
+                    )
+                    .clickable { isExpanded = true },
                 shape = RoundedCornerShape(12.dp),
-                leadingIcon = {
-                    Icon(icon, contentDescription = label)
-                },
-                trailingIcon = {
-                    IconButton(onClick = { isExpanded = !isExpanded }) {
+                color = Color.Transparent,
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = if (hasError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
+                )
+            ) {
+                Row(
+                    modifier = (if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier).padding(
+                        horizontal = 14.dp,
+                        vertical = 14.dp
+                    ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (icon != null) {
                         Icon(
-                            imageVector = if (isExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                            contentDescription = "Desplegar"
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = KashuTheme.colors.subtitle,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
-                })
 
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable { isExpanded = true })
+                    Text(
+                        text = selectedValue.ifEmpty { placeholder },
+                        color = if (selectedValue.isEmpty()) KashuTheme.colors.subtitle else KashuTheme.colors.title,
+                        fontSize = 15.sp
+                    )
+
+                    if (fillMaxWidth) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                        contentDescription = "Desplegar",
+                        tint = KashuTheme.colors.subtitle,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
             DropdownMenu(
-                expanded = isExpanded,
-                onDismissRequest = { isExpanded = false },
-                modifier = Modifier
-                    .fillMaxWidth(0.85f)
-                    .background(KashuTheme.colors.surface)
+                expanded = isExpanded, onDismissRequest = {
+                    isExpanded = false
+
+                }, modifier = Modifier.background(KashuTheme.colors.surface)
             ) {
+                if (isFilter) {
+                    val isAllSelected = selectedValue.isEmpty()
+
+                    DropdownMenuItem(
+
+
+                        text = {
+                            Text(
+                                text = "All",
+                                color = if (isAllSelected) KashuTheme.colors.mainColor else KashuTheme.colors.title,
+                                fontWeight = if (isAllSelected) FontWeight.Bold else FontWeight.Normal
+
+                            )
+                        },
+                        onClick = {
+                            onClearFilter()// Notifica para limpiar el filtro (null)
+                            isExpanded = false
+                        }
+                    )
+                }
+
+
                 items.forEach { item ->
                     val text = itemLabel(item)
                     DropdownMenuItem(text = {
@@ -370,8 +400,6 @@ fun <T> KashuDropdownField(
                         isExpanded = false
                     })
                 }
-
-
 
                 if (extraActionLabel != null && onExtraActionClick != null) {
                     HorizontalDivider(
@@ -395,32 +423,20 @@ fun <T> KashuDropdownField(
                     }, onClick = {
                         isExpanded = false
                         onExtraActionClick()
-                    }
-
-
-                    )
+                    })
                 }
-
             }
-
-
         }
-
-
 
         if (hasError && !labelError.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = labelError,
-                color = Color(0xFFEF4444),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium
+                text = labelError, color = MaterialTheme.colorScheme.error, fontSize = 12.sp
             )
         }
-
-
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 

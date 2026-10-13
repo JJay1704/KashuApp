@@ -69,8 +69,7 @@ fun AddTransact(
         val date = dateFormat.format(calendar.time)
         val time = timeFormat.format(calendar.time)
         viewModel.initForm(
-            item, date, time, initialAccountName = accountName,
-            initialCategoryName = categoryName
+            item, date, time, initialAccountName = accountName, initialCategoryName = categoryName
         )
     }
     val uiState by viewModel.uiStateTran.collectAsState()
@@ -157,6 +156,7 @@ fun AddTransact(
 
 
             KashuDropdownField(
+                modifier = Modifier.fillMaxWidth(),
                 label = "Account",
                 selectedValue = uiState.accountName,
                 icon = Icons.Default.AccountCircle,
@@ -175,6 +175,8 @@ fun AddTransact(
             Spacer(modifier = Modifier.height(16.dp))
 
             KashuDropdownField(
+                modifier = Modifier.fillMaxWidth(),
+
                 hasError = uiState.isCategoryError != null,
                 labelError = uiState.isCategoryError,
                 label = "Category",

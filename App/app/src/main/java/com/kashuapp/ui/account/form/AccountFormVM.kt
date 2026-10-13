@@ -130,54 +130,54 @@ class AccountFormVM(
     }
 
 
-    fun loadAccounts() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val userId = authRepo.getCurrentUserId().id
-            val result = accountRepo.getAllAccount(userId)
-            result.onSuccess { list ->
-                _uiState.update { it.copy(accounts = list, isLoading = false) }
-            }
-            result.onFailure { error ->
-                _uiState.update { it.copy(errorMessage = error.message, isLoading = false) }
-            }
-        }
-    }
-
-    fun openCreate() {
-        _uiState.update { it.copy(accountToEdit = null, isFormOpen = true, errorMessage = null) }
-    }
-
-
-    fun openEdit(Account: Account) {
-
-
-        _uiState.update { it.copy(accountToEdit = Account, isFormOpen = true, errorMessage = null) }
-
-
-    }
-
-    fun deleteAccount(accountId: String) {
-
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            val result = accountRepo.deleteAccount(accountId)
-            result.onSuccess {
-                loadAccounts()
-            }
-            result.onFailure { error ->
-                _uiState.update { it.copy(errorMessage = error.message, isLoading = false) }
-            }
-        }
-    }
-
-    fun closeForm() {
-
-        _uiState.update { it.copy(isFormOpen = false, errorMessage = null) }
-
-
-    }
+//    fun loadAccounts() {
+//        viewModelScope.launch {
+//            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+//            val userId = authRepo.getCurrentUserId().id
+//            val result = accountRepo.getAllAccount(userId)
+//            result.onSuccess { list ->
+//                _uiState.update { it.copy(accounts = list, isLoading = false) }
+//            }
+//            result.onFailure { error ->
+//                _uiState.update { it.copy(errorMessage = error.message, isLoading = false) }
+//            }
+//        }
+//    }
+//
+//    fun openCreate() {
+//        _uiState.update { it.copy(accountToEdit = null, isFormOpen = true, errorMessage = null) }
+//    }
+//
+//
+//    fun openEdit(Account: Account) {
+//
+//
+//        _uiState.update { it.copy(accountToEdit = Account, isFormOpen = true, errorMessage = null) }
+//
+//
+//    }
+//
+//    fun deleteAccount(accountId: String) {
+//
+//
+//        viewModelScope.launch {
+//            _uiState.update { it.copy(isLoading = true) }
+//            val result = accountRepo.deleteAccount(accountId)
+//            result.onSuccess {
+//                loadAccounts()
+//            }
+//            result.onFailure { error ->
+//                _uiState.update { it.copy(errorMessage = error.message, isLoading = false) }
+//            }
+//        }
+//    }
+//
+//    fun closeForm() {
+//
+//        _uiState.update { it.copy(isFormOpen = false, errorMessage = null) }
+//
+//
+//    }
 
     fun saveAccount(accountToEdit: Account?, onSuccess: () -> Unit) {
         val state = _uiState.value
