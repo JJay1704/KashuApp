@@ -54,9 +54,9 @@ class LoginVM(
         result.onSuccess {
             onSucces()
         }
-        result.onFailure {
-
-            _uiState.update { it.copy(errorMessage = "Correo o contraseña incorrectos") }
+        result.onFailure {error ->
+            println("ERROR LOGIN SUPABASE: ${error.message}")
+            _uiState.update { it.copy(errorMessage = "Correo o contraseña incorrectos")  }
         }
 
     }

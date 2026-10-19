@@ -17,13 +17,3 @@ import androidx.compose.ui.graphics.Color
     val LightSubtitleLogin = Color(0xFF64748B)
 val DarkSubtitleLogin = Color(0xFF9CA3AF)
 
-
-
-val KashuGreenDark = Color(0xFF10B981)
-// Modo Claro (Light)
-val KashuLightSurface = Color(0xFFFFFFFF)
-val KashuLightOutline = Color(0xFFE2E8F0)
-
-// Modo Oscuro (Dark)
-val KashuDarkSurface = Color(0xFF1E2024)
-val KashuDarkOutline = Color(0xFF374151)

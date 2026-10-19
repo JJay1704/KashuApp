@@ -34,28 +34,42 @@ class AccountVM(
 
     fun loadData() {
         viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             val resultAccount = accountRepo.getAllAccount(authRepo.getCurrentUserId().id)
             resultAccount.onSuccess { list ->
                 accounts = list
+                _uiState.update { it.copy(accounts = list, isLoading = false) }
             }
             resultAccount.onFailure { error ->
-                println("Error al obtener cuentas: ${error.message}")
+                _uiState.update { it.copy(errorMessage = error.message, isLoading = false) }
             }
         }
     }
 
+    fun openEdit(account: Account) {
+        _uiState.update { it.copy(accountToEdit = account, isFormOpen = true) }
+    }
 
-
+    fun deleteAccount(accountId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            accountRepo.deleteAccount(accountId).onSuccess {
+                loadData()
+            }.onFailure { error ->
+                _uiState.update { it.copy(errorMessage = error.message, isLoading = false) }
+            }
+        }
+    }
 
     fun openForm() {
-
-        _uiState.update { it.copy(isFormOpen = true) }
+        _uiState.update { it.copy(accountToEdit = null, isFormOpen = false) }
+        loadData()
     }
 
 
     fun closeForm() {
 
-        _uiState.update { it.copy(isFormOpen = false) }
+        _uiState.update { it.copy(accountToEdit = null, isFormOpen = false) }
     }
 }
 

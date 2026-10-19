@@ -28,7 +28,7 @@ import com.kashuapp.ui.transaction.TransactionItemCard
 
 @Composable
 fun HomeView(
-
+    onViewAllClick: () -> Unit = {},
     homeVM: HomeVM = viewModel()
 ) {
     LaunchedEffect(Unit) {
@@ -64,7 +64,7 @@ fun HomeView(
 
             Text(
                 text = "View all",
-                modifier = Modifier.clickable { },
+                modifier = Modifier.clickable {    onViewAllClick() },
                 color = KashuTheme.colors.mainColor
             )
 

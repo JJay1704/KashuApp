@@ -20,7 +20,7 @@ import com.kashuapp.ui.theme.KashuAppTheme
 fun Navigation() {
 
 
-    KashuAppTheme{
+    KashuAppTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             val navController = rememberNavController()
 
@@ -58,20 +58,22 @@ fun Navigation() {
                 }
                 composable("register") {
                     RegisterView(onNavigateToHome = {
-                        navController.navigate("home")
-                    }, onNavigateToLogin = { navController.navigate("login") })
+                        navController.navigate("home") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    }, onNavigateToLogin = { navController.popBackStack() })
 
                 }
 
 
                 composable("category") {
                     CategoryScreen(
-                        onBackToHome = { navController.navigate("home") })
+                        onBackToHome = { navController.popBackStack() })
                 }
                 composable("account") {
 
                     AccountScreen(
-                        onBackToHome = { navController.navigate("home") })
+                        onBackToHome = { navController.popBackStack() })
 
                 }
 

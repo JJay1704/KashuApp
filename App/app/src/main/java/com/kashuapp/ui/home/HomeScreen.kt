@@ -15,12 +15,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.core.composables.KashuTopBar
 import com.kashuapp.core.navigation.HomeTab
+import com.kashuapp.ui.analytics.AnalyticsScreen
+import com.kashuapp.ui.budget.BudgetScreen
+import com.kashuapp.ui.goals.list.GoalsScreen
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.form.AddTransact
 import com.kashuapp.ui.transaction.list.TransactionVM
@@ -98,23 +100,23 @@ fun HomeScreen(
                 is HomeTab.Home -> {
 
 
-                    HomeView()
+                    HomeView(onViewAllClick = { selectedTab = HomeTab.History })
                 }
 
                 is HomeTab.Goals -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Metas de Ahorro", color = KashuTheme.colors.subtitle
-                        )
-                    }
+                    GoalsScreen()
+
                 }
 
-                is HomeTab.Transaction -> {
+                is HomeTab.Budget -> {
+                    BudgetScreen()
+                }
+
+                is HomeTab.Analytics -> {
+                    AnalyticsScreen()
+                }
+
+                is HomeTab.History -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()

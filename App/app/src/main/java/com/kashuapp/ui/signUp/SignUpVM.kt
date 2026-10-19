@@ -27,10 +27,7 @@ class SignUpVM(
     }
 
     fun onMotherName(motherName: String) {
-
         _uiState.update { it.copy(motherName = motherName, isErrorMotherName = null) }
-
-
     }
 
     fun onEmail(newEmail: String) {
@@ -42,7 +39,7 @@ class SignUpVM(
     }
 
     fun onConfirmPassword(newConfirm: String) {
-        _uiState.update { it.copy(confirmPassword = newConfirm, isPasswordError = null) }
+        _uiState.update { it.copy(confirmPassword = newConfirm, confirmPasswordError = null) }
     }
 
     fun onTogglePassword() {

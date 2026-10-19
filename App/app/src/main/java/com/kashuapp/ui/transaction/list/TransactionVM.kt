@@ -44,8 +44,8 @@ class TransactionVM(
     var accounts by mutableStateOf<List<Account>>(emptyList())
 
 
-    val periods = listOf("Today", "This week", "This Month", "Last Month") // 👈 Con su lista
-    var selectedPeriod by mutableStateOf<String?>(null) // 👈 Agrega esta línea aquí
+    val periods = listOf("Today", "This week", "This Month", "Last Month")
+    var selectedPeriod by mutableStateOf<String?>(null)
 
 
 
@@ -91,7 +91,7 @@ class TransactionVM(
                 Pair("$lastMonthStart 00:00", "$lastMonthEnd 23:59")
             }
 
-            else -> Pair("$todayStr 00:00", "$todayStr 23:59") // Opción por defecto por seguridad
+            else -> Pair("$todayStr 00:00", "$todayStr 23:59")
         }
     }
 
@@ -148,7 +148,7 @@ class TransactionVM(
             val (startDate, endDate) = if (period != null) getDateRange(period) else Pair(null, null)
 
             val result = transRepo.getAll(userId, filterAccount, filterCategory, null, startDate, endDate, type)
-            result.onSuccess { list -> transactions = list }
+            result.onSuccess { list -> transactions = list.sortedByDescending { it.transactionDate } }
             result.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
             val resultAccount = accountRepo.getAllAccount(userId)
             resultAccount.onSuccess { list -> accounts = list }

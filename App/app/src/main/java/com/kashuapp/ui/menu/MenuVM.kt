@@ -24,9 +24,9 @@ class MenuVM(
 
     fun getUserTexts(): List<String> {
         val getUser = authrepo.getCurrentUserId()
-        val firstInitial = getUser.fullName.first().uppercase()
-        val secondInitial = getUser.fatherName.first().uppercase()
-        val initials = firstInitial + secondInitial
+        val firstInitial = getUser.fullName.firstOrNull()?.uppercase()?:"K"
+        val secondInitial = getUser.fatherName.firstOrNull()?.uppercase()?:"U"
+        val initials = "$firstInitial$secondInitial"
         val listText = mutableListOf(getUser.fullName, initials, getUser.email)
         return listText
     }

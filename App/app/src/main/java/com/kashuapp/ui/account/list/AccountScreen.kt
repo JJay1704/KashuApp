@@ -1,5 +1,5 @@
 package com.kashuapp.ui.account.list
-
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kashuapp.ui.account.AccountItemCard
 import com.kashuapp.ui.account.form.AccountForm
 
 import com.kashuapp.ui.theme.KashuTheme
@@ -114,13 +115,13 @@ fun AccountScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-//                    items(uiState.accounts, key = { it.id?: it.name }) { category ->
-//                        AccountItemCard(
-//                            account= Account,
-//                            onEditClick = { viewModel.openEdit(category) },
-//                            onDeleteClick = { category.id?.let { viewModel.deleteAccount(it) } }
-//                        )
-//                    }
+                    items(uiState.accounts, key = { it.id?: it.name }) { account ->
+                        AccountItemCard(
+                            account = account,
+                            onEditClick = { viewModel.openEdit(account) },
+                            onDeleteClick = { account.id?.let { viewModel.deleteAccount(it) } }
+                        )
+                    }
                 }
             }
         }
@@ -132,11 +133,10 @@ fun AccountScreen(
 
 
                 onDismiss = { viewModel.closeForm() },
-
-                onDelete = {
-//                    id ->
-//                    viewModel.deleteCategory(id)
+                onDelete = { id ->
+                    viewModel.deleteAccount(id)
                 })
+
         }
     }
 }

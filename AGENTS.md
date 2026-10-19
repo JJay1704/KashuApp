@@ -21,7 +21,9 @@ El espacio de trabajo está organizado en las siguientes carpetas principales:
 KashuApp/
 ├── .agents/                        # Configuración de agentes y habilidades personalizadas
 │   └── skills/
-│       └── preguntasSustentacion/  # Skill /sustentacion para simular evaluaciones orales
+│       ├── guia-codigo/            # Skill /guia-codigo para guiar la construcción paso a paso
+│       ├── preguntasSustentacion/  # Skill /sustentacion para simular evaluaciones orales rigurosas
+│       └── reto-codigo/            # Skill /reto-codigo para retos prácticos de modificación en vivo
 ├── App/                            # Proyecto Android Studio (Gradle)
 │   ├── app/
 │   │   ├── src/main/java/com/kashuapp/
@@ -114,6 +116,8 @@ Cualquier funcionalidad implementada debe responder a las historias de usuario y
 
 - **Autenticación (HU-01, HU-02 / RF-01, RF-02):** Registro e inicio de sesión seguro (Email + Contraseña con políticas mínimas, Google Sign-In, Biometría), recuperación de contraseña por correo.
 - **Transacciones (HU-03, HU-05, HU-11, HU-12 / RF-03, RF-05, RF-11, RF-12):** Registro manual de ingresos y gastos (monto, fecha, hora, categoría, cuenta), edición, historial reciente y búsqueda con filtros dinámicos.
+  - **Decisión de Diseño (Home vs. Historial):** En la pantalla de inicio (`HomeScreen` / `HomeView`), el listado de actividad reciente (**HU-11 / RF-11**) es **estrictamente de solo lectura (informativo)**. La edición y eliminación de transacciones (**HU-05 / RF-05**) se realiza única y exclusivamente desde la vista completa de historial (`History` / `TransactionScreen`), manteniendo separación de responsabilidades entre el resumen ejecutivo y la gestión operativa.
+  - **Decisión de Diseño (Visualización en `TransactionItemCard`):** En las tarjetas del listado de transacciones (`TransactionItemCard`), **no se muestra la descripción (`description`) al lado del nombre de la cuenta o categoría** para evitar saturación visual y problemas de espacio en pantallas móviles. La tarjeta muestra únicamente el ícono/color por tipo de movimiento, nombre de la categoría, nombre de la cuenta y monto formateado; la descripción completa se consulta o edita al abrir el detalle/formulario de la transacción en el historial.
 - **Categorías (HU-04 / RF-04):** Clasificación de gastos, creación, edición, icono y color personalizable.
 - **Presupuestos y Alertas (HU-06, HU-10 / RF-06, RF-10):** Asignación de tope monetario mensual por categoría, cálculo de porcentaje consumido y alertas al alcanzar 80% o 100%.
 - **Metas de Ahorro (HU-07 / RF-07):** Registro de objetivo, monto meta, fecha límite y cálculo visual de avance y saldo faltante.
@@ -121,11 +125,12 @@ Cualquier funcionalidad implementada debe responder a las historias de usuario y
 
 ---
 
-## 7. Instrucciones Específicas para Sustentaciones Académicas
+## 7. Instrucciones Específicas para Sustentaciones y Práctica Académica
 
-1. **Habilidad `/sustentacion` disponible:**
-   - En `.agents/skills/preguntasSustentacion/SKILL.md` está definida la dinámica de sustentación oral.
-   - Si el usuario solicita practicar o preparar una sustentación, activar esta dinámica (preguntas progresivas: ubicación en el código -> comportamientos observables -> líneas puntuales).
+1. **Habilidades de Evaluación y Guía disponibles en `.agents/skills/`:**
+   - **`/sustentacion` (`preguntasSustentacion/SKILL.md`):** Simula una sustentación oral rigurosa (ubicación quirúrgica en el código -> comportamientos observables y flujo entre capas -> líneas puntuales -> preguntas contrafactuales *"¿qué se rompe si...?"*).
+   - **`/reto-codigo` (`reto-codigo/SKILL.md` + `ejercicios.md`):** Simula la prueba práctica de modificación en vivo que pide el profesor durante la evaluación (plantear un cambio en términos de pantalla/comportamiento sin mencionar archivos `.kt` y auditar la solución del estudiante con rigor).
+   - **`/guia-codigo` (`guia-codigo/SKILL.md`):** Guía al estudiante paso a paso para construir una funcionalidad por sí mismo sin escribir el código en sus archivos, verificando arquitectura MVVM + State Hoisting en cada paso.
 2. **Priorizar la comprensión del estudiante:**
    - Evitar generar código con "magia negra" o patrones excesivamente intrincados que el estudiante no pueda explicar.
    - Cuando se introduzca un patrón nuevo (ej. `rememberCoroutineScope`, `LaunchedEffect`, `derivedStateOf`, Flow o State Hoisting), asegurarse de que quede claro su propósito y por qué es necesario en esa línea específica.

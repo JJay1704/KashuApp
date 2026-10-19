@@ -54,7 +54,9 @@ class TransactionRepository : ITransactionRepository {
         try {
             val tableTrans = KashuSupaBase.db.from("transaction").select {
                 filter {
-
+                    if (userId.isNotBlank()) {
+                        eq("user_id", userId)
+                    }
                     if (!accountId.isNullOrBlank()) {
                         eq("account_id", accountId)
                     }

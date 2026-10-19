@@ -61,8 +61,6 @@ fun AddTransact(
     ) {
     LaunchedEffect(item) {
 
-//        viewModel.loadCategories()
-//        viewModel.loadAccounts()
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -183,7 +181,12 @@ fun AddTransact(
                 selectedValue = uiState.categoryName,
                 placeholder = "Seleccionar categoría",
                 icon = Icons.Default.Category,
-                items = uiState.categories,
+                items = uiState.categories.filter {
+                    it.type.equals(
+                        uiState.selectedTypeTrans,
+                        ignoreCase = true
+                    )
+                },
                 itemLabel = { it.name },
                 onItemSelected = { selectedCategory ->
                     viewModel.onCategory(selectedCategory)

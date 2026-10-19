@@ -157,9 +157,10 @@ fun KashuButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = backColor,
             contentColor = Color.Black,
+
         ),
         contentPadding = PaddingValues(horizontal = horizontalPadding.dp, vertical = 0.dp),
-
+        enabled =  enabled && !isLoading
         ) {
 
         if (isLoading) {
@@ -412,7 +413,7 @@ fun <T> KashuDropdownField(
 
                             )
                         }, onClick = {
-                            onClearFilter()// Notifica para limpiar el filtro (null)
+                            onClearFilter()
                             isExpanded = false
                         })
                 }

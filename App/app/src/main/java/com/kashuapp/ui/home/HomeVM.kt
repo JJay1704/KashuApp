@@ -58,44 +58,18 @@ class HomeVM(
                     }
             }
             resultAccount.onFailure { error -> println("Error al obtener cuentas: ${error.message}") }
-
         }
     }
-
-
     init {
-
         loadData()
-
     }
-
-
     var transactions by mutableStateOf<List<Transaction>>(emptyList())
     var categories by mutableStateOf<List<Category>>(emptyList())
     fun getCategoryName(categoryId: String): String {
         return categories.find { it.id == categoryId }?.name ?: "Sin categoría"
     }
-
     fun getAccountName(accountId: String?): String {
         return accounts.find { it.id == accountId }?.name ?: "Sin Cuenta"
     }
-
-    fun getTrans(
-
-    ) {
-        viewModelScope.launch {
-            val userId = authRepo.getCurrentUserId().id
-
-
-            val result = transRepo.getAll(userId)
-            result.onSuccess { list -> transactions = list }
-            result.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
-            val resultAccount = accountRepo.getAllAccount(userId)
-            resultAccount.onSuccess { list -> accounts = list }
-            resultAccount.onFailure { error -> println("Error al actualizar cuentas: ${error.message}") }
-        }
-    }
-
-
 }
 

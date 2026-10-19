@@ -156,7 +156,7 @@ fun RegisterView(
             label = "Password",
             type = uiState.password,
             onType = { viewModel.onPassword(it) },
-            placeholder = "At least 6 characters",
+            placeholder = "At least 8 characters",
             iconInput = Icons.Default.Lock,
             colorPlaceHolder = Color.Gray,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -170,7 +170,6 @@ fun RegisterView(
                     )
                 }
             })
-//        Spacer(modifier = Modifier.height(14.dp))
         KashuTextField(
             errorMessage = uiState.confirmPasswordError,
 

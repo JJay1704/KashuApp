@@ -115,34 +115,14 @@ class TransactionFormVM(
 
         }
     }
-//
-//    fun loadCategories() {
-//        viewModelScope.launch {
-//            val userId = authRepo.getCurrentUserId().id
-//            catRepo.getAllCateg(userId).onSuccess { list ->
-//                categories = list
-//
-//                _uiStateTran.update { it.copy(categories = list) }
-//            }
-//        }
-//    }
-//
-//    fun loadAccounts() {
-//        viewModelScope.launch {
-//            val currentUser = authRepo.getCurrentUserId()
-//            val resultAcc = accountRepo.getAllAccount(currentUser.id)
-//            resultAcc.onSuccess { listDB ->
-//                _uiStateTran.update { it.copy(accounts = listDB) }
-//
-//
-//            }
-//            resultAcc.onFailure { error -> println(error.message) }
-//        }
-//    }
 
     fun onType(selectedType: String) {
 
-        _uiStateTran.update { it.copy(selectedTypeTrans = selectedType) }
+        _uiStateTran.update { it.copy(
+            selectedTypeTrans = selectedType,
+            categoryId = "",
+            categoryName = ""
+        ) }
 
 
     }
