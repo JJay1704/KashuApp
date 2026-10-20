@@ -116,9 +116,14 @@ class TransactionVM(
         return categories.find { it.id == categoryId }?.name ?: "Sin categoría"
     }
 
+
+
+
+
     fun getAccountName(accountId: String?): String {
         return accounts.find { it.id == accountId }?.name ?: "Sin Cuenta"
     }
+
 
     fun selectAccount(account: Account?) {
         selectedAccount = account

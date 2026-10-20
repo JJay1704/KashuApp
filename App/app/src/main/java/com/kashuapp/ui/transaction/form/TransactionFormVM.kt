@@ -32,6 +32,7 @@ class TransactionFormVM(
     private val _uiStateTran = MutableStateFlow(TransactionFormState())
     val uiStateTran = _uiStateTran.asStateFlow()
     var categories by mutableStateOf<List<Category>>(emptyList())
+    var accounts by mutableStateOf<List<Account>>(emptyList())
 
 
     fun initForm(
@@ -47,12 +48,10 @@ class TransactionFormVM(
             val dateParts = rawDate.split(" ")
             val date =
                 if (dateParts.isNotEmpty() && dateParts[0].length >= 10) dateParts[0].substring(
-                    0,
-                    10
+                    0, 10
                 ) else defaultDate
             val time = if (dateParts.size > 1 && dateParts[1].length >= 5) dateParts[1].substring(
-                0,
-                5
+                0, 5
             ) else defaultTime
 
             _uiStateTran.value = TransactionFormState(
@@ -71,9 +70,7 @@ class TransactionFormVM(
             )
         } else {
             _uiStateTran.value = TransactionFormState(
-                date = defaultDate,
-                time = defaultTime,
-                isEditing = false
+                date = defaultDate, time = defaultTime, isEditing = false
             )
         }
 
@@ -81,8 +78,9 @@ class TransactionFormVM(
             val userId = authRepo.getCurrentUserId().id
             val catList = catRepo.getAllCateg(userId).getOrDefault(emptyList())
             val accList = accountRepo.getAllAccount(userId).getOrDefault(emptyList())
-            categories = catList
 
+            categories = catList
+            accounts = accList
             val account = accList.find { it.id == _uiStateTran.value.accountId }
             val category = catList.find { it.id == _uiStateTran.value.categoryId }
 
@@ -96,6 +94,29 @@ class TransactionFormVM(
             }
         }
     }
+
+
+    fun isAmountCorrecct(accountId: String?, amount: Double?): Boolean {
+
+
+
+        if (_uiStateTran.value.selectedTypeTrans == "EXPENSE"){
+            if (amount == null || amount <= 0.0) return false
+
+
+            val account = accounts.find { it.id == accountId } ?: return false
+
+
+
+            return account.currentBalance >= amount
+
+        }
+
+
+        return true
+
+    }
+
 
     fun deleteTrans(transId: String?, onSuccess: () -> Unit) {
         if (transId == null) return
@@ -118,11 +139,11 @@ class TransactionFormVM(
 
     fun onType(selectedType: String) {
 
-        _uiStateTran.update { it.copy(
-            selectedTypeTrans = selectedType,
-            categoryId = "",
-            categoryName = ""
-        ) }
+        _uiStateTran.update {
+            it.copy(
+                selectedTypeTrans = selectedType, categoryId = "", categoryName = ""
+            )
+        }
 
 
     }
@@ -176,19 +197,49 @@ class TransactionFormVM(
         val currentUserId = authRepo.getCurrentUserId()
         val stateValues = _uiStateTran.value
         val amountDouble = stateValues.amount.toDoubleOrNull()
+
+
+        val amountTotalError: String? = when {
+
+
+            amountDouble == null || amountDouble <= 0.0 -> {
+                "Ingrese monto valido mayor a 0 "
+            }
+
+
+            !isAmountCorrecct(
+                stateValues.accountId, amountDouble
+            ) -> {
+
+                "Ingrese monto mas bajo o igual que el saldo "
+            }
+
+            else -> null
+        }
+
+
+        val typetrans = if (stateValues.selectedTypeTrans == "EXPENSE") true else false
+
         val errorAmount =
             if (amountDouble == null || amountDouble <= 0.0) "Ingrese monto valido mayor a 0  " else null
 
-        val errorAccount = if (stateValues.accountId.isBlank()) "Seleccione Cuenta valida" else null
 
+        val errorAccount = if (stateValues.accountId.isBlank()) "Seleccione Cuenta valida" else null
+        val isRepeatedMssg = if (isAmountCorrecct(
+                stateValues.accountId, amountDouble
+            )
+        ) "Monto mas alto que saldo" else null
         val errorCategory =
             if (stateValues.categoryId.isBlank()) "Seleccione Categoria valida" else null
 
-        val hasAnyError = errorAmount != null || errorAccount != null || errorCategory != null
+        val hasAnyError = amountTotalError != null || errorAccount != null || errorCategory != null
+
+
+
         if (hasAnyError) {
             _uiStateTran.update {
                 it.copy(
-                    isAmountError = errorAmount,
+                    isAmountError = amountTotalError,
                     isAccountError = errorAccount,
                     isCategoryError = errorCategory,
                 )
