@@ -14,14 +14,14 @@ sealed class MenuTab(
         title = "Categorías",
         icon = Icons.Default.Category
     )
-    data object Profile : MenuTab(
-        title = "Mi Perfil",
-        icon = Icons.Default.Person
-    )
-    data object Settings : MenuTab(
-        title = "Configuración",
-        icon = Icons.Default.Settings
-    )
+//    data object Profile : MenuTab(
+//        title = "Mi Perfil",
+//        icon = Icons.Default.Person
+//    )
+//    data object Settings : MenuTab(
+//        title = "Configuración",
+//        icon = Icons.Default.Settings
+//    )
     data object Accounts : MenuTab(
 
         title = "Accounts",
@@ -29,6 +29,6 @@ sealed class MenuTab(
     )
     companion object {
         val tabs: List<MenuTab>
-            get() = listOf(Categories, Profile, Settings, Accounts)
+            get() = listOf(Categories, Accounts)
     }
 }

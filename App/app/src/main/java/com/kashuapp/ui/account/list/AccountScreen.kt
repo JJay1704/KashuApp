@@ -75,10 +75,13 @@ fun AccountScreen(
 
                 IconButton(
                     onClick = { viewModel.openForm()},
+
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(KashuTheme.colors.mainColor)
+
+
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,

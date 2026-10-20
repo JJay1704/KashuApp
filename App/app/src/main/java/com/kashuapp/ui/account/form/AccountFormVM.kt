@@ -213,6 +213,7 @@ class AccountFormVM(
             result.onSuccess {
                 resetForm()
                 onSuccess()
+                loadAccountData()
             }
             result.onFailure { error ->
                 _uiState.update { it.copy(errorMessage = error.message) }

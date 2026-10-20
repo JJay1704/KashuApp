@@ -62,7 +62,7 @@ class AccountVM(
     }
 
     fun openForm() {
-        _uiState.update { it.copy(accountToEdit = null, isFormOpen = false) }
+        _uiState.update { it.copy(accountToEdit = null, isFormOpen = true) }
         loadData()
     }
 
@@ -70,6 +70,7 @@ class AccountVM(
     fun closeForm() {
 
         _uiState.update { it.copy(accountToEdit = null, isFormOpen = false) }
+        loadData()
     }
 }
 

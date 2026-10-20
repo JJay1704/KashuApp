@@ -184,8 +184,8 @@ fun KashuHomeMenu(
 
                                             is MenuTab.Categories -> onNavigateToCategory()
                                             is MenuTab.Accounts -> onAccount()
-                                            is MenuTab.Profile -> {}
-                                            is MenuTab.Settings -> {}
+//                                            is MenuTab.Profile -> {}
+//                                            is MenuTab.Settings -> {}
 
                                         }
                                     })
