@@ -105,7 +105,8 @@ class BudgetVM(
                 } else {
                     0.0f
                 }
-                val overallFraction = if (rawOverall > 1.0f) 1.0f else if (rawOverall < 0.0f) 0.0f else rawOverall
+                val overallFraction =
+                    if (rawOverall > 1.0f) 1.0f else if (rawOverall < 0.0f) 0.0f else rawOverall
                 val overallPct = if (totalBudget > 0.0) {
                     ((totalSpent / totalBudget) * 100).toInt()
                 } else {
@@ -219,11 +220,42 @@ class BudgetVM(
         _uiState.update { it.copy(amountLimit = amount, isAmountError = null) }
     }
 
+
+    fun isRepeated(categoryId: String?, currentBudgetId: String?): Boolean {
+
+        var categoryRepeated = uiState.value.budgets.any { it.categoryId == categoryId && it.id != currentBudgetId  }
+
+
+
+        if (categoryRepeated ){
+
+            return true
+        } else return false
+
+    }
+
     fun saveBudget() {
         val state = _uiState.value
         val amount = state.amountLimit.toDoubleOrNull()
-        val amountErr = if (amount == null || amount <= 0.0) "Ingrese monto válido mayor a 0" else null
-        val categoryErr = if (state.categoryId.isBlank()) "Seleccione una categoría válida" else null
+        val amountErr =
+            if (amount == null || amount <= 0.0) "Ingrese monto válido mayor a 0" else null
+        val categoryErr : String? = when{
+
+            state.categoryId.isBlank() -> {"Seleccione una categoría válida"}
+
+
+            isRepeated(state.categoryId ,state.budgetToEdit?.id) -> {"Presupuesto ya definido para esta categoria "}
+            else ->null
+
+        }
+
+
+
+
+
+
+
+
 
         if (amountErr != null || categoryErr != null) {
             _uiState.update {

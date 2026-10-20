@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kashuapp.data.category.Category
 import com.kashuapp.ui.theme.KashuTheme
 
 private val chartPalette = listOf(
@@ -110,7 +111,7 @@ fun MetricSummaryCards(
 
 @Composable
 fun PieChartExpenses(
-    shares: List<CategoryExpenseShare>,
+    expenses: Map<Category, Double>,
     totalExpense: Double,
     modifier: Modifier = Modifier
 ) {
@@ -145,18 +146,20 @@ fun PieChartExpenses(
                     val topLeft = Offset((size.width - diameter) / 2, (size.height - diameter) / 2)
                     val arcSize = Size(diameter, diameter)
 
-                    shares.forEachIndexed { index, share ->
+                    expenses.values.forEachIndexed { index, amount ->
+                        val pct = if (totalExpense > 0.0) ((amount / totalExpense) * 100).toFloat() else 0f
+                        val sweepAngle = (pct / 100f) * 360f
                         val sliceColor = chartPalette[index % chartPalette.size]
                         drawArc(
                             color = sliceColor,
                             startAngle = currentStartAngle,
-                            sweepAngle = share.sweepAngle,
+                            sweepAngle = sweepAngle,
                             useCenter = false,
                             topLeft = topLeft,
                             size = arcSize,
                             style = Stroke(width = strokeWidth)
                         )
-                        currentStartAngle += share.sweepAngle
+                        currentStartAngle += sweepAngle
                     }
                 }
 
@@ -181,9 +184,9 @@ fun PieChartExpenses(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                shares.forEachIndexed { index, share ->
+                expenses.entries.forEachIndexed { index, (category, amount) ->
                     val sliceColor = chartPalette[index % chartPalette.size]
-                    val pctInt = share.percentage.toInt()
+                    val pctInt = if (totalExpense > 0.0) ((amount / totalExpense) * 100).toInt() else 0
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -197,13 +200,13 @@ fun PieChartExpenses(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = share.categoryName,
+                            text = category.name,
                             fontSize = 14.sp,
                             color = KashuTheme.colors.title,
                             modifier = Modifier.weight(1f)
                         )
                         Text(
-                            text = "S/. ${share.amount} ($pctInt%)",
+                            text = "S/. $amount ($pctInt%)",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = KashuTheme.colors.title

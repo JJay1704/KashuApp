@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kashuapp.data.auth.AuthRepository
 import com.kashuapp.data.auth.IAuthRepository
+import com.kashuapp.data.category.Category
 import com.kashuapp.data.category.CategoryRepository
 import com.kashuapp.data.category.ICategoryRepository
 import com.kashuapp.data.transaction.ITransactionRepository
@@ -89,19 +90,15 @@ class AnalyticsVM(
                 val categoryShares = expenses.groupBy { it.categoryId }
                     .map { (catId, itemsInCat) ->
                         val sum = itemsInCat.sumOf { it.amount }
-                        val cat = catList.find { it.id == catId }
-                        val pct = if (totalExpense > 0.0) ((sum / totalExpense) * 100).toFloat() else 0f
-                        val angle = (pct / 100f) * 360f
-
-                        CategoryExpenseShare(
-                            categoryId = catId,
-                            categoryName = cat?.name ?: "Sin categoría",
-                            amount = sum,
-                            percentage = pct,
-                            sweepAngle = angle
+                        val cat = catList.find { it.id == catId } ?: Category(
+                            id = catId,
+                            name = "Sin categoría",
+                            type = "EXPENSE"
                         )
+                        cat to sum
                     }
-                    .sortedByDescending { it.amount }
+                    .sortedByDescending { it.second }
+                    .toMap()
 
                 _uiState.update {
                     it.copy(

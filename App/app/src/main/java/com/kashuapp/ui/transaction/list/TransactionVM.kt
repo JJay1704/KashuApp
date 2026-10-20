@@ -4,9 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
-import com.kashuapp.data.accounType.AccountType
 import com.kashuapp.data.account.Account
 import com.kashuapp.data.account.AccountRepository
 import com.kashuapp.data.account.IAccountRepository

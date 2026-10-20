@@ -43,7 +43,8 @@ class GoalsVM(
                 } else {
                     0.0f
                 }
-                val fraction = if (rawFraction > 1.0f) 1.0f else if (rawFraction < 0.0f) 0.0f else rawFraction
+                val fraction =
+                    if (rawFraction > 1.0f) 1.0f else if (rawFraction < 0.0f) 0.0f else rawFraction
                 val percentage = (fraction * 100).toInt()
                 val completedCount = list.count { it.currentAmount >= it.targetAmount }
 
@@ -75,9 +76,7 @@ class GoalsVM(
     fun openCreateGoal() {
         _uiState.update {
             it.copy(
-                isFormOpen = true,
-                goalToEdit = null,
-                errorMessage = null
+                isFormOpen = true, goalToEdit = null, errorMessage = null
             )
         }
     }
@@ -85,9 +84,7 @@ class GoalsVM(
     fun openEditGoal(goal: Goal) {
         _uiState.update {
             it.copy(
-                isFormOpen = true,
-                goalToEdit = goal,
-                errorMessage = null
+                isFormOpen = true, goalToEdit = goal, errorMessage = null
             )
         }
     }
@@ -99,9 +96,32 @@ class GoalsVM(
     fun openAddSavings(goal: Goal) {
         _uiState.update {
             it.copy(
-                isAddSavingsOpen = true,
-                selectedGoalForSavings = goal,
-                errorMessage = null
+                isAddSavingsOpen = true, selectedGoalForSavings = goal, errorMessage = null
+            )
+        }
+    }
+
+
+
+    fun checkTargetsReached() {
+        val updatedList = mutableListOf<Goal>()
+        var completedCount = 0
+
+        for (i in _uiState.value.goals) {
+            val isCompleted = i.currentAmount >= i.targetAmount
+
+            if (isCompleted) {
+                completedCount++
+            }
+
+            val updatedGoal = i.copy(isCompleted = isCompleted)
+            updatedList.add(updatedGoal)
+        }
+
+        _uiState.update { currentState ->
+            currentState.copy(
+                goals = updatedList,
+                completedGoalsCount = completedCount
             )
         }
     }
@@ -115,34 +135,53 @@ class GoalsVM(
     fun submitSavings(amountStr: String, onSuccess: () -> Unit = {}) {
         val goal = _uiState.value.selectedGoalForSavings ?: return
 
+
         val amount = amountStr.toDoubleOrNull()
+
+        val differenceAmounts = goal.targetAmount - goal.currentAmount
+
+
+
         if (amount == null || amount <= 0.0) {
             _uiState.update { it.copy(errorMessage = "El monto a abonar debe ser mayor a 0") }
             return
-        }
 
-        val newCurrentAmount = goal.currentAmount + amount
-        val updatedGoal = goal.copy(
-            currentAmount = newCurrentAmount,
-            isCompleted = newCurrentAmount >= goal.targetAmount
-        )
+        } else {
+            if (differenceAmounts >= amount) {
 
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val result = goalRepo.updateGoal(updatedGoal)
-            result.onSuccess {
-                closeAddSavings()
-                loadGoals()
-                onSuccess()
-            }
-            result.onFailure { error ->
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = error.message ?: "Error al registrar el abono"
-                    )
+
+                val newCurrentAmount = goal.currentAmount + amount
+                val updatedGoal = goal.copy(
+                    currentAmount = newCurrentAmount,
+                    isCompleted = newCurrentAmount >= goal.targetAmount
+                )
+
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+                    val result = goalRepo.updateGoal(updatedGoal)
+                    result.onSuccess {
+                        closeAddSavings()
+                        loadGoals()
+                        onSuccess()
+                    }
+                    result.onFailure { error ->
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = error.message ?: "Error al registrar el abono"
+                            )
+                        }
+                    }
                 }
+
+
             }
+
         }
+
+
     }
 }
+
+
+
