@@ -141,10 +141,12 @@ fun BudgetScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(uiState.budgets) { overview ->
+                items(uiState.budgets) { budget ->
                     BudgetCard(
-                        overview = overview,
-                        onClickCard = { viewModel.openEdit(overview) }
+                        budget = budget,
+                        categoryName = viewModel.getCategoryName(budget.categoryId),
+                        spentAmount = viewModel.getSpentForCategory(budget.categoryId),
+                        onClickCard = { viewModel.openEdit(budget) }
                     )
                 }
             }

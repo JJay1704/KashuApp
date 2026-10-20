@@ -1,11 +1,10 @@
 package com.kashuapp.ui.budget
 
 import com.kashuapp.data.budget.Budget
-import com.kashuapp.data.budget.BudgetOverview
 import com.kashuapp.data.category.Category
 
 data class BudgetState(
-    val budgets: List<BudgetOverview> = emptyList(),
+    val budgets: List<Budget> = emptyList(),
     val categories: List<Category> = emptyList(),
     val selectedMonth: Int = 1,
     val selectedYear: Int = 2026,

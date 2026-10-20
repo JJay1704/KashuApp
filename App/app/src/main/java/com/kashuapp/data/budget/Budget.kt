@@ -15,13 +15,3 @@ data class Budget(
     @SerialName("updated_at") val updatedAt: String? = null
 )
 
-data class BudgetOverview(
-    val budget: Budget,
-    val categoryName: String,
-    val spentAmount: Double,
-    val progressFraction: Float = 0.0f,
-    val percentage: Int = 0,
-    val remainingAmount: Double = 0.0,
-    val isWarning: Boolean = false,
-    val isExceeded: Boolean = false
-)

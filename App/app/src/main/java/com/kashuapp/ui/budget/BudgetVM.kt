@@ -5,13 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.kashuapp.data.auth.AuthRepository
 import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.budget.Budget
-import com.kashuapp.data.budget.BudgetOverview
 import com.kashuapp.data.budget.BudgetRepository
 import com.kashuapp.data.budget.IBudgetRepository
 import com.kashuapp.data.category.Category
 import com.kashuapp.data.category.CategoryRepository
 import com.kashuapp.data.category.ICategoryRepository
 import com.kashuapp.data.transaction.ITransactionRepository
+import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.data.transaction.TransactionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,8 +38,20 @@ class BudgetVM(
     )
     val uiState = _uiState.asStateFlow()
 
+    private var currentTransactions: List<Transaction> = emptyList()
+
     init {
         loadData()
+    }
+
+    fun getCategoryName(categoryId: String): String {
+        return _uiState.value.categories.find { it.id == categoryId }?.name ?: "Sin categoría"
+    }
+
+    fun getSpentForCategory(categoryId: String): Double {
+        return currentTransactions
+            .filter { it.categoryId == categoryId }
+            .sumOf { it.amount }
     }
 
     fun loadData() {
@@ -77,42 +89,17 @@ class BudgetVM(
                 type = "EXPENSE"
             ).getOrDefault(emptyList())
 
+            currentTransactions = transactions
+
             val budgetResult = budgetRepo.getBudgets(userId, month, year)
             budgetResult.onSuccess { budgetList ->
-                val overviews = budgetList.map { budget ->
-                    val category = categories.find { it.id == budget.categoryId }
-                    val spent = transactions
+                val totalBudget = budgetList.sumOf { it.amountLimit }
+                val totalSpent = budgetList.sumOf { budget ->
+                    transactions
                         .filter { it.categoryId == budget.categoryId }
                         .sumOf { it.amount }
-
-                    val rawFraction = if (budget.amountLimit > 0.0) {
-                        (spent / budget.amountLimit).toFloat()
-                    } else {
-                        0.0f
-                    }
-                    val fraction = if (rawFraction > 1.0f) 1.0f else if (rawFraction < 0.0f) 0.0f else rawFraction
-                    val pct = if (budget.amountLimit > 0.0) {
-                        ((spent / budget.amountLimit) * 100).toInt()
-                    } else {
-                        0
-                    }
-                    val diff = budget.amountLimit - spent
-                    val remaining = if (diff > 0.0) diff else 0.0
-
-                    BudgetOverview(
-                        budget = budget,
-                        categoryName = category?.name ?: "Sin categoría",
-                        spentAmount = spent,
-                        progressFraction = fraction,
-                        percentage = pct,
-                        remainingAmount = remaining,
-                        isWarning = pct >= 80 && pct < 100,
-                        isExceeded = pct >= 100
-                    )
                 }
 
-                val totalBudget = overviews.sumOf { it.budget.amountLimit }
-                val totalSpent = overviews.sumOf { it.spentAmount }
                 val rawOverall = if (totalBudget > 0.0) {
                     (totalSpent / totalBudget).toFloat()
                 } else {
@@ -127,7 +114,7 @@ class BudgetVM(
 
                 _uiState.update {
                     it.copy(
-                        budgets = overviews,
+                        budgets = budgetList,
                         categories = categories.filter { cat -> cat.type == "EXPENSE" },
                         totalBudgeted = totalBudget,
                         totalSpent = totalSpent,
@@ -189,15 +176,15 @@ class BudgetVM(
         }
     }
 
-    fun openEdit(overview: BudgetOverview) {
+    fun openEdit(budget: Budget) {
         _uiState.update {
             it.copy(
                 isFormOpen = true,
                 isEditing = true,
-                budgetToEdit = overview.budget,
-                categoryId = overview.budget.categoryId,
-                categoryName = overview.categoryName,
-                amountLimit = overview.budget.amountLimit.toString(),
+                budgetToEdit = budget,
+                categoryId = budget.categoryId,
+                categoryName = getCategoryName(budget.categoryId),
+                amountLimit = budget.amountLimit.toString(),
                 isAmountError = null,
                 isCategoryError = null,
                 errorMessage = null

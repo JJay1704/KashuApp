@@ -149,27 +149,27 @@ fun LoginScreen(
 
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                OutlinedButton(
-                    onClick = { /* Acción huella digital */ },
-                    modifier = Modifier
-                        .weight(0.2f)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = KashuTheme.colors.surface,
-                        contentColor = KashuTheme.colors.mainColor
-                    ),
-                    border = BorderStroke(
-                        width = 2.dp, color = MaterialTheme.colorScheme.outline
-                    ),
-
-                    ) {
-                    Icon(
-                        imageVector = Icons.Default.Fingerprint,
-                        contentDescription = "Biometric Login",
-                        tint = KashuTheme.colors.title
-                    )
-                }
+//                OutlinedButton(
+//                    onClick = {  },
+//                    modifier = Modifier
+//                        .weight(0.2f)
+//                        .height(48.dp),
+//                    shape = RoundedCornerShape(12.dp),
+//                    colors = ButtonDefaults.outlinedButtonColors(
+//                        containerColor = KashuTheme.colors.surface,
+//                        contentColor = KashuTheme.colors.mainColor
+//                    ),
+//                    border = BorderStroke(
+//                        width = 2.dp, color = MaterialTheme.colorScheme.outline
+//                    ),
+//
+//                    ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Fingerprint,
+//                        contentDescription = "Biometric Login",
+//                        tint = KashuTheme.colors.title
+//                    )
+//                }
             }
             Spacer(modifier = Modifier.height(20.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -182,8 +182,8 @@ fun LoginScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
-                KashuSocialButton(
-                    onClickFun = { })
+//                KashuSocialButton(
+//                    onClickFun = { })
             }
             Spacer(modifier = Modifier.weight(1f))
             Row(

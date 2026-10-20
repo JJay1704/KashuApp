@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.core.composables.KashuTextField
-import com.kashuapp.data.budget.BudgetOverview
+import com.kashuapp.data.budget.Budget
 import com.kashuapp.data.category.Category
 import com.kashuapp.ui.theme.KashuTheme
 
@@ -199,13 +199,30 @@ fun OverallBudgetSummaryCard(
 
 @Composable
 fun BudgetCard(
-    overview: BudgetOverview,
+    budget: Budget,
+    categoryName: String,
+    spentAmount: Double,
     onClickCard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val rawFraction = if (budget.amountLimit > 0.0) {
+        (spentAmount / budget.amountLimit).toFloat()
+    } else {
+        0.0f
+    }
+    val progressFraction = rawFraction.coerceIn(0.0f, 1.0f)
+    val percentage = if (budget.amountLimit > 0.0) {
+        ((spentAmount / budget.amountLimit) * 100).toInt()
+    } else {
+        0
+    }
+    val isExceeded = percentage >= 100
+    val isWarning = percentage in 80..99
+    val remainingAmount = (budget.amountLimit - spentAmount).coerceAtLeast(0.0)
+
     val progressColor = when {
-        overview.isExceeded -> Color(0xFFEF4444)
-        overview.isWarning -> Color(0xFFF59E0B)
+        isExceeded -> Color(0xFFEF4444)
+        isWarning -> Color(0xFFF59E0B)
         else -> KashuTheme.colors.mainColor
     }
 
@@ -234,7 +251,7 @@ fun BudgetCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Category,
-                            contentDescription = overview.categoryName,
+                            contentDescription = categoryName,
                             tint = progressColor,
                             modifier = Modifier.size(20.dp)
                         )
@@ -244,20 +261,20 @@ fun BudgetCard(
 
                     Column {
                         Text(
-                            text = overview.categoryName,
+                            text = categoryName,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = KashuTheme.colors.title
                         )
                         Text(
-                            text = "S/. ${overview.spentAmount} de S/. ${overview.budget.amountLimit}",
+                            text = "S/. $spentAmount de S/. ${budget.amountLimit}",
                             fontSize = 13.sp,
                             color = KashuTheme.colors.subtitle
                         )
                     }
                 }
 
-                if (overview.isExceeded || overview.isWarning) {
+                if (isExceeded || isWarning) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Warning,
@@ -267,7 +284,7 @@ fun BudgetCard(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = if (overview.isExceeded) "Excedido" else "80%+",
+                            text = if (isExceeded) "Excedido" else "80%+",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = progressColor
@@ -275,7 +292,7 @@ fun BudgetCard(
                     }
                 } else {
                     Text(
-                        text = "${overview.percentage}%",
+                        text = "$percentage%",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = progressColor
@@ -286,7 +303,7 @@ fun BudgetCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             LinearProgressIndicator(
-                progress = { overview.progressFraction },
+                progress = { progressFraction },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
@@ -302,16 +319,16 @@ fun BudgetCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = if (overview.isExceeded) {
-                        "Excedido por: S/. ${overview.spentAmount - overview.budget.amountLimit}"
+                    text = if (isExceeded) {
+                        "Excedido por: S/. ${spentAmount - budget.amountLimit}"
                     } else {
-                        "Restante: S/. ${overview.remainingAmount}"
+                        "Restante: S/. $remainingAmount"
                     },
                     fontSize = 12.sp,
-                    color = if (overview.isExceeded) Color(0xFFEF4444) else KashuTheme.colors.subtitle
+                    color = if (isExceeded) Color(0xFFEF4444) else KashuTheme.colors.subtitle
                 )
                 Text(
-                    text = "${overview.percentage}% consumido",
+                    text = "$percentage% consumido",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = progressColor
