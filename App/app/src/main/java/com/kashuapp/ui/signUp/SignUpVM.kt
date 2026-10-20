@@ -106,7 +106,7 @@ class SignUpVM(
                 if (rawMessage.contains("User already registered", ignoreCase = true)) {
                     _uiState.update { it.copy(isEmailError = "Este correo ya está registrado") }
                 } else {
-                    _uiState.update { it.copy(errorMessage = "Ocurrió un error al registrar la cuenta") }
+                    _uiState.update { it.copy(errorMessage =  error.message +"Ocurrió un error al registrar la cuenta") }
                 }
             }
         }
