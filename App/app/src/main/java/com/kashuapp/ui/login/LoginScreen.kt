@@ -17,21 +17,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,10 +39,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuLogo
 import com.kashuapp.core.composables.KashuTextField
+import com.kashuapp.ui.resetPswd.ResetPswdScreen
 import com.kashuapp.ui.theme.KashuTheme
 
 @Composable
@@ -53,15 +54,11 @@ fun LoginScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToRegister: () -> Unit,
     viewModel: LoginVM = viewModel(),
-
-
-    ) {
-
+//    onNavigateToResetPswd: () -> Unit,
+) {
     val uiStateValues by viewModel.uiState.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
-
-
 
 
         Column(
@@ -112,6 +109,11 @@ fun LoginScreen(
             KashuTextField(
                 label = "Password",
                 extraLabel = "Forgot your password?",
+                onExtraClick = {
+//                    onNavigateToResetPswd()
+                    viewModel.openResetPswd(true)
+
+                },
                 type = uiStateValues.password,
                 onType = { viewModel.onPassword(it) },
                 placeholder = "••••••••",
@@ -149,27 +151,7 @@ fun LoginScreen(
 
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-//                OutlinedButton(
-//                    onClick = {  },
-//                    modifier = Modifier
-//                        .weight(0.2f)
-//                        .height(48.dp),
-//                    shape = RoundedCornerShape(12.dp),
-//                    colors = ButtonDefaults.outlinedButtonColors(
-//                        containerColor = KashuTheme.colors.surface,
-//                        contentColor = KashuTheme.colors.mainColor
-//                    ),
-//                    border = BorderStroke(
-//                        width = 2.dp, color = MaterialTheme.colorScheme.outline
-//                    ),
-//
-//                    ) {
-//                    Icon(
-//                        imageVector = Icons.Default.Fingerprint,
-//                        contentDescription = "Biometric Login",
-//                        tint = KashuTheme.colors.title
-//                    )
-//                }
+
             }
             Spacer(modifier = Modifier.height(20.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -182,8 +164,7 @@ fun LoginScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
-//                KashuSocialButton(
-//                    onClickFun = { })
+
             }
             Spacer(modifier = Modifier.weight(1f))
             Row(
@@ -207,12 +188,20 @@ fun LoginScreen(
             Spacer(modifier = Modifier.weight(0.2f))
 
 
-
-
-
-
         }
+        if (uiStateValues.isOpenResetPswd) {
+            Dialog(
+                onDismissRequest = { viewModel.openResetPswd(false) },
+                properties = DialogProperties(
+                    usePlatformDefaultWidth = false
 
+                )
+            ) {
+                ResetPswdScreen(
+                    onBackToHome = { viewModel.openResetPswd(false) }
+                )
+            }
+        }
         if (uiStateValues.isLoading) {
             Box(
                 modifier = Modifier

@@ -83,3 +83,19 @@ Criterios internos de evaluación:
 - El estudiante logra cruzar estados dentro del `ViewModel` (ej. buscar la cuenta seleccionada en `uiState.value.accounts` y comparar `amount > account.currentBalance` solo cuando `selectedTypeTrans == "EXPENSE"`).
 - No rompe la edición de transacciones ni otras pantallas.
 - Puede explicar en 2 frases cómo fluye el dato desde la UI hasta la validación en el `ViewModel`.
+
+---
+
+## 6. Retos Específicos para Entrega T3 (Password Reset, Metas y Cuentas) · Nivel 2 → 3
+
+Pedidos de ejemplo:
+- *"En el flujo de recuperación de contraseña (`ResetPswdScreen`), si el código OTP ingresado no tiene exactamente 6 dígitos numéricos, deshabilita el botón 'Verificar Código' y muestra un indicador de dígitos restantes."*
+- *"En la pantalla de recuperación de contraseña, valida que la nueva contraseña y su confirmación coincidan antes de habilitar el botón 'Actualizar Contraseña'; si no coinciden, muestra 'Las contraseñas no coinciden'."*
+- *"Al registrar un aporte a una meta de ahorro (`RF-07.2`), descuenta el monto aportado del saldo de la cuenta seleccionada y valida que la cuenta tenga fondos suficientes antes de guardar."*
+- *"En las tarjetas de meta de ahorro (`GoalItemCard`), muestra un aviso visual destacado si faltan 7 días o menos para la fecha límite de cumplimiento (`deadline`), o marca 'Vencida' si la fecha ya pasó."*
+- *"En el cálculo del patrimonio neto del Home (`RF-08.1`), agrega un desglose visible que muestre 'Activos Disponibles' (suma de cuentas activas) y 'Pasivos / Tarjetas', calculando en vivo la diferencia."*
+
+Criterios internos de evaluación:
+- Respeta la arquitectura MVVM: la lógica de pasos (`ResetSteps`), cálculo y validación reside en el `ViewModel` (`ResetPswdVM`, `GoalsVM`, `HomeVM`).
+- El estado inmutable se propaga correctamente con `StateFlow` y State Hoisting.
+- Manejo limpio de errores de Supabase Auth (OTP expirado, token inválido o error de red) sin crashes en la app.

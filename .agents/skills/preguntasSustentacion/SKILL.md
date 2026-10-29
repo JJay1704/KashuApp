@@ -19,7 +19,7 @@ No es un examen escrito ni un cuestionario de teoría general. Es un interrogato
 
 Si el usuario invoca el skill con un argumento (ej. `/sustentacion módulo de cuentas`, `/sustentacion formulario de transacciones`, `/sustentacion presupuestos`), usa eso como foco directamente.
 
-Si no da argumento, pregúntale primero, en una sola línea, qué módulo o flujo de **KashuApp** quiere sustentar (ej. *"¿Qué módulo quieres sustentar hoy: Login/Registro, Home, Transacciones (Lista/Formulario), Cuentas, Categorías, Presupuestos, Metas o Analytics?"*). Espera su respuesta antes de seguir.
+Si no da argumento, pregúntale primero, en una sola línea, qué módulo o flujo de **KashuApp** quiere sustentar (ej. *"¿Qué módulo quieres sustentar hoy: Login/Registro, Recuperación de Contraseña (ResetPswd), Home, Transacciones (Lista/Formulario), Cuentas, Categorías, Presupuestos o Metas?"*). Espera su respuesta antes de seguir.
 
 No asumas que el foco es "todo el proyecto" salvo que el estudiante pida explícitamente un simulacro transversal de varios módulos.
 
@@ -34,7 +34,7 @@ Prepara la cantidad total de preguntas acordada en el Paso 0, combinando **cuatr
 1. **Nivel 1 — Ubicación quirúrgica en el código (van primero):**
    - Dónde vive exactamente un botón, validación, estado o llamada a Supabase dentro del proyecto.
    - El profesor riguroso pide **archivo y línea (o rango de líneas)** para comprobar que el alumno conoce su código y sabe buscar rápido en Android Studio.
-   - Ej.: *"¿En qué archivo y en qué línea exacta está la validación que impide guardar un presupuesto si el monto es menor o igual a 0?"*, *"¿En qué archivo y función se filtra para que el selector de categorías solo muestre las de tipo INCOME o EXPENSE?"*.
+   - Ej.: *"¿En qué archivo y en qué línea exacta está la validación que impide guardar un presupuesto si el monto es menor o igual a 0?"*, *"¿En qué archivo y función se filtra para que el selector de categorías solo muestre las de tipo INCOME o EXPENSE?"*, *"¿En qué archivo y función de `resetPswd` se evalúa si el código OTP ingresado tiene exactamente 6 dígitos?"*.
 
 2. **Nivel 2 — Comportamientos observables y trazabilidad entre capas (dificultad media):**
    - Partir de algo que se ve en la pantalla y pedirle que trace el recorrido del evento desde el `@Composable` hasta el `ViewModel` y el `Repository`.
@@ -46,7 +46,7 @@ Prepara la cantidad total de preguntas acordada en el Paso 0, combinando **cuatr
 
 4. **Nivel 4 — Contrafactuales del profesor riguroso ("¿Qué se rompe si...?" — van al final):**
    - La pregunta favorita de un docente estricto para cazar código generado con IA: plantear qué pasaría en la app si se borra, comenta o cambia una línea específica.
-   - Ej.: *"Si en la línea 147 de `TransactionFormVM.kt` borro `categoryId = "", categoryName = ""` dentro de `onType()`, ¿qué bug exacto podría provocar el usuario en la app?"*, *"Si en `AccountVM.kt` quito `loadData()` dentro de `closeForm()`, ¿qué ve el usuario después de crear una cuenta?"*.
+   - Ej.: *"Si en la línea 147 de `TransactionFormVM.kt` borro `categoryId = "", categoryName = ""` dentro de `onType()`, ¿qué bug exacto podría provocar el usuario en la app?"*, *"Si en `AccountVM.kt` quito `loadData()` dentro de `closeForm()`, ¿qué ve el usuario después de crear una cuenta?"*, *"Si en `ResetPswdVM.kt` omito actualizar el paso a `ResetStep.NEW_PASSWORD` tras verificar el OTP, ¿qué pantalla le quedaría congelada al usuario?"*.
 
 Reparte la cantidad total manteniendo siempre el orden ascendente:
 - Si son **5 preguntas**: 1 de Ubicación + 2 de Comportamiento/Flujo + 1 de Línea puntual + 1 Contrafactual ("¿Qué se rompe si...?").

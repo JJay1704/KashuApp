@@ -17,7 +17,11 @@ class LoginVM(
     val uiState  = _uiState.asStateFlow()
 
 
+    fun openResetPswd(value : Boolean){
 
+        _uiState.update { it.copy(isOpenResetPswd = value) }
+
+    }
 
     fun onEmail (newEmail: String){
         _uiState.update { it.copy(email = newEmail, errorMessage = "" )}

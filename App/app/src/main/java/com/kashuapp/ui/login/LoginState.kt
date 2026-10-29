@@ -1,5 +1,7 @@
 package com.kashuapp.ui.login
 
+import android.text.BoringLayout
+
 data class LoginState(
 
 
@@ -8,8 +10,8 @@ data class LoginState(
     val isPasswordVisible: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String = "",
-    val isSuccess: Boolean = false
-
+    val isSuccess: Boolean = false,
+    val isOpenResetPswd : Boolean = false
 
 
 )

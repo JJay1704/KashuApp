@@ -12,6 +12,7 @@ import com.kashuapp.ui.account.list.AccountScreen
 import com.kashuapp.ui.category.CategoryScreen
 import com.kashuapp.ui.home.HomeScreen
 import com.kashuapp.ui.login.LoginScreen
+import com.kashuapp.ui.resetPswd.ResetPswdScreen
 import com.kashuapp.ui.signUp.RegisterView
 import com.kashuapp.ui.theme.KashuAppTheme
 
@@ -32,14 +33,20 @@ fun Navigation() {
             ) {
                 composable("login") {
 
-                    LoginScreen(onNavigateToHome = {
-                        navController.navigate("home") {
+                    LoginScreen(
+//                        onNavigateToResetPswd = {
+//                            navController.navigate("resetpswd")
+//                        },
+                        onNavigateToHome = {
+                            navController.navigate("home") {
 
-                            popUpTo("login") { inclusive = true }
+                                popUpTo("login") { inclusive = true }
+                            }
+                        },
+                        onNavigateToRegister = {
+                            navController.navigate("register")
                         }
-                    }, onNavigateToRegister = {
-                        navController.navigate("register")
-                    })
+                    )
                 }
                 composable("home") {
                     HomeScreen(onNavigateToCategory = {

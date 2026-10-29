@@ -28,18 +28,29 @@ KashuApp/
 │   ├── app/
 │   │   ├── src/main/java/com/kashuapp/
 │   │   │   ├── core/               # Componentes reutilizables y navegación global
-│   │   │   │   ├── composables/    # Botones, logos y widgets genéricos
-│   │   │   │   └── navBar/         # HomeTab y estructura de pestañas
-│   │   │   ├── data/               # Repositorios y cliente backend (Supabase)
-│   │   │   │   ├── KashuSupaBase.kt
-│   │   │   │   ├── IAuthRepository.kt / SupabaseAuthRepository.kt
-│   │   │   │   └── ITransactionRepository.kt / SupabaseTransactionRepository.kt
-│   │   │   ├── ui/                 # Vistas y ViewModels organizados por pantalla/módulo
-│   │   │   │   ├── home/           # Dashboard principal, saldo y resumen
-│   │   │   │   ├── login/          # LoginScreen, LoginViewModel, LoginScreenState
-│   │   │   │   ├── register/       # Registro de nuevos usuarios
-│   │   │   │   ├── transaction/    # Historial y registro de transacciones
-│   │   │   │   └── theme/          # Sistema de diseño (Color.kt, Theme.kt, Type.kt)
+│   │   │   │   ├── composables/    # Componentes genéricos compartidos (GenericComposables.kt)
+│   │   │   │   └── navigation/     # NavHost central, rutas y tabs (Navigation.kt, HomeTab.kt, MenuTab.kt)
+│   │   │   ├── data/               # Repositorios, modelos y cliente backend (Supabase)
+│   │   │   │   ├── KashuSupaBase.kt # Cliente singleton de Supabase
+│   │   │   │   ├── account/        # Modelos y repositorio de cuentas (Account, AccountRepository, IAccountRepository)
+│   │   │   │   ├── accounType/     # Tipos de cuenta bancaria/efectivo (AccountType, IAccountTypeRepository)
+│   │   │   │   ├── auth/           # Autenticación y perfil (AuthRepository, IAuthRepository, UserProfile)
+│   │   │   │   ├── budget/         # Presupuestos mensuales (Budget, BudgetRepository, IBudgetRepository)
+│   │   │   │   ├── category/       # Categorías de transacción (Category, CategoryRepository, ICategoryRepository)
+│   │   │   │   ├── currency/       # Monedas soportadas (Currency, CurrencyRepository, ICurrencyRepository)
+│   │   │   │   ├── goal/           # Metas de ahorro y aportes (Goal, GoalRepository, IGoalRepository)
+│   │   │   │   └── transaction/    # Ingresos y gastos (Transaction, TransactionRepository, ITransactionRepository)
+│   │   │   ├── ui/                 # Vistas, estados y ViewModels organizados por pantalla/módulo
+│   │   │   │   ├── account/        # Gestión de cuentas y pasivos (AccountScreen, AccountForm, AccountVM)
+│   │   │   │   ├── category/       # Catálogo de categorías (CategoryScreen, CategoryForm, CategoryVM)
+│   │   │   │   ├── goals/          # Metas de ahorro (form/ y list/, GoalScreen, GoalsVM, GoalFormVM)
+│   │   │   │   ├── home/           # Dashboard principal, saldo y resumen (HomeScreen, HomeVM)
+│   │   │   │   ├── login/          # Inicio de sesión (LoginScreen, LoginVM, LoginState)
+│   │   │   │   ├── menu/           # Menú lateral / secundario de módulos (MenuScreen, MenuVM)
+│   │   │   │   ├── resetPswd/      # Recuperación de contraseña por correo y OTP (ResetPswdScreen, ResetPswdVM)
+│   │   │   │   ├── signUp/         # Registro de nuevos usuarios (SignUpScreen, SignUpVM, SignUpState)
+│   │   │   │   ├── theme/          # Sistema de diseño (Color.kt, Theme.kt, Type.kt, KashuScheme.kt)
+│   │   │   │   └── transaction/    # Historial y registro (form/ y list/, TransactionScreen, TransactionVM)
 │   │   │   └── MainActivity.kt     # Punto de entrada de la actividad y NavHost
 │   │   └── build.gradle.kts        # Configuración y dependencias del módulo app
 │   ├── gradle/libs.versions.toml   # Catálogo centralizado de versiones (Version Catalog)
@@ -47,6 +58,7 @@ KashuApp/
 │   └── gradlew / gradlew.bat       # Wrapper de Gradle
 ├── Documentacion/                  # Especificaciones funcionales y diseño
 │   ├── RequisitosFuncionales.md    # Historias de usuario (HU-01 a HU-12) y requisitos (RF-01 a RF-12.1)
+│   ├── BaseDeDatos.md              # Esquema de base de datos Supabase, tablas, RLS y triggers ACID
 │   ├── DiagramaDeFlujo.pdf         # Diagramas de flujo de navegación y procesos
 │   └── Mockups/                    # Diseños visuales de referencia
 └── AGENTS.md                       # Este archivo de directrices para agentes
@@ -117,7 +129,11 @@ Cualquier funcionalidad implementada debe responder a las historias de usuario y
 - **Autenticación (HU-01, HU-02 / RF-01, RF-02):** Registro e inicio de sesión seguro (Email + Contraseña con políticas mínimas, Google Sign-In, Biometría), recuperación de contraseña por correo.
 - **Transacciones (HU-03, HU-05, HU-11, HU-12 / RF-03, RF-05, RF-11, RF-12):** Registro manual de ingresos y gastos (monto, fecha, hora, categoría, cuenta), edición, historial reciente y búsqueda con filtros dinámicos.
   - **Decisión de Diseño (Home vs. Historial):** En la pantalla de inicio (`HomeScreen` / `HomeView`), el listado de actividad reciente (**HU-11 / RF-11**) es **estrictamente de solo lectura (informativo)**. La edición y eliminación de transacciones (**HU-05 / RF-05**) se realiza única y exclusivamente desde la vista completa de historial (`History` / `TransactionScreen`), manteniendo separación de responsabilidades entre el resumen ejecutivo y la gestión operativa.
-  - **Decisión de Diseño (Visualización en `TransactionItemCard`):** En las tarjetas del listado de transacciones (`TransactionItemCard`), **no se muestra la descripción (`description`) al lado del nombre de la cuenta o categoría** para evitar saturación visual y problemas de espacio en pantallas móviles. La tarjeta muestra únicamente el ícono/color por tipo de movimiento, nombre de la categoría, nombre de la cuenta y monto formateado; la descripción completa se consulta o edita al abrir el detalle/formulario de la transacción en el historial.
+  - **Decisión de Diseño (Visualización en `TransactionItemCard` - Actualizado para T3):** Para cumplir con **HU-11 / RF-11**, la tarjeta de transacción (`TransactionItemCard`) debe mostrar:
+    1. El **ícono y color distintivo de su categoría** (o color/ícono de ingresos/gastos si no tiene categoría).
+    2. El **nombre de la categoría** y la **descripción del movimiento**.
+    3. El nombre de la cuenta emisora/receptora.
+    4. El **monto con signo explícito** (`+` para ingresos en verde, `-` para gastos en rojo).
 - **Categorías (HU-04 / RF-04):** Clasificación de gastos, creación, edición, icono y color personalizable.
 - **Presupuestos y Alertas (HU-06, HU-10 / RF-06, RF-10):** Asignación de tope monetario mensual por categoría, cálculo de porcentaje consumido y alertas al alcanzar 80% o 100%.
 - **Metas de Ahorro (HU-07 / RF-07):** Registro de objetivo, monto meta, fecha límite y cálculo visual de avance y saldo faltante.
@@ -200,4 +216,51 @@ La respuesta del agente debe estructurarse obligatoriamente con el siguiente for
   - Lista detallada de lo que falta para cumplir tanto funcionalmente como técnicamente (validaciones, endpoints, acoplamientos, violaciones de capas).
 - **Veredicto Final Riguroso:**
   - Dictamen claro: **"LISTO PARA T1"** o **"NO ESTÁ LISTO PARA T1"**, fundamentando exactamente qué bloquea la entrega sin complacencias.
+
+---
+
+## 10. Protocolo de Verificación para Entrega T3 (Checklist Mandatorio)
+
+Cuando el usuario pregunte *"¿el proyecto está listo para el T3?"*, *"¿estamos listos para la entrega 3?"*, *"verifica el T3"* o cualquier variante similar, el agente **DEBE activar inmediatamente una auditoría estricta del código fuente** contra el alcance oficial del T3.
+
+### 10.1. Alcance y Criterios de Aceptación del T3
+El agente debe evaluar punto por punto los siguientes requerimientos:
+
+1. **HU-02 / RF-02: Recuperación de Contraseña**
+   - **Acción:** Desde la pantalla de login, el usuario presiona "¿Olvidaste tu contraseña?", ingresa su correo registrado y solicita el restablecimiento. Recibe un correo real con enlace o código OTP.
+   - **Resultado esperado:** El usuario ingresa la nueva contraseña (validando la política mínima de seguridad) y se actualiza su acceso en Supabase Auth permitiéndole iniciar sesión con la nueva credencial.
+
+2. **Gestión de Cuentas y Deudas (Impacto en HU-08 / RF-08, RF-08.1)**
+   - **Acción:** El usuario crea, edita y activa/desactiva cuentas (efectivo, banco, tarjeta) especificando saldo inicial. Asimismo, se gestionan pasivos/deudas.
+   - **Resultado esperado:** 
+     - Las cuentas desactivadas no se computan en saldos operativos ni en el saldo consolidado activo.
+     - El saldo consolidado suma activos netos disponibles.
+     - El **patrimonio neto** calcula con datos reales la fórmula financiera: **Activos Totales - Pasivos / Deudas Totales**.
+
+3. **HU-07 / RF-07: Creación y Gestión de Metas de Ahorro**
+   - **Acción:** El usuario registra metas con nombre, monto meta y fecha límite. Puede editarlas y eliminarlas de forma persistente.
+   - **Resultado esperado:** La meta persiste en Supabase, refleja validaciones numéricas (> 0) y permite edición y eliminación limpia.
+
+4. **RF-07.1: Avance de la Meta de Ahorro y Alertas**
+   - **Acción:** El usuario registra abonos/aportes hacia una meta **seleccionando una cuenta de origen**.
+   - **Resultado esperado:**
+     - El monto abonado se descuenta del balance de la cuenta seleccionada y se suma al acumulado de la meta.
+     - La vista muestra el gráfico/barra de porcentaje de avance, el monto acumulado y **el saldo faltante para completar la meta**.
+     - Se muestra un aviso/indicador visual si la fecha límite está cerca (o vencida).
+
+5. **HU-11 / RF-11: Operaciones Recientes en la Pantalla de Inicio**
+   - **Acción:** El usuario visualiza la pantalla de inicio tras registrar movimientos.
+   - **Resultado esperado:** Listado de las últimas operaciones ordenadas de la más reciente a la más antigua (cronológico descendente). Cada elemento muestra:
+     - Ícono y color distintivo de su categoría (RF-04.1).
+     - Descripción del movimiento.
+     - Nombre de la cuenta.
+     - Monto formateado con signo explícito (`+` verde para ingresos, `-` rojo para gastos).
+
+### 10.2. Formato del Reporte de Verificación T3
+El reporte debe seguir la estructura:
+- **Tabla de Estado Funcional T3 (HU / RF / Cuentas y Deudas)**
+- **Tabla de Auditoría Técnica (MVVM, State Hoisting, Supabase RLS y SOLID)**
+- **Análisis de Gaps y Pendientes Críticos**
+- **Veredicto Final Riguroso: "LISTO PARA T3" o "NO ESTÁ LISTO PARA T3"**
+
 

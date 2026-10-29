@@ -1,6 +1,7 @@
 package com.kashuapp.data.auth
 
 import com.kashuapp.data.KashuSupaBase
+import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.serialization.json.buildJsonObject
@@ -44,11 +45,8 @@ class AuthRepository : IAuthRepository {
     }
 
     override fun getCurrentUserId(): UserProfile {
-        val user = KashuSupaBase.auth.currentUserOrNull()
+        val user = KashuSupaBase.auth.currentUserOrNull() ?: return UserProfile(id = "Not Gotten")
 
-        if (user == null) {
-            return UserProfile(id = "Not Gotten")
-        }
         val metadata = user.userMetadata
         var fullName = ""
         var fatherName = ""
@@ -121,6 +119,51 @@ class AuthRepository : IAuthRepository {
         } catch (e: Exception) {
             return Result.failure(e)
         }
+    }
+
+
+    override suspend fun sendCode(email: String): Result<Unit> {
+
+
+        return try {
+
+            KashuSupaBase.auth.resetPasswordForEmail(email)
+            Result.success(Unit)
+
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
+
+
+        }
+
+    }
+
+
+    override suspend fun confirmToken(email: String, code: String): Result<Unit> {
+
+
+        return try {
+            KashuSupaBase.auth.verifyEmailOtp(
+                type = OtpType.Email.RECOVERY,
+                email = email,
+                token = code
+            )
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updatePassword(password: String): Result<Unit> {
+        return try {
+            KashuSupaBase.auth.updateUser { this.password = password }
+            Result.success(Unit)
+        }catch (e : Exception){Result.failure(e)}
     }
 
 

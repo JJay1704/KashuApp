@@ -230,14 +230,14 @@ fun KashuTextField(
     extraLabel: String = "",
     onExtraClick: () -> Unit = {},
     type: String = "",
-    onType: (String) -> Unit,
+    onType: (String) -> Unit = {},
     placeholder: String = "",
     isError: Boolean = false,
     colorPlaceHolder: Color = Color.Black,
     iconInput: ImageVector = Icons.Default.Email,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    trailingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)?= null,
     errorMessage: String? = null
 
 
