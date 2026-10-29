@@ -22,7 +22,16 @@ class ResetPswdVM(
 
     val uiState = _uiState.asStateFlow()
     fun onEmail(email: String) {
+        if (_uiState.value.isLoading) return
 
+        _uiState.update {
+            it.copy(
+                email = email,
+                code = "",
+                isError = null,
+                successMessage = ""
+            )
+        }
 
         _uiState.update { it.copy(email = email) }
 
@@ -35,7 +44,7 @@ class ResetPswdVM(
 
     fun reset(onSuccess: () -> Unit) {
 
-        val email = uiState.value.email
+        val email = uiState.value.email.trim()
 
         val emailErr = when {
             email.isBlank() -> "Ingresa tu correo"
@@ -43,14 +52,24 @@ class ResetPswdVM(
             else -> null
         }
 
-
         _uiState.update { it.copy(isError = emailErr) }
 
 
         if (emailErr == null) {
 
+            _uiState.update {
+                it.copy(
+                    email = email,
+                    isLoading = true,
+                    isError = null,
+                    successMessage = "",
+                    code = ""
+                )
+            }
+
             viewModelScope.launch {
 
+                _uiState.update { it.copy(isLoading = true, isError = null) }
 
                 val result = authRepo.sendCode(email)
                 result.onSuccess {
@@ -61,9 +80,18 @@ class ResetPswdVM(
                             isError = null
                         )
                     }
+                    _uiState.update { it.copy(isLoading = false) }
 
                 }
-                result.onFailure { _uiState.update { it.copy(successMessage = "No se pudo procesar la solicitud") } }
+                result.onFailure {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            successMessage = "",
+                            isError = "No se pudo enviar el correo. Intenta más tarde."
+                        )
+                    }
+                }
 
             }
         }
@@ -77,23 +105,65 @@ class ResetPswdVM(
     }
 
     fun confirmToken() {
+        if (_uiState.value.isLoading) return
+        val code = _uiState.value.code.trim()
+        if (code.isBlank()) {
+            _uiState.update { it.copy(isError = "Ingresa el código") }
+            return
+        }
+        val email = _uiState.value.email
 
+        _uiState.update {
+            it.copy(isLoading = true, isError = null)
+        }
         viewModelScope.launch {
 
-            val result = authRepo.confirmToken(_uiState.value.email, _uiState.value.code)
+            val result = authRepo.confirmToken(email, code)
             result.onSuccess {
                 _uiState.update {
                     it.copy(
                         step = ResetSteps.NEW_PASSWORD,
+                        isLoading = false,
                         isError = null
                     )
                 }
             }
-            result.onFailure { _uiState.update { it.copy(isError = " El codigo no es correcto") } }
+            result.onFailure {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        isError = "El código no es correcto"
+                    )
+                }
+            }
 
         }
 
 
+    }
+
+    fun togglePasswordVisibility() {
+        _uiState.update {
+            it.copy(isPasswordVisible = !it.isPasswordVisible)
+        }
+    }
+
+    fun toggleConfirmPasswordVisibility() {
+        _uiState.update {
+            it.copy(isConfirmPasswordVisible = !it.isConfirmPasswordVisible)
+        }
+    }
+    fun goBack() {
+        _uiState.update {
+            it.copy(
+                step = when (it.step) {
+                    ResetSteps.CODE -> ResetSteps.EMAIL
+                    ResetSteps.NEW_PASSWORD -> ResetSteps.CODE
+                    else -> it.step
+                },
+                isError = null
+            )
+        }
     }
 
     fun onNewPswd(newPswd: String) {
@@ -107,7 +177,7 @@ class ResetPswdVM(
 
 
     fun updatePswd() {
-
+        if (_uiState.value.isLoading) return
 
         val password = _uiState.value.newPswd.orEmpty()
 
@@ -116,7 +186,7 @@ class ResetPswdVM(
             password.length < 8 -> "Debe tener al menos 8 caracteres"
             !password.any { it.isUpperCase() } -> "Debe incluir una mayúscula"
             !password.any { it.isDigit() } -> "Debe incluir un número"
-            password!=confirmPswd -> "Las contraseñas no coinciden"
+            password != confirmPswd -> "Las contraseñas no coinciden"
             else -> null
         }
 
@@ -137,9 +207,12 @@ class ResetPswdVM(
                 _uiState.update {
                     it.copy(
                         step = ResetSteps.COMPLETE,
+                        isLoading = false,
                         newPswd = "",
-
-                        )
+                        newPswdConfirm = "",
+                        code = "",
+                        isError = null
+                    )
                 }
             }
             result.onFailure { error ->

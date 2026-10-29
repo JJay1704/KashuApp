@@ -4,12 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,18 +51,48 @@ fun ResetPswdScreen(
                 .background(KashuTheme.colors.mainBackground)
                 .padding(24.dp), verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = "Restablece tu Contraseña",
-                color = KashuTheme.colors.title,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    modifier = Modifier.offset(x = (-12).dp),
+                    onClick = {
+                        if (uiState.step == ResetSteps.EMAIL) {
+                            viewModel.resetFlow()
+                            onBackToHome()
+                        } else {
+                            viewModel.goBack()
+                        }
+                    }) {
+                    Icon(
+
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Volver",
+                        tint = KashuTheme.colors.title
+                    )
+                }
+                Text(
+                    text = "Restablece tu Contraseña",
+                    color = KashuTheme.colors.title,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+
 
             Spacer(modifier = Modifier.height(50.dp))
 
             when (uiState.step) {
                 ResetSteps.EMAIL -> {
-                    EmailReset { }
+                    EmailReset {
+                        viewModel.resetFlow()
+                        onBackToHome()
+                    }
 
                 }
 
@@ -71,7 +107,12 @@ fun ResetPswdScreen(
                 }
 
                 ResetSteps.COMPLETE -> {
-                    Text("Contraseña actualizada")
+                    CompletedPswd(
+                        onCompleted = {
+                            viewModel.resetFlow()
+                            onBackToHome()
+                        }
+                    )
                 }
             }
 

@@ -152,16 +152,20 @@ fun KashuButton(
     Button(
 
         onClick = onClickFun,
-        modifier = modifier.height(height.dp),
+        modifier = modifier
+            .height(height.dp)
+            .fillMaxWidth(),
         shape = RoundedCornerShape(rounded.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = backColor,
-            contentColor = Color.Black,
+            contentColor = textColor,
+            disabledContainerColor = backColor,
+            disabledContentColor = textColor
 
         ),
         contentPadding = PaddingValues(horizontal = horizontalPadding.dp, vertical = 0.dp),
-        enabled =  enabled && !isLoading
-        ) {
+        enabled = enabled && !isLoading
+    ) {
 
         if (isLoading) {
 
@@ -237,7 +241,7 @@ fun KashuTextField(
     iconInput: ImageVector = Icons.Default.Email,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    trailingIcon: @Composable (() -> Unit)?= null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     errorMessage: String? = null
 
 
