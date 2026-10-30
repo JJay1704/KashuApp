@@ -269,7 +269,7 @@ El reporte debe seguir la estructura:
 
 **Fecha de revisión: 29 de octubre de 2026.** Revisión estática del código local, incluidos cambios sin commit. Esta tabla es una fotografía del estado revisado, no reemplaza los requisitos ni constituye una certificación de entrega. Debe actualizarse tras implementar y verificar cambios. Los estados de GitHub Projects no prueban cumplimiento funcional.
 
-**Alcance de la evidencia:** «Cumple» significa implementación encontrada en el código. No se ejecutó la app ni se verificaron correos reales, persistencia real, políticas RLS o triggers de Supabase. Las funcionalidades dependientes del backend necesitan pruebas de extremo a extremo antes de darse por cerradas.
+**Alcance de la evidencia:** La revisión del agente fue estática. Posteriormente, el usuario confirmó que todos los requisitos clasificados como «Por verificar» en la revisión completa de RF fueron probados y funcionan correctamente: RF-01, RF-01.1, RF-01.3, RF-02.1 y RF-05.1. Se consideran cumplidos con verificación funcional reportada por el usuario, sin atribuir esas pruebas al agente. Esta confirmación no acredita una auditoría técnica de RLS ni resuelve los faltantes de desarrollo identificados por separado.
 
 | Estado | Requisito | Resultado de la revisión |
 | :--- | :--- | :--- |
@@ -285,11 +285,11 @@ El reporte debe seguir la estructura:
 | Cumple | RF-08: Consolidar saldos activos | Suma cuentas activas, separando resultados por moneda. No equivale a patrimonio neto. |
 | Cumple | RF-11: Listar operaciones recientes | Orden descendente por fecha y límite de cinco movimientos. |
 | Cumple | RF-12.1: Actualizar resultados al filtrar | Cambiar o limpiar filtros consulta y actualiza la lista. |
-| Parcial | RF-01 / RF-01.1: Registro y correo válido | Existe el registro, pero la validación local solo comprueba `@`. Falta probar correo duplicado. |
-| Parcial | RF-01.3: Autenticación y sesión | Flujo implementado con Supabase; falta comprobar su funcionamiento real. |
-| Parcial | HU-02 / RF-02.1: Recuperación completa | Existe solicitud de correo, validación OTP y actualización de contraseña; falta probar recepción y acceso con la nueva clave. |
-| Parcial | RF-03.1: Validación de transacciones | Valida monto, cuenta y categoría; no valida explícitamente fecha y hora al guardar. |
-| Parcial | HU-03 / RF-05.1: Impacto en saldos | Registra, edita y refresca cuentas; falta verificar el trigger que actualiza balances. |
+| Cumple (verificado por el usuario) | RF-01 / RF-01.1: Registro y correo válido | Registro y recuperación validan el formato con `Patterns.EMAIL_ADDRESS.matcher(email).matches()` sobre el correo con `trim()`. El registro maneja la respuesta «User already registered» de Supabase mostrando «Este correo ya está registrado». El usuario confirmó el funcionamiento, incluido el rechazo del registro duplicado. |
+| Cumple (verificado por el usuario) | RF-01.3: Autenticación y sesión | Flujo implementado con Supabase; el usuario confirmó autenticación y sesión funcionando correctamente. |
+| Cumple (verificado por el usuario) | HU-02 / RF-02.1: Recuperación completa | El usuario confirmó recepción del correo, validación OTP, actualización de contraseña y acceso con la nueva clave. |
+| Cumple | RF-03.1: Validación de transacciones | Valida monto mayor a cero, cuenta y categoría. En una transacción nueva, fecha y hora se inicializan al abrir el formulario y se conservan si el usuario no elige otras; los cambios se realizan mediante selectores. Al editar, se cargan los valores del movimiento. |
+| Cumple (verificado por el usuario) | HU-03 / RF-05.1: Impacto en saldos | El usuario confirmó el funcionamiento de la actualización de los saldos afectados por las operaciones sobre transacciones. La app registra/edita movimientos y refresca las cuentas; el cálculo corresponde al trigger del backend. |
 | Parcial | RF-06.1: Cambio automático de mes | Evalúa períodos seleccionados; no detecta el cambio de mes con el ViewModel activo. |
 | Parcial | RF-07.2: Aportes y alerta de vencimiento | Hay alerta visual; el aporte aumenta la meta sin seleccionar ni descontar una cuenta de origen. |
 | Parcial | HU-08: Saldo y patrimonio | Saldo implementado; falta patrimonio neto. |
@@ -317,10 +317,14 @@ El reporte debe seguir la estructura:
 2. Completar aportes a metas con cuenta activa de origen y descuento consistente del saldo.
 3. Permitir personalizar ícono/color de categorías y mostrarlos en las tarjetas de transacción.
 4. Separar por moneda o convertir explícitamente antes de sumar en presupuestos, estadísticas y resúmenes globales de metas.
-5. Fortalecer validación de correo, fecha y hora; completar rango de fechas y cambio de período.
-6. Probar recuperación con correo real, OTP y acceso con la nueva contraseña.
-7. Verificar persistencia, aislamiento por usuario/RLS y triggers de saldos al crear, editar y eliminar movimientos.
+5. Completar rango de fechas y cambio de período. El formato del correo y el rechazo del registro duplicado ya están implementados y verificados según confirmación del usuario.
+6. La recuperación con correo real, OTP y acceso con la nueva contraseña ya fue verificada por el usuario; no debe repetirse como pendiente sin evidencia de una regresión.
+7. La actualización funcional de saldos ya fue verificada por el usuario. La auditoría técnica de aislamiento por usuario/RLS permanece fuera del alcance de esta confirmación.
 
 El diagrama de flujo existe en `Documentacion/DiagramaDeFlujo.pdf`, pero su contenido no fue auditado. No se realizó en esta revisión la auditoría técnica completa exigida para emitir un veredicto formal T1/T3.
+
+### 11.3. Decisión Confirmada: Fecha y Hora de Transacciones
+
+En una transacción nueva, `AddTransact` obtiene la fecha y hora al abrir el formulario y las entrega a `TransactionFormVM.initForm`. Si el usuario no modifica los selectores, se guardan esos valores iniciales, no la hora del envío. Al editar, se conservan la fecha y hora del movimiento salvo modificación explícita. Por este motivo, no se debe registrar como faltante de RF-03.1 la ausencia de una selección manual ni exigirla. Esta corrección sustituye la observación anterior que clasificaba el requisito como parcial por fecha y hora. Los requisitos actuales tampoco establecen prohibir fechas futuras.
 
 

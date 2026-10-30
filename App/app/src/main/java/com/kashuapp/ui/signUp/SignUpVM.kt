@@ -1,5 +1,6 @@
 package com.kashuapp.ui.signUp
 
+import android.util.Patterns
 import androidx.annotation.Nullable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -64,7 +65,8 @@ class SignUpVM(
         val fatherErr = if (fatherName.isBlank()) "Ingresa tu apellido paterno" else null
         val emailErr = when {
             email.isBlank() -> "Ingresa tu correo"
-            !email.contains("@") -> "Correo electrónico inválido"
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Correo electrónico inválido"
+
             else -> null
         }
         val passwordErr = when {

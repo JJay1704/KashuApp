@@ -1,5 +1,6 @@
 package com.kashuapp.ui.resetPswd
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kashuapp.data.auth.AuthRepository
@@ -48,7 +49,7 @@ class ResetPswdVM(
 
         val emailErr = when {
             email.isBlank() -> "Ingresa tu correo"
-            !email.contains("@") -> "Correo electrónico inválido"
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches()-> "Correo electrónico inválido"
             else -> null
         }
 
