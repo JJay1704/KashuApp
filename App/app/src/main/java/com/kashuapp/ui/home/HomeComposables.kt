@@ -83,6 +83,7 @@ fun HomeView(
                     item = item,
                     categoryName = itemCategory,
                     accountName = itemAccount,
+                    currency = homeVM.accounts.find { it.id == item.accountId }?.currency ?: "",
                 )
             }
         }

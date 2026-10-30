@@ -133,9 +133,11 @@ fun GoalCard(
     goal: Goal,
     onAddSavingsClick: () -> Unit,
     onClickCard: () -> Unit,
+    deadlineAlert: String = "",
     modifier: Modifier = Modifier
 ) {
     val isTargetReached = goal.currentAmount >= goal.targetAmount
+    val remainingAmount = (goal.targetAmount - goal.currentAmount).coerceAtLeast(0.0)
     val rawFraction = if (goal.targetAmount > 0.0) {
         (goal.currentAmount / goal.targetAmount).toFloat()
     } else {
@@ -190,6 +192,17 @@ fun GoalCard(
                             color = KashuTheme.colors.subtitle,
                             fontSize = 12.sp
                         )
+                        if (deadlineAlert.isNotEmpty()) {
+                            Text(
+                                text = deadlineAlert,
+                                color = if (deadlineAlert == "Meta vencida") {
+                                    Color(0xFFEF4444)
+                                } else {
+                                    Color(0xFFF59E0B)
+                                },
+                                fontSize = 12.sp
+                            )
+                        }
                     }
                 }
 
@@ -220,7 +233,19 @@ fun GoalCard(
                     fontSize = 14.sp
                 )
             }
-
+            Text(
+                text = if (isTargetReached) {
+                    "Meta alcanzada"
+                } else {
+                    "Te faltan ${goal.currency} ${String.format("%.2f", remainingAmount)}"
+                },
+                color = if (isTargetReached) {
+                    KashuTheme.colors.mainColor
+                } else {
+                    KashuTheme.colors.subtitle
+                },
+                fontSize = 13.sp
+            )
             Spacer(modifier = Modifier.height(10.dp))
 
             LinearProgressIndicator(

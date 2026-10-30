@@ -86,14 +86,18 @@ fun TransactionView(
 
                     KashuDropdownField(
                         fillMaxWidth = false,
-                        selectedValue = viewModel.selectedAccount?.name?: "",
+                        selectedValue = viewModel.selectedAccount?.name ?: "",
                         placeholder = "Account",
                         icon = Icons.Default.AccountCircle,
                         items = viewModel.accounts,
                         itemLabel = { it.name },
-                        onItemSelected = { selectedAccount -> viewModel.selectAccount(selectedAccount) },
+                        onItemSelected = { selectedAccount ->
+                            viewModel.selectAccount(
+                                selectedAccount
+                            )
+                        },
                         isFilter = true,
-                        onClearFilter = {viewModel.selectAccount(null)}
+                        onClearFilter = { viewModel.selectAccount(null) }
                     )
 
 
@@ -103,14 +107,18 @@ fun TransactionView(
 
                     KashuDropdownField(
                         fillMaxWidth = false,
-                        selectedValue = viewModel.selectedCategory?.name?: "",
+                        selectedValue = viewModel.selectedCategory?.name ?: "",
                         placeholder = "Category",
                         icon = Icons.Default.Category,
                         items = viewModel.categories,
                         itemLabel = { it.name },
-                        onItemSelected = { selectedCategory -> viewModel.selectCategory(selectedCategory) },
+                        onItemSelected = { selectedCategory ->
+                            viewModel.selectCategory(
+                                selectedCategory
+                            )
+                        },
                         isFilter = true,
-                        onClearFilter = {viewModel.selectCategory(null)}
+                        onClearFilter = { viewModel.selectCategory(null) }
 
                     )
                 }
@@ -163,7 +171,7 @@ fun TransactionView(
             if (viewModel.selectedAccount != null) {
                 Box {
                     BalanceCard(
-                        balance = viewModel.getBalance(viewModel.selectedAccount?.id?: "")
+                        balance = viewModel.getBalance(viewModel.selectedAccount?.id ?: "")
                     )
                 }
             }
@@ -195,7 +203,8 @@ fun TransactionView(
                         item = item,
                         categoryName = itemCategory,
                         accountName = itemAccount,
-                        onClickCard = { selectedTransactionToEdit = item })
+                        currency = viewModel.accounts.find { it.id == item.accountId }?.currency
+                            ?: "", onClickCard = { selectedTransactionToEdit = item })
                 }
             }
             if (selectedTransactionToEdit != null) {

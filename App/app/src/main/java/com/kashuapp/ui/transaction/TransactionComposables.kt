@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kashuapp.data.category.Category
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.ui.theme.KashuTheme
 import java.text.SimpleDateFormat
@@ -168,13 +169,19 @@ fun KashuTimePickerField(
 
 @Composable
 fun TransactionItemCard(
-    item: Transaction, categoryName: String,
+    item: Transaction,
+
+    categoryName: String,
     accountName : String,
-    onClickCard : ()-> Unit = {}
-) {
+    currency: String = "PEN",
+    onClickCard : ()-> Unit = {},
+    category: Category? = null,
+
+    ) {
     val isIncome = item.type.equals("INCOME", ignoreCase = true)
     val amountColor = if (isIncome) Color(0xFF10B981) else Color(0xFFEF4444)
-    val amountPrefix = if (isIncome) "+ S/." else "- S/."
+    val amountPrefix = if (isIncome) "+ $currency" else "- $currency"
+
     val iconVector = if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
 
 
@@ -218,6 +225,14 @@ fun TransactionItemCard(
                         fontWeight = FontWeight.SemiBold,
                         color = KashuTheme.colors.title
                     )
+                    if (!item.description.isNullOrBlank()) {
+                        Text(
+                            text = item.description.orEmpty(),
+                            fontSize = 12.sp,
+                            color = KashuTheme.colors.subtitle,
+                            maxLines = 1
+                        )
+                    }
                     Text(
                         text =accountName,
                         fontSize = 12.sp,

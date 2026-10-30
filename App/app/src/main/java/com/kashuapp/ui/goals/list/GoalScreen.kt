@@ -157,6 +157,7 @@ fun GoalsScreen(
                 items(uiState.goals) { goal ->
                     GoalCard(
                         goal = goal,
+                        deadlineAlert = goalsVM.getDeadlineAlert(goal),
                         onAddSavingsClick = { goalsVM.openAddSavings(goal) },
                         onClickCard = { goalsVM.openEditGoal(goal) }
                     )

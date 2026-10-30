@@ -263,4 +263,64 @@ El reporte debe seguir la estructura:
 - **Análisis de Gaps y Pendientes Críticos**
 - **Veredicto Final Riguroso: "LISTO PARA T3" o "NO ESTÁ LISTO PARA T3"**
 
+---
+
+## 11. Conocimiento del Proyecto: Estado de Cumplimiento
+
+**Fecha de revisión: 29 de octubre de 2026.** Revisión estática del código local, incluidos cambios sin commit. Esta tabla es una fotografía del estado revisado, no reemplaza los requisitos ni constituye una certificación de entrega. Debe actualizarse tras implementar y verificar cambios. Los estados de GitHub Projects no prueban cumplimiento funcional.
+
+**Alcance de la evidencia:** «Cumple» significa implementación encontrada en el código. No se ejecutó la app ni se verificaron correos reales, persistencia real, políticas RLS o triggers de Supabase. Las funcionalidades dependientes del backend necesitan pruebas de extremo a extremo antes de darse por cerradas.
+
+| Estado | Requisito | Resultado de la revisión |
+| :--- | :--- | :--- |
+| Cumple | RF-01.2: Contraseña segura | Valida ocho caracteres, mayúscula y número. |
+| Cumple | RF-01.4: Error genérico de acceso | Muestra «Correo o contraseña incorrectos». |
+| Cumple | RF-02: Solicitar recuperación desde login | La opción abre el flujo y solicita el correo. |
+| Cumple | RF-03: Seleccionar ingreso o gasto | Ambos tipos están disponibles. |
+| Cumple | RF-04: Gestionar categorías | Creación, cambio de nombre y eliminación implementados. |
+| Cumple | RF-05: Editar transacciones | Modificación de movimientos desde el historial. |
+| Cumple | RF-06: Presupuesto mensual por categoría | Asigna límites por categoría, mes y año. |
+| Cumple | RF-07: Gestionar metas | Creación, edición y eliminación con nombre, monto objetivo y fecha. |
+| Cumple | RF-07.1: Mostrar avance de metas | Muestra barra, porcentaje, acumulado y faltante por meta. El aporte desde una cuenta se evalúa por separado. |
+| Cumple | RF-08: Consolidar saldos activos | Suma cuentas activas, separando resultados por moneda. No equivale a patrimonio neto. |
+| Cumple | RF-11: Listar operaciones recientes | Orden descendente por fecha y límite de cinco movimientos. |
+| Cumple | RF-12.1: Actualizar resultados al filtrar | Cambiar o limpiar filtros consulta y actualiza la lista. |
+| Parcial | RF-01 / RF-01.1: Registro y correo válido | Existe el registro, pero la validación local solo comprueba `@`. Falta probar correo duplicado. |
+| Parcial | RF-01.3: Autenticación y sesión | Flujo implementado con Supabase; falta comprobar su funcionamiento real. |
+| Parcial | HU-02 / RF-02.1: Recuperación completa | Existe solicitud de correo, validación OTP y actualización de contraseña; falta probar recepción y acceso con la nueva clave. |
+| Parcial | RF-03.1: Validación de transacciones | Valida monto, cuenta y categoría; no valida explícitamente fecha y hora al guardar. |
+| Parcial | HU-03 / RF-05.1: Impacto en saldos | Registra, edita y refresca cuentas; falta verificar el trigger que actualiza balances. |
+| Parcial | RF-06.1: Cambio automático de mes | Evalúa períodos seleccionados; no detecta el cambio de mes con el ViewModel activo. |
+| Parcial | RF-07.2: Aportes y alerta de vencimiento | Hay alerta visual; el aporte aumenta la meta sin seleccionar ni descontar una cuenta de origen. |
+| Parcial | HU-08: Saldo y patrimonio | Saldo implementado; falta patrimonio neto. |
+| Parcial | RF-08.2: Cuentas y deudas | Existe creación y edición de cuentas; falta completar activación/desactivación y gestión de pasivos. |
+| Parcial | RF-09 / RF-09.1: Estadísticas | Hay gráficos por categoría y comparación ingreso/gasto, pero suma monedas distintas y presenta resultados como soles. |
+| Parcial | RF-10 / RF-10.1: Consumo y alertas | Calcula consumo y muestra avisos al 80% y 100% en Presupuestos; mezcla monedas y no garantiza avisar al registrar un gasto fuera de esa pantalla. |
+| Parcial | HU-11 / RF-11.1: Detalle de operaciones recientes | Muestra descripción, cuenta, monto, signo y color de ingreso/gasto; falta ícono y color de categoría. |
+| Parcial | HU-12 / RF-12: Filtros del historial | Cuenta, categoría, tipo y períodos predefinidos implementados; falta rango de fechas personalizado. |
+| No cumple | RF-04.1: Personalizar ícono y color | El formulario no permite escogerlos; guarda valores fijos. |
+| No cumple | RF-08.1: Patrimonio neto | No calcula activos menos deudas. La etiqueta «Net Worth» muestra una suma de saldos. |
+
+### 11.1. Evidencia Principal
+
+- Autenticación: `SignUpVM.kt`, `LoginVM.kt`, `ResetPswdVM.kt` y `AuthRepository.kt`.
+- Inicio y saldo: `HomeVM.kt`, `HomeComposables.kt` y `GenericComposables.kt` (`NetWorthCard`).
+- Transacciones y filtros: `TransactionFormVM.kt`, `TransactionVM.kt`, `TransactionScreen.kt`, `TransactionComposables.kt` y `TransactionRepository.kt`.
+- Categorías: `CategoryVM.kt`, `CategoryForm.kt` y `CategoryRepository.kt`. La creación fija `icon = "category"` y `color = "#34D399"`.
+- Metas: `GoalFormVM.kt`, `GoalsVM.kt`, `GoalComposables.kt` y `GoalRepository.kt`. `submitSavings` solo actualiza la meta.
+- Cuentas: `AccountFormVM.kt`, `AccountVM.kt` y `Account.kt`.
+- Presupuestos y estadísticas: `BudgetVM.kt`, `BudgetComposables.kt`, `AnalyticsVM.kt` y `AnalyticsComposables.kt`.
+
+### 11.2. Pendientes Prioritarios y Verificación
+
+1. Implementar gestión de pasivos y patrimonio neto real.
+2. Completar aportes a metas con cuenta activa de origen y descuento consistente del saldo.
+3. Permitir personalizar ícono/color de categorías y mostrarlos en las tarjetas de transacción.
+4. Separar por moneda o convertir explícitamente antes de sumar en presupuestos, estadísticas y resúmenes globales de metas.
+5. Fortalecer validación de correo, fecha y hora; completar rango de fechas y cambio de período.
+6. Probar recuperación con correo real, OTP y acceso con la nueva contraseña.
+7. Verificar persistencia, aislamiento por usuario/RLS y triggers de saldos al crear, editar y eliminar movimientos.
+
+El diagrama de flujo existe en `Documentacion/DiagramaDeFlujo.pdf`, pero su contenido no fue auditado. No se realizó en esta revisión la auditoría técnica completa exigida para emitir un veredicto formal T1/T3.
+
 

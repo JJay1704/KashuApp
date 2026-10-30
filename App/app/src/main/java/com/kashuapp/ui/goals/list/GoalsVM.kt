@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class GoalsVM(
     private val goalRepo: IGoalRepository = GoalRepository(),
@@ -23,7 +26,24 @@ class GoalsVM(
     init {
         loadGoals()
     }
+    fun getDeadlineAlert(goal: Goal): String {
+        if (goal.currentAmount >= goal.targetAmount) {
+            return ""
+        }
 
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val today = dateFormat.format(calendar.time)
+
+        calendar.add(Calendar.DAY_OF_MONTH, 7)
+        val warningDate = dateFormat.format(calendar.time)
+
+        return when {
+            goal.deadline < today -> "Meta vencida"
+            goal.deadline <= warningDate -> "Tu meta está por vencer"
+            else -> ""
+        }
+    }
     fun loadGoals() {
         val userId = authRepo.getCurrentUserId().id
         if (userId == "Not Gotten" || userId.isBlank()) {
