@@ -20,18 +20,23 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.kashuapp.core.finance.FinanceRules
+import com.kashuapp.data.budget.IBudgetAlertRepository
+import com.kashuapp.data.budget.BudgetAlertRepository
 
 class TransactionFormVM(
     private val transRepo: ITransactionRepository = TransactionRepository(),
     private val catRepo: ICategoryRepository = CategoryRepository(),
     private val authRepo: IAuthRepository = AuthRepository(),
     private val accountRepo: IAccountRepository = AccountRepository(),
+    private val alertRepo: IBudgetAlertRepository = BudgetAlertRepository(),
 
     ) : ViewModel() {
 
     private val _uiStateTran = MutableStateFlow(TransactionFormState())
     val uiStateTran = _uiStateTran.asStateFlow()
     var categories by mutableStateOf<List<Category>>(emptyList())
+    private var original: Transaction? = null
 
 
     fun initForm(
@@ -42,6 +47,7 @@ class TransactionFormVM(
 
         initialCategoryName: String = ""
     ) {
+        original = trans
         if (trans != null) {
             val rawDate = trans.transactionDate.replace("T", " ").trim()
             val dateParts = rawDate.split(" ")
@@ -64,8 +70,8 @@ class TransactionFormVM(
                 accountName = initialAccountName,
                 categoryId = trans.categoryId,
                 categoryName = initialCategoryName,
-                date = date,
-                time = time,
+                date = FinanceRules.localDate(trans.transactionDate),
+                time = FinanceRules.localTime(trans.transactionDate),
                 description = trans.description ?: "",
                 isEditing = true
             )
@@ -89,7 +95,7 @@ class TransactionFormVM(
             _uiStateTran.update { current ->
                 current.copy(
                     categories = catList,
-                    accounts = accList,
+                    accounts = accList.filter { it.isActive || it.id == trans?.accountId },
                     accountName = account?.name ?: current.accountName,
                     categoryName = category?.name ?: current.categoryName
                 )
@@ -173,16 +179,22 @@ class TransactionFormVM(
 
 
     fun postTrans(date: String, time: String, onSuccess: () -> Unit) {
+        if (_uiStateTran.value.isLoading || _uiStateTran.value.savedAlert != null) return
         val currentUserId = authRepo.getCurrentUserId()
         val stateValues = _uiStateTran.value
-        val amountDouble = stateValues.amount.toDoubleOrNull()
+        val amountDouble = FinanceRules.positiveAmount(stateValues.amount)
         val errorAmount =
             if (amountDouble == null || amountDouble <= 0.0) "Ingrese monto valido mayor a 0  " else null
 
-        val errorAccount = if (stateValues.accountId.isBlank()) "Seleccione Cuenta valida" else null
+        val selectedAccount = stateValues.accounts.find { it.id == stateValues.accountId }
+        val errorAccount = when {
+            selectedAccount == null -> "Seleccione Cuenta valida"
+            !selectedAccount.isActive -> "La cuenta está desactivada; actívala o elige otra cuenta"
+            else -> null
+        }
 
         val errorCategory =
-            if (stateValues.categoryId.isBlank()) "Seleccione Categoria valida" else null
+            if (stateValues.categories.none { it.id == stateValues.categoryId && it.type == stateValues.selectedTypeTrans }) "Seleccione Categoria valida" else null
 
         val hasAnyError = errorAmount != null || errorAccount != null || errorCategory != null
         if (hasAnyError) {
@@ -203,9 +215,11 @@ class TransactionFormVM(
             categoryId = stateValues.categoryId,
             type = stateValues.selectedTypeTrans.ifEmpty { "EXPENSE" },
             description = stateValues.description,
-            transactionDate = "$date $time"
+            transactionDate = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", java.util.Locale.US).format(
+                java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US).parse("$date $time")!!)
         )
         viewModelScope.launch {
+            _uiStateTran.update { it.copy(isLoading = true, errorMessage = "") }
             val resultPost = if (stateValues.id != null) {
 
                 transRepo.updateTrans(transPost)
@@ -214,12 +228,12 @@ class TransactionFormVM(
 
             }
             resultPost.onSuccess {
-                onSuccess()
-
-
-                resetForm()
+                val alerts = alertRepo.afterSave(currentUserId.id, transPost, original)
+                val message = alerts.getOrElse { "Movimiento guardado. No se pudo consultar la alerta de presupuesto; revisa Presupuestos." }
+                _uiStateTran.update { it.copy(isLoading = false, savedAlert = message) }
+                if (message == null) { onSuccess(); resetForm() }
             }
-            resultPost.onFailure { error -> println(error) }
+            resultPost.onFailure { error -> _uiStateTran.update { it.copy(isLoading = false, errorMessage = error.message ?: "No se pudo guardar") } }
         }
     }
 

@@ -67,7 +67,7 @@ class TransactionRepository : ITransactionRepository {
                         gte("transaction_date", startDate)
                     }
                     if (!endDate.isNullOrBlank()) {
-                        lte("transaction_date", endDate)
+                        lt("transaction_date", endDate)
                     }
 
                     if (!type.isNullOrBlank()) {

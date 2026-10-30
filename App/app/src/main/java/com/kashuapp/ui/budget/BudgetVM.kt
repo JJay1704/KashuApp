@@ -18,12 +18,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import com.kashuapp.core.finance.FinanceRules
+import com.kashuapp.data.account.AccountRepository
+import com.kashuapp.data.account.IAccountRepository
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 
 class BudgetVM(
     private val budgetRepo: IBudgetRepository = BudgetRepository(),
     private val catRepo: ICategoryRepository = CategoryRepository(),
     private val transRepo: ITransactionRepository = TransactionRepository(),
-    private val authRepo: IAuthRepository = AuthRepository()
+    private val authRepo: IAuthRepository = AuthRepository(),
+    private val accountRepo: IAccountRepository = AccountRepository()
 ) : ViewModel() {
 
     private val initialCalendar = Calendar.getInstance()
@@ -39,8 +45,33 @@ class BudgetVM(
     val uiState = _uiState.asStateFlow()
 
     private var currentTransactions: List<Transaction> = emptyList()
+    private var loadJob: Job? = null
+    private var loadVersion = 0
+    private var observedMonth = initialYear * 12 + initialMonth
 
     init {
+        loadData()
+        viewModelScope.launch {
+            while (true) {
+                delay(30_000)
+                refreshPeriod()
+            }
+        }
+    }
+
+    fun refreshPeriod() {
+        val now = Calendar.getInstance()
+        val month = now.get(Calendar.MONTH) + 1
+        val year = now.get(Calendar.YEAR)
+        if (year * 12 + month != observedMonth) {
+            observedMonth = year * 12 + month
+            _uiState.update { it.copy(selectedMonth = month, selectedYear = year) }
+            loadData()
+        }
+    }
+
+    fun selectCurrency(currency: String) {
+        _uiState.update { it.copy(selectedCurrency = currency) }
         loadData()
     }
 
@@ -61,7 +92,9 @@ class BudgetVM(
             return
         }
 
-        viewModelScope.launch {
+        loadJob?.cancel()
+        val version = ++loadVersion
+        loadJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             val month = _uiState.value.selectedMonth
@@ -75,11 +108,19 @@ class BudgetVM(
 
             val monthStr = if (month < 10) "0$month" else "$month"
             val maxDayStr = if (maxDay < 10) "0$maxDay" else "$maxDay"
-            val startDate = "$year-$monthStr-01 00:00"
-            val endDate = "$year-$monthStr-$maxDayStr 23:59"
+            val (startDate, endDate) = FinanceRules.monthRange(year, month)
+            val currency = _uiState.value.selectedCurrency
 
-            val categories = catRepo.getAllCateg(userId).getOrDefault(emptyList())
-            val transactions = transRepo.getAll(
+            val categoryResult = catRepo.getAllCateg(userId)
+            val accountResult = accountRepo.getAllAccount(userId)
+            if (categoryResult.isFailure || accountResult.isFailure) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = "No se pudieron cargar categorías o cuentas") }
+                return@launch
+            }
+            val categories = categoryResult.getOrThrow()
+            val accounts = accountResult.getOrThrow()
+            val accountIds = accounts.filter { it.currency == currency }.mapNotNull { it.id }.toSet()
+            val transactionResult = transRepo.getAll(
                 userId = userId,
                 accountId = null,
                 categoryId = null,
@@ -87,12 +128,19 @@ class BudgetVM(
                 startDate = startDate,
                 endDate = endDate,
                 type = "EXPENSE"
-            ).getOrDefault(emptyList())
+            )
+            if (transactionResult.isFailure) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = "No se pudieron cargar los gastos") }
+                return@launch
+            }
+            val transactions = transactionResult.getOrThrow().filter { it.accountId in accountIds }
 
             currentTransactions = transactions
 
             val budgetResult = budgetRepo.getBudgets(userId, month, year)
-            budgetResult.onSuccess { budgetList ->
+            if (version != loadVersion) return@launch
+            budgetResult.onSuccess { allBudgets ->
+                val budgetList = allBudgets.filter { it.currency == currency }
                 val totalBudget = budgetList.sumOf { it.amountLimit }
                 val totalSpent = budgetList.sumOf { budget ->
                     transactions
@@ -115,6 +163,7 @@ class BudgetVM(
                 _uiState.update {
                     it.copy(
                         budgets = budgetList,
+                        currencies = (accounts.map { it.currency } + allBudgets.map { it.currency } + currency).distinct().sorted(),
                         categories = categories.filter { cat -> cat.type == "EXPENSE" },
                         totalBudgeted = totalBudget,
                         totalSpent = totalSpent,
@@ -221,7 +270,7 @@ class BudgetVM(
 
     fun saveBudget() {
         val state = _uiState.value
-        val amount = state.amountLimit.toDoubleOrNull()
+        val amount = FinanceRules.positiveAmount(state.amountLimit)
         val amountErr = if (amount == null || amount <= 0.0) "Ingrese monto válido mayor a 0" else null
         val categoryErr = if (state.categoryId.isBlank()) "Seleccione una categoría válida" else null
 
@@ -248,6 +297,7 @@ class BudgetVM(
                 amountLimit = validAmount,
                 month = state.selectedMonth,
                 year = state.selectedYear
+                , currency = state.selectedCurrency
             )
 
             val result = if (state.budgetToEdit != null) {

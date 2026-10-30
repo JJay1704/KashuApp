@@ -94,7 +94,7 @@ fun AccountForm(
                 placeholder = "Select Type",
                 icon = Icons.Default.AccountCircle,
                 items = uiState.accountTypes,
-                itemLabel = { it.name },
+                itemLabel = { "${it.name} (${if (it.classification == "pasivo") "Deuda" else "Activo"})" },
                 onItemSelected = { selectedAccount ->
                     viewModel.onAccountType(selectedAccount)
 
@@ -103,6 +103,10 @@ fun AccountForm(
                 labelError = uiState.isAccountTypeError
             )
             Spacer(modifier = Modifier.height(8.dp))
+
+            if (uiState.selectedAccountType?.classification == "pasivo") {
+                Text("Registra como saldo el monto pendiente de la deuda.", color = KashuTheme.colors.subtitle)
+            }
 
             KashuTextField(
                 label = "Initial Balance",

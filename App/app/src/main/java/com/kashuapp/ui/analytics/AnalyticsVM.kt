@@ -13,11 +13,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import com.kashuapp.core.finance.FinanceRules
+import com.kashuapp.data.account.AccountRepository
+import com.kashuapp.data.account.IAccountRepository
+import kotlinx.coroutines.Job
 
 class AnalyticsVM(
     private val transRepo: ITransactionRepository = TransactionRepository(),
     private val catRepo: ICategoryRepository = CategoryRepository(),
-    private val authRepo: IAuthRepository = AuthRepository()
+    private val authRepo: IAuthRepository = AuthRepository(),
+    private val accountRepo: IAccountRepository = AccountRepository()
 ) : ViewModel() {
 
     private val initialCal = Calendar.getInstance()
@@ -31,6 +36,13 @@ class AnalyticsVM(
         )
     )
     val uiState = _uiState.asStateFlow()
+    private var loadJob: Job? = null
+    private var loadVersion = 0
+
+    fun selectCurrency(currency: String) {
+        _uiState.update { it.copy(selectedCurrency = currency) }
+        loadData()
+    }
 
     init {
         loadData()
@@ -43,7 +55,9 @@ class AnalyticsVM(
             return
         }
 
-        viewModelScope.launch {
+        loadJob?.cancel()
+        val version = ++loadVersion
+        loadJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             val month = _uiState.value.selectedMonth
@@ -57,8 +71,15 @@ class AnalyticsVM(
 
             val monthStr = if (month < 10) "0$month" else "$month"
             val maxDayStr = if (maxDay < 10) "0$maxDay" else "$maxDay"
-            val startDate = "$year-$monthStr-01 00:00"
-            val endDate = "$year-$monthStr-$maxDayStr 23:59"
+            val (startDate, endDate) = FinanceRules.monthRange(year, month)
+            val currency = _uiState.value.selectedCurrency
+            val accountResult = accountRepo.getAllAccount(userId)
+            if (accountResult.isFailure) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = "No se pudieron cargar las monedas de las cuentas") }
+                return@launch
+            }
+            val accounts = accountResult.getOrThrow()
+            val accountIds = accounts.filter { it.currency == currency }.mapNotNull { it.id }.toSet()
 
             val catList = catRepo.getAllCateg(userId).getOrDefault(emptyList())
 
@@ -72,7 +93,9 @@ class AnalyticsVM(
                 type = null
             )
 
-            result.onSuccess { transactions ->
+            if (version != loadVersion) return@launch
+            result.onSuccess { allTransactions ->
+                val transactions = allTransactions.filter { it.accountId in accountIds }
                 val incomes = transactions.filter { it.type == "INCOME" }
                 val expenses = transactions.filter { it.type == "EXPENSE" }
 
@@ -106,6 +129,7 @@ class AnalyticsVM(
                 _uiState.update {
                     it.copy(
                         totalIncome = totalIncome,
+                        currencies = (accounts.map { it.currency } + currency).distinct().sorted(),
                         totalExpense = totalExpense,
                         netSavings = netSavings,
                         savingsRate = savingsRate,

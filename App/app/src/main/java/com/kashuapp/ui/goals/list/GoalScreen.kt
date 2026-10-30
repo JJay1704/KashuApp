@@ -62,9 +62,12 @@ fun GoalsScreen(
     if (uiState.isAddSavingsOpen && selectedGoal != null) {
         AddSavingsDialog(
             goal = selectedGoal,
+            state = uiState,
+            onAmountChange = goalsVM::onDepositAmount,
+            onAccountChange = goalsVM::onDepositAccount,
             onDismiss = { goalsVM.closeAddSavings() },
-            onConfirmSavings = { amountStr ->
-                goalsVM.submitSavings(amountStr)
+            onConfirmSavings = {
+                goalsVM.submitSavings()
             }
         )
     }
@@ -102,6 +105,10 @@ fun GoalsScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+        com.kashuapp.core.composables.KashuDropdownField(label = "Moneda",
+            selectedValue = uiState.selectedCurrency, items = uiState.currencies,
+            itemLabel = { it }, onItemSelected = goalsVM::selectCurrency)
+        if (!uiState.isAddSavingsOpen) uiState.errorMessage?.let { Text(it, color = KashuTheme.colors.subtitle) }
 
         if (uiState.isLoading && uiState.goals.isEmpty()) {
             Box(

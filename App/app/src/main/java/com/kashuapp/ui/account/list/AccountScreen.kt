@@ -94,6 +94,7 @@ fun AccountScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 20.dp)
         ) {
+            if (!uiState.isFormOpen) uiState.errorMessage?.let { Text(it, color = KashuTheme.colors.subtitle) }
             if (uiState.isLoading && uiState.accounts.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -118,6 +119,8 @@ fun AccountScreen(
                     items(uiState.accounts, key = { it.id?: it.name }) { account ->
                         AccountItemCard(
                             account = account,
+                            onActiveChange = { active -> viewModel.setAccountActive(account, active) },
+                            isUpdatingStatus = account.id in uiState.updatingAccountIds,
                             onEditClick = { viewModel.openEdit(account) },
                             onDeleteClick = { account.id?.let { viewModel.deleteAccount(it) } }
                         )

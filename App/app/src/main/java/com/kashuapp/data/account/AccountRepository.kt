@@ -1,6 +1,8 @@
 package com.kashuapp.data.account
 
 import com.kashuapp.data.KashuSupaBase
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class AccountRepository : IAccountRepository {
 
@@ -53,9 +55,28 @@ class AccountRepository : IAccountRepository {
         }
     }
 
+    override suspend fun setActive(accountId: String, active: Boolean): Result<Unit> {
+        return try {
+            KashuSupaBase.db.from("account").update(buildJsonObject {
+                put("is_active", active)
+            }) {
+                filter { eq("id", accountId) }
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun updateAccount(account: Account): Result<Unit> {
         return try {
-            KashuSupaBase.db.from("account").update(account) {
+            val fields = buildJsonObject {
+                put("name", account.name)
+                put("type", account.type)
+                put("currency", account.currency)
+                put("initial_balance", account.initialBalance)
+            }
+            KashuSupaBase.db.from("account").update(fields) {
                 filter {
                     eq("id", account.id ?: "")
                 }

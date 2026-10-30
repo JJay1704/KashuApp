@@ -327,4 +327,12 @@ El diagrama de flujo existe en `Documentacion/DiagramaDeFlujo.pdf`, pero su cont
 
 En una transacción nueva, `AddTransact` obtiene la fecha y hora al abrir el formulario y las entrega a `TransactionFormVM.initForm`. Si el usuario no modifica los selectores, se guardan esos valores iniciales, no la hora del envío. Al editar, se conservan la fecha y hora del movimiento salvo modificación explícita. Por este motivo, no se debe registrar como faltante de RF-03.1 la ausencia de una selección manual ni exigirla. Esta corrección sustituye la observación anterior que clasificaba el requisito como parcial por fecha y hora. Los requisitos actuales tampoco establecen prohibir fechas futuras.
 
+### 11.4. Implementación en Rama Aislada
+
+En `codex/completar-requisitos-funcionales` se preparó la implementación Android de los RF pendientes: íconos/colores de categorías, rango de fechas, cuentas activas/inactivas, deudas por clasificación existente de tipos de cuenta, patrimonio, separación por moneda, avisos de presupuesto y aportes desde cuentas. Se corrigió también la edición de metas vencidas. La tabla de la sección 11 es el diagnóstico previo; el estado de esta implementación y las decisiones están en `Documentacion/ImplementacionRF.md`.
+
+El usuario asume las pruebas funcionales y pidió centrarse en el proyecto Android, sin pruebas SQL. No se modificó el Supabase compartido ni se integró código en `main`. Las funciones nuevas de aportes/devoluciones, el campo de moneda de presupuestos y las reglas de balance de pasivos requieren soporte del backend de desarrollo: no afirmar que están validadas de extremo a extremo hasta disponer de ese soporte y de la confirmación del usuario.
+
+Por indicación del usuario, `MainActivity.kt` y la configuración de Gradle se restauraron al estado de `main`. No se modificó `local.properties`. Se conserva el identificador y la conexión habituales; no se requieren propiedades `SUPABASE_DEV_*`. Los cambios funcionales permanecen en pantallas y sus componentes, ViewModels, modelos, repositorios y reglas financieras relacionadas. La rama Git no aísla la base de datos compartida. El build y las pruebas ya iniciados terminaron correctamente antes de cerrar la revisión; los ajustes posteriores no se volvieron a ejecutar. No iniciar nuevas pruebas sin que el usuario cambie esa indicación.
+
 

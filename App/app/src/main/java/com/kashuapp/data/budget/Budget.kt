@@ -11,6 +11,7 @@ data class Budget(
     @SerialName("amount_limit") val amountLimit: Double,
     val month: Int,
     val year: Int,
+    val currency: String = "PEN",
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("updated_at") val updatedAt: String? = null
 )

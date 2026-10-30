@@ -65,13 +65,13 @@ fun CategoryItemCard(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .background(KashuTheme.colors.mainColor.copy(alpha = 0.15f)),
+                        .background(CategoryVisuals.color(category.color).copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Category,
+                        imageVector = CategoryVisuals.icon(category.icon),
                         contentDescription = category.name,
-                        tint = KashuTheme.colors.mainColor,
+                        tint = CategoryVisuals.color(category.color),
                         modifier = Modifier.size(22.dp)
                     )
                 }

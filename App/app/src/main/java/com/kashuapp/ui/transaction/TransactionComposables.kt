@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kashuapp.data.category.Category
+import com.kashuapp.ui.category.CategoryVisuals
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.ui.theme.KashuTheme
 import java.text.SimpleDateFormat
@@ -182,7 +183,9 @@ fun TransactionItemCard(
     val amountColor = if (isIncome) Color(0xFF10B981) else Color(0xFFEF4444)
     val amountPrefix = if (isIncome) "+ $currency" else "- $currency"
 
-    val iconVector = if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
+    val iconVector = category?.let { CategoryVisuals.icon(it.icon) }
+        ?: if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
+    val categoryColor = category?.let { CategoryVisuals.color(it.color) } ?: amountColor
 
 
     Card(
@@ -205,13 +208,13 @@ fun TransactionItemCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(amountColor.copy(alpha = 0.15f)),
+                        .background(categoryColor.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = iconVector,
                         contentDescription = item.type,
-                        tint = amountColor,
+                        tint = categoryColor,
                         modifier = Modifier.size(20.dp)
                     )
                 }

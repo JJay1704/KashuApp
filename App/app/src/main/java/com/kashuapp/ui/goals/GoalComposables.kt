@@ -103,7 +103,7 @@ fun GoalGlobalProgress(
                         color = KashuTheme.colors.subtitle
                     )
                     Text(
-                        text = "${uiState.totalSavedAmount}",
+                        text = "${uiState.selectedCurrency} ${uiState.totalSavedAmount}",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = KashuTheme.colors.title
@@ -117,7 +117,7 @@ fun GoalGlobalProgress(
                         color = KashuTheme.colors.subtitle
                     )
                     Text(
-                        text = "${uiState.totalTargetAmount}",
+                        text = "${uiState.selectedCurrency} ${uiState.totalTargetAmount}",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = KashuTheme.colors.title
@@ -296,10 +296,12 @@ fun GoalCard(
 @Composable
 fun AddSavingsDialog(
     goal: Goal,
+    state: com.kashuapp.ui.goals.list.GoalsState,
+    onAmountChange: (String) -> Unit,
+    onAccountChange: (String?) -> Unit,
     onDismiss: () -> Unit,
-    onConfirmSavings: (amountStr: String) -> Unit
+    onConfirmSavings: () -> Unit
 ) {
-    var depositInput by remember { mutableStateOf("") }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -334,8 +336,8 @@ fun AddSavingsDialog(
             KashuTextField(
                 label = "Monto a abonar",
                 placeholder = "0.00",
-                type = depositInput,
-                onType = { depositInput = it },
+                type = state.depositAmount,
+                onType = onAmountChange,
                 colorPlaceHolder = KashuTheme.colors.subtitle,
                 iconInput = Icons.Default.AttachMoney,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -344,9 +346,19 @@ fun AddSavingsDialog(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            com.kashuapp.core.composables.KashuDropdownField(
+                label = "Cuenta de origen (${goal.currency})",
+                selectedValue = state.accounts.find { it.id == state.depositAccountId }?.name ?: "",
+                items = state.accounts, itemLabel = { "${it.name}: ${it.currentBalance} ${it.currency}" },
+                onItemSelected = { onAccountChange(it.id) })
+            if (state.accounts.isEmpty()) Text("No hay cuentas activas de esta moneda disponibles.", color = KashuTheme.colors.subtitle)
+            state.errorMessage?.let { Text(it, color = Color(0xFFEF4444)) }
+
             KashuButton(
                 text = "Confirmar Abono",
-                onClickFun = { onConfirmSavings(depositInput) },
+                enabled = !state.isLoading && state.accounts.isNotEmpty(),
+                isLoading = state.isLoading,
+                onClickFun = onConfirmSavings,
                 modifier = Modifier.fillMaxWidth()
             )
         }

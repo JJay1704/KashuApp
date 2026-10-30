@@ -6,6 +6,8 @@ import com.kashuapp.data.category.Category
 data class BudgetState(
     val budgets: List<Budget> = emptyList(),
     val categories: List<Category> = emptyList(),
+    val currencies: List<String> = listOf("PEN"),
+    val selectedCurrency: String = "PEN",
     val selectedMonth: Int = 1,
     val selectedYear: Int = 2026,
     val isLoading: Boolean = false,

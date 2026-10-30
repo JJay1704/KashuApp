@@ -36,6 +36,7 @@ import com.kashuapp.core.composables.BalanceCard
 import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.ui.transaction.TransactionItemCard
+import com.kashuapp.ui.transaction.KashuDatePickerField
 
 
 @Composable
@@ -49,14 +50,14 @@ fun TransactionView(
     var selectedTransactionToEdit by remember { mutableStateOf<Transaction?>(null) }
 
     LaunchedEffect(Unit) {
-        viewModel.getTrans(null)
+        viewModel.getTrans()
 
     }
     if (showDialog) {
         AddTransact(
             onDismiss = {
                 showDialog = false
-                viewModel.getTrans(null)
+                viewModel.getTrans()
             }, onNavigateToCategory = onNavigateToCategory
         )
     }
@@ -158,6 +159,14 @@ fun TransactionView(
             }
         }
         Spacer(modifier = Modifier.height(6.dp))
+        if (viewModel.selectedPeriod == "Personalizado") {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                KashuDatePickerField(Modifier.weight(1f), "Desde", viewModel.startDate, viewModel::selectStartDate)
+                KashuDatePickerField(Modifier.weight(1f), "Hasta", viewModel.endDate, viewModel::selectEndDate)
+            }
+        }
+        viewModel.errorMessage?.let { Text(it, color = KashuTheme.colors.subtitle) }
+        if (viewModel.isLoading) Text("Cargando movimientos…", color = KashuTheme.colors.subtitle)
         Row(
             horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
         ) {
@@ -203,6 +212,7 @@ fun TransactionView(
                         item = item,
                         categoryName = itemCategory,
                         accountName = itemAccount,
+                        category = viewModel.categories.find { it.id == item.categoryId },
                         currency = viewModel.accounts.find { it.id == item.accountId }?.currency
                             ?: "", onClickCard = { selectedTransactionToEdit = item })
                 }

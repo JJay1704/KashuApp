@@ -1,6 +1,12 @@
 package com.kashuapp.ui.category
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,13 +44,15 @@ fun CategoryForm(
     isLoading: Boolean = false,
     errorMessage: String? = null,
     onDismiss: () -> Unit,
-    onSave: (name: String, type: String) -> Unit,
+    onSave: (name: String, type: String, icon: String, color: String) -> Unit,
     onDelete: ((categoryId: String) -> Unit)? = null
 ) {
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var name by remember(categoryToEdit) { mutableStateOf(categoryToEdit?.name ?: "") }
     var selectedType by remember(categoryToEdit) { mutableStateOf(categoryToEdit?.type ?: "EXPENSE") }
+    var selectedIcon by remember(categoryToEdit) { mutableStateOf(categoryToEdit?.icon ?: "category") }
+    var selectedColor by remember(categoryToEdit) { mutableStateOf(categoryToEdit?.color ?: "#34D399") }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -107,6 +115,23 @@ fun CategoryForm(
                 trailingIcon = null
             )
 
+            Text("Ícono", color = KashuTheme.colors.title)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(CategoryVisuals.icons.keys.toList()) { key ->
+                    Icon(CategoryVisuals.icon(key), contentDescription = key,
+                        tint = if (key == selectedIcon) CategoryVisuals.color(selectedColor) else KashuTheme.colors.subtitle,
+                        modifier = Modifier.size(44.dp).clickable { selectedIcon = key }.padding(8.dp))
+                }
+            }
+            Text("Color", color = KashuTheme.colors.title)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(CategoryVisuals.colors) { hex ->
+                    Text(if (hex == selectedColor) "✓" else " ", color = Color.Black,
+                        modifier = Modifier.size(40.dp).clip(CircleShape)
+                            .background(CategoryVisuals.color(hex)).clickable { selectedColor = hex }.padding(10.dp))
+                }
+            }
+
             if (!errorMessage.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -123,7 +148,7 @@ fun CategoryForm(
                 text = if (categoryToEdit == null) "Create Category" else "Save",
                 isLoading = isLoading,
                 onClickFun = {
-                    onSave(name, selectedType)
+                    onSave(name, selectedType, selectedIcon, selectedColor)
                 }
             )
 
@@ -136,7 +161,6 @@ fun CategoryForm(
                     textColor = Color.White,
                     onClickFun = {
                         onDelete(categoryToEdit.id)
-                        onDismiss()
                     }
                 )
             }

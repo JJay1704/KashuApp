@@ -6,5 +6,6 @@ interface IGoalRepository {
     suspend fun createGoal(goal: Goal): Result<Unit>
     suspend fun updateGoal(goal: Goal): Result<Unit>
     suspend fun deleteGoal(goalId: String): Result<Unit>
+    suspend fun contribute(goalId: String, accountId: String, amount: Double, requestId: String): Result<Unit>
 
 }

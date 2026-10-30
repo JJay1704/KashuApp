@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.ui.budget.MonthSelector
 import com.kashuapp.ui.theme.KashuTheme
+import com.kashuapp.core.composables.KashuDropdownField
 
 @Composable
 fun AnalyticsScreen(
@@ -68,6 +69,7 @@ fun AnalyticsScreen(
         Spacer(modifier = Modifier.height(14.dp))
 
         MetricSummaryCards(
+            currency = uiState.selectedCurrency,
             totalIncome = uiState.totalIncome,
             totalExpense = uiState.totalExpense,
             netSavings = uiState.netSavings
@@ -102,6 +104,9 @@ fun AnalyticsScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+        KashuDropdownField(label = "Moneda", selectedValue = uiState.selectedCurrency,
+            items = uiState.currencies, itemLabel = { it }, onItemSelected = viewModel::selectCurrency)
+        uiState.errorMessage?.let { Text(it, color = KashuTheme.colors.subtitle) }
 
         if (uiState.isLoading) {
             Box(
@@ -132,11 +137,13 @@ fun AnalyticsScreen(
                 item {
                     if (selectedTabIndex == 0) {
                         PieChartExpenses(
+                            currency = uiState.selectedCurrency,
                             shares = uiState.categoryExpenses,
                             totalExpense = uiState.totalExpense
                         )
                     } else {
                         ComparisonBarChart(
+                            currency = uiState.selectedCurrency,
                             income = uiState.totalIncome,
                             expense = uiState.totalExpense
                         )

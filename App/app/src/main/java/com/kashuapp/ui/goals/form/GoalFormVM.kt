@@ -20,12 +20,19 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.kashuapp.core.finance.FinanceRules
+import com.kashuapp.data.currency.CurrencyRepository
+import com.kashuapp.data.currency.ICurrencyRepository
+import com.kashuapp.data.accounType.AccountTypeRepository
+import com.kashuapp.data.accounType.IAccountTypeRepository
 
 class GoalFormVM(
     private val goalRepo: IGoalRepository = GoalRepository(),
     private val authRepo: IAuthRepository = AuthRepository(),
     private val accountRepo: IAccountRepository = AccountRepository(),
-    private val catRepo: ICategoryRepository = CategoryRepository()
+    private val catRepo: ICategoryRepository = CategoryRepository(),
+    private val currencyRepo: ICurrencyRepository = CurrencyRepository(),
+    private val typeRepo: IAccountTypeRepository = AccountTypeRepository()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GoalFormState())
@@ -51,17 +58,20 @@ class GoalFormVM(
             val userId = authRepo.getCurrentUserId().id
             val accList = accountRepo.getAllAccount(userId).getOrDefault(emptyList())
             val catList = catRepo.getAllCateg(userId).getOrDefault(emptyList())
+            val currencyList = currencyRepo.getAllCurrency().getOrDefault(emptyList())
+            val types = typeRepo.getAllAccountTypes().getOrDefault(emptyList())
 
             val matchedAccount = accList.find { it.id == _uiState.value.accountId }
             val matchedCategory = catList.find { it.id == _uiState.value.categoryId }
 
             _uiState.update { current ->
                 current.copy(
-                    accounts = accList,
+                    accounts = accList.filter { it.isActive && !FinanceRules.isLiability(it, types) },
+                    currencies = (currencyList.map { it.code } + current.currency).distinct(),
                     categories = catList,
                     accountName = matchedAccount?.name ?: current.accountName,
                     categoryName = matchedCategory?.name ?: current.categoryName,
-                    currency = matchedAccount?.currency ?: current.currency
+                    currency = goalToEdit?.currency ?: matchedAccount?.currency ?: current.currency
                 )
             }
         }
@@ -85,6 +95,11 @@ class GoalFormVM(
 
     fun onInitialAmount(newAmount: String) {
         _uiState.update { it.copy(initialAmount = newAmount) }
+    }
+
+    fun onCurrency(currency: String) {
+        if (_uiState.value.isEditing) return
+        _uiState.update { it.copy(currency = currency, accountId = null, accountName = "") }
     }
 
     fun onDeadline(newDeadline: String) {
@@ -120,23 +135,35 @@ class GoalFormVM(
                 resetForm()
             }
             result.onFailure { error ->
-                println(error)
+                _uiState.update { it.copy(errorMessage = error.message ?: "No se pudo eliminar la meta") }
             }
         }
     }
 
     fun saveGoal(goalToEdit: Goal?, onSuccess: () -> Unit) {
         val state = _uiState.value
-        val parsedTarget = state.targetAmount.toDoubleOrNull()
-        val parsedInitial = state.initialAmount.toDoubleOrNull() ?: 0.0
+        if (state.isLoading) return
+        val parsedTarget = FinanceRules.positiveAmount(state.targetAmount)
+        val parsedInitial = if (goalToEdit != null) goalToEdit.currentAmount
+            else if (state.initialAmount.isBlank()) 0.0 else state.initialAmount.toDoubleOrNull()
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
         val titleErr = if (state.title.trim().isBlank()) "El nombre es obligatorio" else null
         val targetErr = if (parsedTarget == null || parsedTarget <= 0.0) "Ingrese monto válido mayor a 0" else null
         val deadlineErr = when {
             state.deadline.trim().isBlank() -> "La fecha límite es obligatoria"
-            state.deadline < today -> "La fecha límite debe ser hoy o futura"
+            FinanceRules.dateRange(state.deadline, state.deadline) == null -> "La fecha límite no es válida"
+            goalToEdit == null && state.deadline < today -> "La fecha límite debe ser hoy o futura"
             else -> null
+        }
+
+        if (parsedInitial == null || !parsedInitial.isFinite() || parsedInitial < 0.0) {
+            _uiState.update { it.copy(errorMessage = "El ahorro inicial debe ser un monto válido no negativo") }
+            return
+        }
+        if (goalToEdit != null && state.currency != goalToEdit.currency) {
+            _uiState.update { it.copy(errorMessage = "La moneda de una meta existente no se puede cambiar") }
+            return
         }
 
         val hasAnyError = titleErr != null || targetErr != null || deadlineErr != null

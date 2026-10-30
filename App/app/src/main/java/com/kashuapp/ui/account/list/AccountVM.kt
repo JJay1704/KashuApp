@@ -50,6 +50,26 @@ class AccountVM(
         _uiState.update { it.copy(accountToEdit = account, isFormOpen = true) }
     }
 
+    fun setAccountActive(account: Account, active: Boolean) {
+        val id = account.id ?: return
+        if (id in _uiState.value.updatingAccountIds) return
+        _uiState.update { it.copy(updatingAccountIds = it.updatingAccountIds + id, errorMessage = null) }
+        viewModelScope.launch {
+            val result = accountRepo.setActive(id, active)
+            result.onSuccess {
+                accounts = accounts.map { row -> if (row.id == id) row.copy(isActive = active) else row }
+                _uiState.update { state -> state.copy(
+                    accounts = state.accounts.map { row -> if (row.id == id) row.copy(isActive = active) else row },
+                    accountToEdit = state.accountToEdit?.let { row -> if (row.id == id) row.copy(isActive = active) else row }
+                ) }
+            }
+            result.onFailure { error ->
+                _uiState.update { it.copy(errorMessage = error.message ?: "No se pudo cambiar el estado de la cuenta") }
+            }
+            _uiState.update { it.copy(updatingAccountIds = it.updatingAccountIds - id) }
+        }
+    }
+
     fun deleteAccount(accountId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -62,7 +82,7 @@ class AccountVM(
     }
 
     fun openForm() {
-        _uiState.update { it.copy(accountToEdit = null, isFormOpen = false) }
+        _uiState.update { it.copy(accountToEdit = null, isFormOpen = true) }
         loadData()
     }
 
@@ -70,6 +90,7 @@ class AccountVM(
     fun closeForm() {
 
         _uiState.update { it.copy(accountToEdit = null, isFormOpen = false) }
+        loadData()
     }
 }
 

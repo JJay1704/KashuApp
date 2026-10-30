@@ -91,6 +91,7 @@ fun CategoryScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 20.dp)
         ) {
+            if (!uiState.isFormOpen) uiState.errorMessage?.let { Text(it, color = KashuTheme.colors.subtitle) }
             if (uiState.isLoading && uiState.categories.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -131,8 +132,8 @@ fun CategoryScreen(
                 isLoading = uiState.isLoading,
                 errorMessage = uiState.errorMessage,
                 onDismiss = { viewModel.closeForm() },
-                onSave = { name, type ->
-                    viewModel.saveCategory(name, type, onSuccess = {})
+                onSave = { name, type, icon, color ->
+                    viewModel.saveCategory(name, type, icon, color, onSuccess = {})
                 },
                 onDelete = { id ->
                     viewModel.deleteCategory(id)

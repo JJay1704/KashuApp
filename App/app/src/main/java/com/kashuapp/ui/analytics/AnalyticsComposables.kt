@@ -42,6 +42,7 @@ fun MetricSummaryCards(
     totalIncome: Double,
     totalExpense: Double,
     netSavings: Double,
+    currency: String = "PEN",
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -59,7 +60,7 @@ fun MetricSummaryCards(
                 Text(text = "Ingresos", fontSize = 12.sp, color = KashuTheme.colors.subtitle)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "S/. $totalIncome",
+                    text = "$currency $totalIncome",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF10B981)
@@ -78,7 +79,7 @@ fun MetricSummaryCards(
                 Text(text = "Gastos", fontSize = 12.sp, color = KashuTheme.colors.subtitle)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "S/. $totalExpense",
+                    text = "$currency $totalExpense",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFEF4444)
@@ -98,7 +99,7 @@ fun MetricSummaryCards(
                 Spacer(modifier = Modifier.height(4.dp))
                 val netColor = if (netSavings >= 0.0) Color(0xFF10B981) else Color(0xFFEF4444)
                 Text(
-                    text = "S/. $netSavings",
+                    text = "$currency $netSavings",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = netColor
@@ -112,6 +113,7 @@ fun MetricSummaryCards(
 fun PieChartExpenses(
     shares: List<CategoryExpenseShare>,
     totalExpense: Double,
+    currency: String = "PEN",
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -167,7 +169,7 @@ fun PieChartExpenses(
                         color = KashuTheme.colors.subtitle
                     )
                     Text(
-                        text = "S/. $totalExpense",
+                        text = "$currency $totalExpense",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = KashuTheme.colors.title
@@ -203,7 +205,7 @@ fun PieChartExpenses(
                             modifier = Modifier.weight(1f)
                         )
                         Text(
-                            text = "S/. ${share.amount} ($pctInt%)",
+                            text = "$currency ${share.amount} ($pctInt%)",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = KashuTheme.colors.title
@@ -219,6 +221,7 @@ fun PieChartExpenses(
 fun ComparisonBarChart(
     income: Double,
     expense: Double,
+    currency: String = "PEN",
     modifier: Modifier = Modifier
 ) {
     val maxVal = if (income >= expense && income > 0.0) income else if (expense > 0.0) expense else 1.0
@@ -260,7 +263,7 @@ fun ComparisonBarChart(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "S/. $income",
+                        text = "$currency $income",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF10B981)
@@ -287,7 +290,7 @@ fun ComparisonBarChart(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "S/. $expense",
+                        text = "$currency $expense",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFEF4444)

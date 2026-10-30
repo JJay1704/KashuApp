@@ -23,6 +23,8 @@ data class TransactionFormState(
     val selectedAccount: Account? = null,
     val selectedCategory: Category? = null,
     val errorMessage: String = "",
+    val isLoading: Boolean = false,
+    val savedAlert: String? = null,
     val isEditing : Boolean = false
 
 

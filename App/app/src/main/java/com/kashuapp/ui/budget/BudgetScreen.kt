@@ -20,6 +20,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import com.kashuapp.core.composables.KashuDropdownField
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,6 +43,7 @@ fun BudgetScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
+        viewModel.refreshPeriod()
         viewModel.loadData()
     }
 
@@ -98,6 +101,11 @@ fun BudgetScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        KashuDropdownField(label = "Moneda", selectedValue = uiState.selectedCurrency,
+            items = uiState.currencies, itemLabel = { it }, icon = Icons.Default.AttachMoney,
+            onItemSelected = viewModel::selectCurrency)
+        uiState.errorMessage?.let { Text(it, color = KashuTheme.colors.subtitle) }
+
         if (uiState.isLoading && uiState.budgets.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -124,6 +132,7 @@ fun BudgetScreen(
                 totalSpent = uiState.totalSpent,
                 progress = uiState.overallProgressFraction,
                 percentage = uiState.overallPercentage
+                , currency = uiState.selectedCurrency
             )
 
             Spacer(modifier = Modifier.height(16.dp))

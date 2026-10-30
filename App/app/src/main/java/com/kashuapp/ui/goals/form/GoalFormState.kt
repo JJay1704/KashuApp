@@ -12,6 +12,7 @@ data class GoalFormState(
     val deadline: String = "",
     val isDeadlineError: String? = null,
     val currency: String = "PEN",
+    val currencies: List<String> = listOf("PEN"),
     val accountId: String? = null,
     val accountName: String = "",
     val categoryId: String? = null,

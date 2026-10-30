@@ -87,6 +87,9 @@ fun GoalFormDialog(
 
             Spacer(modifier = Modifier.height(10.dp))
 
+            if (!uiState.isEditing) KashuDropdownField(label = "Moneda", selectedValue = uiState.currency,
+                items = uiState.currencies, itemLabel = { it }, onItemSelected = viewModel::onCurrency)
+
             KashuTextField(
                 label = "Monto Objetivo",
                 placeholder = "0.00",
@@ -102,8 +105,8 @@ fun GoalFormDialog(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            KashuTextField(
-                label = "Ahorro inicial (opcional)",
+            if (!uiState.isEditing) KashuTextField(
+                label = "Ahorro previo (ya reservado, opcional)",
                 placeholder = "0.00",
                 type = uiState.initialAmount,
                 onType = { viewModel.onInitialAmount(it) },
@@ -140,7 +143,7 @@ fun GoalFormDialog(
                 selectedValue = uiState.accountName,
                 placeholder = "Seleccionar cuenta",
                 icon = Icons.Default.AccountCircle,
-                items = uiState.accounts,
+                items = uiState.accounts.filter { it.currency == uiState.currency },
                 itemLabel = { it.name },
                 onItemSelected = { selectedAccount ->
                     viewModel.onAccount(selectedAccount)

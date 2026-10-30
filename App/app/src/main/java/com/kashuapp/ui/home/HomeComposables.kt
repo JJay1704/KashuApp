@@ -44,14 +44,17 @@ fun HomeView(
             horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()
         ) {
 
-            items(homeVM.accountsByCurrency) { item ->
-                val balance = item.formattedTotal
-                Box(modifier = Modifier.fillParentMaxWidth()) {
-                    NetWorthCard(accountNetWorth = balance)
+            items(homeVM.balances) { item ->
+                Column(modifier = Modifier.fillParentMaxWidth()) {
+                    Text("Saldo activo: ${item.currency} ${String.format("%.2f", item.assets)}", color = KashuTheme.colors.title)
+                    Text("Deudas: ${item.currency} ${String.format("%.2f", item.liabilities)}", color = KashuTheme.colors.subtitle)
+                    Text("Reservado en metas: ${item.currency} ${String.format("%.2f", item.reserved)}", color = KashuTheme.colors.subtitle)
+                    NetWorthCard(accountNetWorth = "${item.currency} ${String.format("%.2f", item.netWorth)}")
                 }
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
+        homeVM.errorMessage?.let { Text(it, color = KashuTheme.colors.subtitle) }
         Row(
             horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
         ) {
@@ -83,6 +86,7 @@ fun HomeView(
                     item = item,
                     categoryName = itemCategory,
                     accountName = itemAccount,
+                    category = homeVM.categories.find { it.id == item.categoryId },
                     currency = homeVM.accounts.find { it.id == item.accountId }?.currency ?: "",
                 )
             }

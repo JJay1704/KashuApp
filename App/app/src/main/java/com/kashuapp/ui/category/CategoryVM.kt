@@ -53,6 +53,8 @@ class CategoryVM(
     fun saveCategory(
         name: String,
         type: String,
+        icon: String,
+        color: String,
         onSuccess: () -> Unit
     ) {
         val userId = authRepo.getCurrentUserId().id
@@ -70,7 +72,9 @@ class CategoryVM(
             val result: Result<Unit> = if (currentCategory != null) {
                 val updatedCat = currentCategory.copy(
                     name = name.trim(),
-                    type = type.uppercase()
+                    type = type.uppercase(),
+                    icon = icon,
+                    color = color
                 )
                 catRepo.updateCategory(updatedCat)
             } else {
@@ -78,8 +82,8 @@ class CategoryVM(
                     userId = userId,
                     name = name.trim(),
                     type = type.uppercase(),
-                    icon = "category",
-                    color = "#34D399"
+                    icon = icon,
+                    color = color
                 )
                 catRepo.createCategory(newCat).map {  }
             }
@@ -100,6 +104,7 @@ class CategoryVM(
             _uiState.update { it.copy(isLoading = true) }
             val result = catRepo.deleteCategory(categoryId)
             result.onSuccess {
+                closeForm()
                 loadCategories()
             }
             result.onFailure { error ->

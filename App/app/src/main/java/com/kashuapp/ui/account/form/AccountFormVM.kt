@@ -28,6 +28,7 @@ class AccountFormVM(
 
     private val _uiState = MutableStateFlow(AccountFormState())
     val uiState = _uiState.asStateFlow()
+    private var editingAccount: Account? = null
 
 
     init {
@@ -61,6 +62,7 @@ class AccountFormVM(
             }
 
             _uiState.update { it.copy(isLoading = false) }
+            editingAccount?.let { initForm(it) }
 
         }
     }
@@ -88,6 +90,7 @@ class AccountFormVM(
     }
 
     fun initForm(accountToEdit: Account?) {
+        editingAccount = accountToEdit
         if (accountToEdit != null) {
             val matchingType = _uiState.value.accountTypes.find {
                 it.id.equals(accountToEdit.type, ignoreCase = true) ||
@@ -99,7 +102,8 @@ class AccountFormVM(
             _uiState.update {
                 it.copy(
                     name = accountToEdit.name,
-                    initialBalance = accountToEdit.currentBalance.toString(),
+                    isActive = accountToEdit.isActive,
+                    initialBalance = accountToEdit.initialBalance.toString(),
                     selectedAccountType = matchingType,
                     isNameError = null,
                     isAccountTypeError = null,
@@ -119,6 +123,7 @@ class AccountFormVM(
         _uiState.update {
             it.copy(
                 name = "",
+                isActive = true,
                 initialBalance = "0.00",
                 selectedAccountType = null,
                 selectedCurrency = null,
@@ -149,7 +154,7 @@ class AccountFormVM(
         } else {
             state.initialBalance.trim().replace(',', '.').toDoubleOrNull()
         }
-        val balanceError = if (balanceParsed == null || balanceParsed < 0.0) {
+        val balanceError = if (balanceParsed == null || !balanceParsed.isFinite() || balanceParsed < 0.0) {
             "Set a valid value"
         } else {
             null
@@ -198,8 +203,9 @@ class AccountFormVM(
                 name = state.name.trim(),
                 type = state.selectedAccountType!!.id,
                 currency = state.selectedCurrency!!.code,
-                currentBalance = validBalance,
-                initialBalance = accountToEdit?.initialBalance ?: validBalance,
+                currentBalance = accountToEdit?.currentBalance ?: validBalance,
+                initialBalance = validBalance,
+                isActive = state.isActive,
             )
 
             val result = if (accountToEdit == null) {

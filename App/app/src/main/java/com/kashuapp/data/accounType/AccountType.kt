@@ -10,6 +10,7 @@ data class AccountType(
 
     val id: String = "",
     val name: String,
+    val classification: String = "activo",
     @SerialName("icon_name") val iconName: String = "Smartphone",
     val canceled: Boolean = false,
 

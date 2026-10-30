@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,6 +73,11 @@ fun AddTransact(
         )
     }
     val uiState by viewModel.uiStateTran.collectAsState()
+    if (uiState.savedAlert != null) {
+        AlertDialog(onDismissRequest = { onDismiss(); viewModel.resetForm() },
+            title = { Text("Movimiento guardado") }, text = { Text(uiState.savedAlert!!) },
+            confirmButton = { TextButton(onClick = { onDismiss(); viewModel.resetForm() }) { Text("Entendido") } })
+    }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
 
@@ -249,6 +256,8 @@ fun AddTransact(
                 modifier = Modifier.fillMaxWidth(),
 
                 text = if (uiState.isEditing) "Update Transaction" else "Save Transaction",
+                isLoading = uiState.isLoading,
+                enabled = !uiState.isLoading && uiState.savedAlert == null,
                 onClickFun = {
                     viewModel.postTrans(
                         date = uiState.date,

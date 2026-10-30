@@ -9,6 +9,8 @@ data class CategoryExpenseShare(
 )
 
 data class AnalyticsState(
+    val currencies: List<String> = listOf("PEN"),
+    val selectedCurrency: String = "PEN",
     val selectedMonth: Int = 1,
     val selectedYear: Int = 2026,
     val totalIncome: Double = 0.0,

@@ -6,6 +6,7 @@ import com.kashuapp.data.currency.Currency
 
 data class AccountFormState(
     val accounts: List<Account> = emptyList(),
+    val updatingAccountIds: Set<String> = emptySet(),
     val currency: List<Currency> = emptyList(),
     val accountTypes: List<AccountType> = emptyList(),
     val isLoading: Boolean = false,
@@ -14,6 +15,7 @@ data class AccountFormState(
     val isFormOpen: Boolean = false,
     val accountToEdit: Account? = null,
     val name: String = "",
+    val isActive: Boolean = true,
     val initialBalance: String = "0.00",
     val selectedAccountType: AccountType? = null,
     val selectedCurrency: Currency? = null,

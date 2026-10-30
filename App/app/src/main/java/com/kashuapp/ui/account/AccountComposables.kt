@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import com.kashuapp.data.account.Account
 import com.kashuapp.ui.theme.KashuTheme
 import java.util.Locale
@@ -24,6 +26,8 @@ import java.util.Locale
 @Composable
 fun AccountItemCard(
     account: Account,
+    onActiveChange: (Boolean) -> Unit,
+    isUpdatingStatus: Boolean = false,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -74,6 +78,12 @@ fun AccountItemCard(
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(
+                    checked = account.isActive,
+                    onCheckedChange = onActiveChange,
+                    enabled = !isUpdatingStatus,
+                    modifier = Modifier.semantics { contentDescription = "Cuenta activa: ${account.name}" }
+                )
                 IconButton(onClick = onEditClick, modifier = Modifier.size(36.dp)) {
                     Icon(
                         imageVector = Icons.Default.Edit,

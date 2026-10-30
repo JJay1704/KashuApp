@@ -112,6 +112,7 @@ fun OverallBudgetSummaryCard(
     totalSpent: Double,
     progress: Float,
     percentage: Int,
+    currency: String = "PEN",
     modifier: Modifier = Modifier
 ) {
     val progressColor = when {
@@ -172,7 +173,7 @@ fun OverallBudgetSummaryCard(
                         color = KashuTheme.colors.subtitle
                     )
                     Text(
-                        text = "S/. $totalSpent",
+                        text = "$currency $totalSpent",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = KashuTheme.colors.title
@@ -186,7 +187,7 @@ fun OverallBudgetSummaryCard(
                         color = KashuTheme.colors.subtitle
                     )
                     Text(
-                        text = "S/. $totalBudgeted",
+                        text = "$currency $totalBudgeted",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = KashuTheme.colors.title
@@ -267,7 +268,7 @@ fun BudgetCard(
                             color = KashuTheme.colors.title
                         )
                         Text(
-                            text = "S/. $spentAmount de S/. ${budget.amountLimit}",
+                            text = "${budget.currency} $spentAmount de ${budget.currency} ${budget.amountLimit}",
                             fontSize = 13.sp,
                             color = KashuTheme.colors.subtitle
                         )
@@ -320,9 +321,9 @@ fun BudgetCard(
             ) {
                 Text(
                     text = if (isExceeded) {
-                        "Excedido por: S/. ${spentAmount - budget.amountLimit}"
+                        "Excedido por: ${budget.currency} ${spentAmount - budget.amountLimit}"
                     } else {
-                        "Restante: S/. $remainingAmount"
+                        "Restante: ${budget.currency} $remainingAmount"
                     },
                     fontSize = 12.sp,
                     color = if (isExceeded) Color(0xFFEF4444) else KashuTheme.colors.subtitle
@@ -390,7 +391,7 @@ fun BudgetFormDialog(
             Spacer(modifier = Modifier.height(12.dp))
 
             KashuTextField(
-                label = "Límite mensual (S/.)",
+                label = "Límite mensual (${state.selectedCurrency})",
                 placeholder = "0.00",
                 type = state.amountLimit,
                 onType = onAmountChange,

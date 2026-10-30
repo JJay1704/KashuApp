@@ -17,16 +17,26 @@ import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.transaction.TransactionRepository
 import kotlinx.coroutines.launch
 import com.kashuapp.data.transaction.Transaction
+import com.kashuapp.core.finance.FinanceRules
+import com.kashuapp.core.finance.CurrencyBalance
+import com.kashuapp.data.accounType.AccountTypeRepository
+import com.kashuapp.data.accounType.IAccountTypeRepository
+import com.kashuapp.data.goal.GoalRepository
+import com.kashuapp.data.goal.IGoalRepository
 
 class HomeVM(
     private val authRepo: IAuthRepository = AuthRepository(),
     private val accountRepo: IAccountRepository = AccountRepository(),
     private val transRepo: ITransactionRepository = TransactionRepository(),
-    private val catRepo: ICategoryRepository = CategoryRepository()
+    private val catRepo: ICategoryRepository = CategoryRepository(),
+    private val typeRepo: IAccountTypeRepository = AccountTypeRepository(),
+    private val goalRepo: IGoalRepository = GoalRepository()
 ) : ViewModel() {
 
     var accounts by mutableStateOf<List<Account>>(emptyList())
     var accountsByCurrency by mutableStateOf<List<AccountByCurrency>>(emptyList())
+    var balances by mutableStateOf<List<CurrencyBalance>>(emptyList())
+    var errorMessage by mutableStateOf<String?>(null)
 
     fun loadData() {
 
@@ -36,7 +46,14 @@ class HomeVM(
             val resultTrans = transRepo.getAll(userId, null, null, null)
             val resultCat = catRepo.getAllCateg(userId)
             val resultAccount = accountRepo.getAllAccount(userId)
-            resultTrans.onSuccess { list -> transactions = list.sortedByDescending {it.transactionDate}.take(5) }
+            val resultTypes = typeRepo.getAllAccountTypes()
+            val resultGoals = goalRepo.getAllGoals(userId)
+            resultTypes.onFailure { errorMessage = "No se pudo calcular el patrimonio: ${it.message}" }
+            if (resultAccount.isSuccess && resultTypes.isSuccess && resultGoals.isSuccess) {
+                balances = FinanceRules.balances(resultAccount.getOrThrow(), resultTypes.getOrThrow(), resultGoals.getOrThrow())
+                errorMessage = null
+            } else errorMessage = "No se pudo actualizar el patrimonio. Intenta nuevamente."
+            resultTrans.onSuccess { list -> transactions = list.sortedByDescending { FinanceRules.timestampMillis(it.transactionDate) }.take(5) }
             resultTrans.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
             resultCat.onSuccess { list -> categories = list }
             resultCat.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
