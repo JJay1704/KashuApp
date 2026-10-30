@@ -14,13 +14,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -38,13 +43,134 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kashuapp.core.composables.KashuDropdownField
+import com.kashuapp.data.account.Account
 import com.kashuapp.data.category.Category
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.ui.theme.KashuTheme
+import com.kashuapp.ui.transaction.list.TransactionState
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import androidx.compose.foundation.lazy.items
 
+@Composable
+fun TransactionFilters(
+    uiState: TransactionState,
+    periods: List<String>,
+    transactionTypes: List<String>,
+    onAccountSelected: (Account?) -> Unit,
+    onCategorySelected: (Category?) -> Unit,
+    onTypeSelected: (String?) -> Unit,
+    onPeriodSelected: (String?) -> Unit
+) {
+
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()
+    ) {
+
+        item {
+
+            KashuDropdownField(
+                fillMaxWidth = false,
+                selectedValue = uiState.selectedAccount?.name ?: "",
+                placeholder = "Account",
+                icon = Icons.Default.AccountCircle,
+                items = uiState.accounts,
+                itemLabel = { it.name },
+                onItemSelected = { selectedAccount ->
+                    onAccountSelected(
+                        selectedAccount
+                    )
+                },
+                isFilter = true,
+                onClearFilter = { onAccountSelected(null) })
+
+
+        }
+
+        item {
+
+            KashuDropdownField(
+                fillMaxWidth = false,
+                selectedValue = uiState.selectedCategory?.name ?: "",
+                placeholder = "Category",
+                icon = Icons.Default.Category,
+                items = uiState.categories,
+                itemLabel = { it.name },
+                onItemSelected = { selectedCategory ->
+                    onCategorySelected(
+                        selectedCategory
+                    )
+                },
+                isFilter = true,
+                onClearFilter = { onCategorySelected(null) }
+
+            )
+        }
+        item {
+
+
+            KashuDropdownField(
+                fillMaxWidth = false,
+                selectedValue = uiState.selectedType ?: "",
+                placeholder = "Type",
+                icon = Icons.Default.AddCircleOutline,
+                items = transactionTypes,
+                itemLabel = { if (it == "EXPENSE") "Gasto" else "Ingreso" },
+                onItemSelected = { type -> onTypeSelected(type) },
+                isFilter = true,
+                onClearFilter = { onTypeSelected(null) })
+        }
+
+
+        item {
+            KashuDropdownField(
+                fillMaxWidth = false,
+                selectedValue = uiState.selectedPeriod ?: "",
+                placeholder = "Date",
+                icon = Icons.Default.CalendarToday,
+                items = periods,
+                itemLabel = { it },
+                onItemSelected = { selectedPeriod -> onPeriodSelected(selectedPeriod) },
+                isFilter = true,
+                onClearFilter = {
+                    onPeriodSelected(null)
+                })
+        }
+
+    }
+}
+
+@Composable
+fun TransactionList(
+    uiState: TransactionState,
+    onTransactionClick: (Transaction) -> Unit
+) {
+    LazyColumn (
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(uiState.transactions) { transaction ->
+            val categoryName = uiState.categories
+                .find { it.id == transaction.categoryId }
+                ?.name ?: "Sin categoría"
+
+            val account = uiState.accounts
+                .find { it.id == transaction.accountId }
+
+            TransactionItemCard(
+                item = transaction,
+                categoryName = categoryName,
+                accountName = account?.name ?: "Sin cuenta",
+                currency = account?.currency ?: "",
+                onClickCard = {
+                    onTransactionClick(transaction)
+                }
+            )
+        }
+    }
+}
 @Composable
 fun KashuDatePickerField(
     modifier: Modifier = Modifier,
@@ -172,9 +298,9 @@ fun TransactionItemCard(
     item: Transaction,
 
     categoryName: String,
-    accountName : String,
+    accountName: String,
     currency: String = "PEN",
-    onClickCard : ()-> Unit = {},
+    onClickCard: () -> Unit = {},
     category: Category? = null,
 
     ) {
@@ -234,7 +360,7 @@ fun TransactionItemCard(
                         )
                     }
                     Text(
-                        text =accountName,
+                        text = accountName,
                         fontSize = 12.sp,
                         color = KashuTheme.colors.subtitle,
                         maxLines = 1

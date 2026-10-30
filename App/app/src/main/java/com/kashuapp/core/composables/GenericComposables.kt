@@ -69,12 +69,13 @@ import com.kashuapp.ui.menu.KashuHomeMenu
 @Composable
 fun NetWorthCard(
 
+    modifier: Modifier = Modifier,
 
     accountNetWorth: String
 ) {
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(KashuTheme.colors.surface)
@@ -107,7 +108,7 @@ fun BalanceCard(
     Row(
     ) {
         Text(
-            text = "Balance", color = KashuTheme.colors.title
+            text = "Balance: ", color = KashuTheme.colors.title
         )
         Text(
             text = balance, color = KashuTheme.colors.title

@@ -19,6 +19,11 @@ import com.kashuapp.data.category.ICategoryRepository
 import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.data.transaction.TransactionRepository
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -32,33 +37,46 @@ class TransactionVM(
 
 ) : ViewModel() {
 
-
+    private val _uiState = MutableStateFlow(TransactionState())
+    val uiState: StateFlow<TransactionState> = _uiState.asStateFlow()
 
 
     init {
         loadData()
     }
 
-    var transactions by mutableStateOf<List<Transaction>>(emptyList())
-    var categories by mutableStateOf<List<Category>>(emptyList())
-    var accounts by mutableStateOf<List<Account>>(emptyList())
-
 
     val periods = listOf("Today", "This week", "This Month", "Last Month")
-    var selectedPeriod by mutableStateOf<String?>(null)
-
-
-
-
-    var selectedAccount by mutableStateOf<Account?>(null)
-    var selectedCategory by mutableStateOf<Category?>(null)
     val transactionTypes = listOf("EXPENSE", "INCOME")
-    var selectedType by mutableStateOf<String?>(null)
 
-    fun selectedType(Type: String?) {
-        selectedType = Type
+    fun selectAccount(account: Account?) {
+        _uiState.update {
+            it.copy(selectedAccount = account)
+        }
         getTrans()
     }
+
+    fun selectCategory(category: Category?) {
+        _uiState.update {
+            it.copy(selectedCategory = category)
+        }
+        getTrans()
+    }
+
+    fun selectPeriod(period: String?) {
+        _uiState.update {
+            it.copy(selectedPeriod = period)
+        }
+        getTrans()
+    }
+
+    fun selectedType(type: String?) {
+        _uiState.update {
+            it.copy(selectedType = type)
+        }
+        getTrans()
+    }
+
     fun getDateRange(option: String): Pair<String, String?> {
 
         val calendar = Calendar.getInstance()
@@ -97,81 +115,100 @@ class TransactionVM(
 
 
     fun loadData() {
-        viewModelScope.launch {
-            val userId = authRepo.getCurrentUserId().id
-            val resultTrans = transRepo.getAll(userId, null, null, null)
-            val resultCat = catRepo.getAllCateg(userId)
-            val resultAccount = accountRepo.getAllAccount(userId)
-            resultTrans.onSuccess { list -> transactions = list.sortedByDescending {it.transactionDate}  }
-            resultTrans.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
-            resultCat.onSuccess { list -> categories = list }
-            resultCat.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
-            resultAccount.onSuccess { list -> accounts = list }
-            resultAccount.onFailure { error -> println("Error al obtener cuentas: ${error.message}") }
-        }
+        getTrans()
     }
 
 
     fun getCategoryName(categoryId: String): String {
-        return categories.find { it.id == categoryId }?.name ?: "Sin categoría"
+        return _uiState.value.categories
+            .find { it.id == categoryId }
+            ?.name ?: "Sin categoría"
     }
 
     fun getAccountName(accountId: String?): String {
-        return accounts.find { it.id == accountId }?.name ?: "Sin Cuenta"
+        return _uiState.value.accounts
+            .find { it.id == accountId }
+            ?.name ?: "Sin cuenta"
     }
-
-    fun selectAccount(account: Account?) {
-        selectedAccount = account
-        getTrans()
-    }
-
-    fun selectCategory(category: Category?) {
-        selectedCategory = category
-        getTrans()
-    }
-    fun selectPeriod(period: String?) {
-        selectedPeriod = period
-        getTrans()
-    }
-    fun getTrans(
-        filterAccount: String? = selectedAccount?.id,
-        filterCategory: String? = selectedCategory?.id,
-        period: String? = selectedPeriod,
-        type: String ? = selectedType
-
-
-
-    ) {
-        viewModelScope.launch {
-            val userId = authRepo.getCurrentUserId().id
-
-            val (startDate, endDate) = if (period != null) getDateRange(period) else Pair(null, null)
-
-            val result = transRepo.getAll(userId, filterAccount, filterCategory, null, startDate, endDate, type)
-            result.onSuccess { list -> transactions = list.sortedByDescending { it.transactionDate } }
-            result.onFailure { error -> println("Error al obtener transacciones: ${error.message}") }
-            val resultAccount = accountRepo.getAllAccount(userId)
-            resultAccount.onSuccess { list -> accounts = list }
-            resultAccount.onFailure { error -> println("Error al actualizar cuentas: ${error.message}") }
-        }
-    }
-
 
     fun getBalance(accountId: String?): String {
+        val account = _uiState.value.accounts
+            .find { it.id == accountId }
 
-
-        val accountById: Account? = accounts.find { it.id == accountId }
-
-
-        return if (accountById != null) {
-            " ${accountById.currentBalance} ${accountById.currency}"
-
+        return if (account != null) {
+            "${account.currentBalance} ${account.currency}"
         } else {
-            " 0.00"
+            "0.00"
+        }
+    }
+    fun getTrans(
+        filterAccount: String? = _uiState.value.selectedAccount?.id,
+        filterCategory: String? = _uiState.value.selectedCategory?.id,
+        period: String? = _uiState.value.selectedPeriod,
+        type: String? = _uiState.value.selectedType
+    ) {
+        val userId = authRepo.getCurrentUserId().id
+
+        if (userId.isBlank() || userId == "Not Gotten") {
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    errorMessage = "Sesión no válida"
+                )
+            }
+            return
         }
 
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isLoading = true, errorMessage = null)
+            }
 
+            try {
+                val dateRange = if (period != null) {
+                    getDateRange(period)
+                } else {
+                    Pair(null, null)
+                }
+
+                val transactions = transRepo.getAll(
+                    userId = userId,
+                    accountId = filterAccount,
+                    categoryId = filterCategory,
+                    startDate = dateRange.first,
+                    endDate = dateRange.second,
+                    type = type
+                ).getOrThrow()
+
+                val categories = catRepo
+                    .getAllCateg(userId)
+                    .getOrThrow()
+
+                val accounts = accountRepo
+                    .getAllAccount(userId)
+                    .getOrThrow()
+
+                _uiState.update {
+                    it.copy(
+                        transactions = transactions.sortedByDescending {
+                                transaction -> transaction.transactionDate
+                        },
+                        categories = categories,
+                        accounts = accounts,
+                        isLoading = false,
+                        errorMessage = null
+                    )
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "No se pudo cargar el historial"
+                    )
+                }
+            }
+        }
     }
-
-
 }

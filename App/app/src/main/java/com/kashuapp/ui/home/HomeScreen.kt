@@ -11,6 +11,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +40,7 @@ fun HomeScreen(
 
 ) {
 
-
+    val homeState by homeVM.uiState.collectAsState()
     val transactionListVM: TransactionVM = viewModel()
     var showAddTransaction by remember { mutableStateOf(false) }
     if (showAddTransaction) {
@@ -99,8 +101,12 @@ fun HomeScreen(
             when (selectedTab) {
                 is HomeTab.Home -> {
 
-
-                    HomeView(onViewAllClick = { selectedTab = HomeTab.History })
+                    LaunchedEffect(Unit) {
+                        homeVM.loadData()
+                    }
+                    HomeView(
+                        uiState = homeState,
+                        onViewAllClick = { selectedTab = HomeTab.History })
                 }
 
                 is HomeTab.Goals -> {

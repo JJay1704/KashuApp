@@ -89,21 +89,53 @@ fun ResetPswdScreen(
 
             when (uiState.step) {
                 ResetSteps.EMAIL -> {
-                    EmailReset {
-                        viewModel.resetFlow()
-                        onBackToHome()
-                    }
+                    EmailReset(
+                        uiState = uiState,
+                        onEmailChange = { email ->
+                            viewModel.onEmail(email)
+                        },
+                        onSubmit = {
+                            viewModel.reset(onSuccess = {})
+                        },
+                        onBackToHome = {
+                            viewModel.resetFlow()
+                            onBackToHome()
+                        }
+                    )
 
                 }
 
                 ResetSteps.CODE -> {
-                    CodeReset { }
-
+                    CodeReset(
+                        uiState = uiState,
+                        onCodeChange = { code ->
+                            viewModel.onCode(code)
+                        },
+                        onSubmit = {
+                            viewModel.confirmToken()
+                        }
+                    )
                 }
 
                 ResetSteps.NEW_PASSWORD -> {
-
-                    PswdReset { }
+                    PswdReset(
+                        uiState = uiState,
+                        onPasswordChange = {
+                            viewModel.onNewPswd(it)
+                        },
+                        onConfirmPasswordChange = {
+                            viewModel.onConfirmPswd(it)
+                        },
+                        onTogglePasswordVisibility = {
+                            viewModel.togglePasswordVisibility()
+                        },
+                        onToggleConfirmPasswordVisibility = {
+                            viewModel.toggleConfirmPasswordVisibility()
+                        },
+                        onSubmit = {
+                            viewModel.updatePswd()
+                        }
+                    )
                 }
 
                 ResetSteps.COMPLETE -> {

@@ -26,20 +26,18 @@ import com.kashuapp.ui.theme.KashuTheme
 
 @Composable
 fun EmailReset(
-
-    viewModel: ResetPswdVM = viewModel(),
-    onBackToHome: () -> Unit,
-
-    ) {
-
-    val uiState by viewModel.uiState.collectAsState()
-
-
+    uiState: ResetPswdState,
+    onEmailChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    onBackToHome: () -> Unit
+) {
     KashuTextField(
         placeholder = "Ingresa tu Correo Electronico",
         colorPlaceHolder = Color.Gray,
         type = uiState.email,
-        onType = { viewModel.onEmail(it) },
+        onType = { email ->
+            onEmailChange(email)
+        },
         errorMessage = uiState.isError,
         isError = uiState.isError != null
     )
@@ -51,70 +49,76 @@ fun EmailReset(
         enabled = !uiState.isLoading,
         text = "Restablecer",
         onClickFun = {
-            viewModel.reset(onSuccess = {})
-        })
+            onSubmit()
+        }
+    )
+
     Spacer(modifier = Modifier.height(20.dp))
 
     KashuButton(
-        backColor = KashuTheme.colors.surface, text = "Cancelar",
+        backColor = KashuTheme.colors.surface,
+        text = "Cancelar",
         onClickFun = {
             onBackToHome()
-            viewModel.onEmail("")
-
-        },
+        }
     )
-    Spacer(modifier = Modifier.height(10.dp))
-    if (!uiState.successMessage.isNullOrBlank()) {
 
+    Spacer(modifier = Modifier.height(10.dp))
+
+    val successMessage = uiState.successMessage
+
+    if (!successMessage.isNullOrBlank()) {
         Text(
-            text = uiState.successMessage, color = KashuTheme.colors.title
+            text = successMessage,
+            color = KashuTheme.colors.title
         )
     }
 }
 
-
 @Composable
 fun CodeReset(
-    viewModel: ResetPswdVM = viewModel(),
-    onBackToHome: () -> Unit,
+    uiState: ResetPswdState,
+    onCodeChange: (String) -> Unit,
+    onSubmit: () -> Unit
 ) {
-
-    val uiState by viewModel.uiState.collectAsState()
     Text(
-        text = "Escribe el código enviado a ${uiState.email}", color = KashuTheme.colors.title
+        text = "Escribe el código enviado a ${uiState.email}",
+        color = KashuTheme.colors.title
     )
 
-
     Spacer(modifier = Modifier.height(20.dp))
-
 
     KashuTextField(
         placeholder = "Codigo de Verificacion",
         colorPlaceHolder = Color.Gray,
         type = uiState.code,
-        onType = { viewModel.onCode(it) },
+        onType = { code ->
+            onCodeChange(code)
+        },
         errorMessage = uiState.isError,
         isError = uiState.isError != null
     )
+
     KashuButton(
         isLoading = uiState.isLoading,
         enabled = !uiState.isLoading,
         text = "Restablecer",
         onClickFun = {
-            viewModel.confirmToken()
-        })
-
-
+            onSubmit()
+        }
+    )
 }
-
 
 @Composable
 fun PswdReset(
-    viewModel: ResetPswdVM = viewModel(),
-    onBackToHome: () -> Unit,
+    uiState: ResetPswdState,
+    onPasswordChange: (String) -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onToggleConfirmPasswordVisibility: () -> Unit,
+    onSubmit: () -> Unit
 ) {
 
-    val uiState by viewModel.uiState.collectAsState()
     Text(
         text = "Escriba nueva contraseña", color = KashuTheme.colors.title
     )
@@ -127,7 +131,7 @@ fun PswdReset(
         label = "Ingrese contraseña",
         colorPlaceHolder = Color.Gray,
         type = uiState.newPswd,
-        onType = { viewModel.onNewPswd(it) },
+        onType = { onPasswordChange(it) },
         errorMessage = uiState.isError,
         isError = uiState.isError != null,
         visualTransformation = if (uiState.isPasswordVisible) {
@@ -142,7 +146,7 @@ fun PswdReset(
 
         trailingIcon = {
             IconButton(
-                onClick = { viewModel.togglePasswordVisibility() }) {
+                onClick = { onTogglePasswordVisibility() }) {
                 Icon(
                     imageVector = if (uiState.isPasswordVisible) {
                         Icons.Default.VisibilityOff
@@ -167,7 +171,7 @@ fun PswdReset(
             keyboardType = KeyboardType.Password
         ),
         trailingIcon = {
-            IconButton(onClick = { viewModel.toggleConfirmPasswordVisibility() }) {
+            IconButton(onClick = { onToggleConfirmPasswordVisibility() }) {
                 Icon(
                     imageVector = if (uiState.isConfirmPasswordVisible) {
                         Icons.Default.VisibilityOff
@@ -184,7 +188,7 @@ fun PswdReset(
         placeholder = "Confirme la Contraseña",
         colorPlaceHolder = Color.Gray,
         type = uiState.newPswdConfirm,
-        onType = { viewModel.onConfirmPswd(it) },
+        onType = { onConfirmPasswordChange(it) },
         errorMessage = uiState.isError,
         isError = uiState.isError != null
     )
@@ -193,7 +197,7 @@ fun PswdReset(
         enabled = !uiState.isLoading,
         text = "Actualizar Contraseña",
         onClickFun = {
-            viewModel.updatePswd()
+            onSubmit()
         })
 
 }

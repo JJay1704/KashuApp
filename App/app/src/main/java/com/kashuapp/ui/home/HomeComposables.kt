@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,38 +19,71 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.core.composables.NetWorthCard
 import com.kashuapp.ui.theme.KashuTheme
 import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
 import com.kashuapp.ui.transaction.TransactionItemCard
 
 
 @Composable
 fun HomeView(
     onViewAllClick: () -> Unit = {},
-    homeVM: HomeVM = viewModel()
+    uiState: HomeState,
 ) {
-    LaunchedEffect(Unit) {
-        homeVM.loadData()
-    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 20.dp, vertical = 12.dp)
 
     ) {
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()
-        ) {
+        val showInitialLoading =
+            uiState.isLoading &&
+                    uiState.accounts.isEmpty() &&
+                    uiState.transactions.isEmpty()
 
-            items(homeVM.accountsByCurrency) { item ->
-                val balance = item.formattedTotal
-                Box(modifier = Modifier.fillParentMaxWidth()) {
-                    NetWorthCard(accountNetWorth = balance)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (showInitialLoading) {
+                CircularProgressIndicator(
+                    color = KashuTheme.colors.mainColor
+                )
+            } else {
+                LazyRow(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(uiState.accountsByCurrency) { item ->
+                        Box(
+                            modifier = Modifier
+                                .fillParentMaxWidth()
+                                .fillMaxHeight()
+
+                        ) {
+                            NetWorthCard(
+                                accountNetWorth = item.formattedTotal,
+                                modifier = Modifier.fillMaxHeight()
+
+                            )
+                        }
+                    }
                 }
             }
+        }
+        val message = uiState.errorMessage
+
+        if (message != null) {
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.error
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
         Row(
@@ -64,7 +98,7 @@ fun HomeView(
 
             Text(
                 text = "View all",
-                modifier = Modifier.clickable {    onViewAllClick() },
+                modifier = Modifier.clickable { onViewAllClick() },
                 color = KashuTheme.colors.mainColor
             )
 
@@ -76,22 +110,24 @@ fun HomeView(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(homeVM.transactions) { item ->
-                val itemCategory = homeVM.getCategoryName(item.categoryId)
-                val itemAccount = homeVM.getAccountName(item.accountId)
+            items(uiState.transactions) { item ->
+                val categoryName = uiState.categories
+                    .find { it.id == item.categoryId }
+                    ?.name ?: "Sin categoría"
+
+                val account = uiState.accounts
+                    .find { it.id == item.accountId }
                 TransactionItemCard(
                     item = item,
-                    categoryName = itemCategory,
-                    accountName = itemAccount,
-                    currency = homeVM.accounts.find { it.id == item.accountId }?.currency ?: "",
+                    categoryName = categoryName,
+                    accountName = account?.name ?: "Sin cuenta",
+                    currency = account?.currency ?: ""
                 )
             }
         }
 
 
-
     }
-
 
 
 }

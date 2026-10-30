@@ -31,7 +31,6 @@ class TransactionFormVM(
 
     private val _uiStateTran = MutableStateFlow(TransactionFormState())
     val uiStateTran = _uiStateTran.asStateFlow()
-    var categories by mutableStateOf<List<Category>>(emptyList())
 
 
     fun initForm(
@@ -81,7 +80,6 @@ class TransactionFormVM(
             val userId = authRepo.getCurrentUserId().id
             val catList = catRepo.getAllCateg(userId).getOrDefault(emptyList())
             val accList = accountRepo.getAllAccount(userId).getOrDefault(emptyList())
-            categories = catList
 
             val account = accList.find { it.id == _uiStateTran.value.accountId }
             val category = catList.find { it.id == _uiStateTran.value.categoryId }
@@ -132,9 +130,12 @@ class TransactionFormVM(
     }
 
     fun resetForm() {
-        _uiStateTran.value = TransactionFormState(
-            categories = categories, accounts = _uiStateTran.value.accounts
-        )
+        _uiStateTran.update { current ->
+            TransactionFormState(
+                categories = current.categories,
+                accounts = current.accounts
+            )
+        }
     }
 
     fun onAccount(newAccount: Account) {
