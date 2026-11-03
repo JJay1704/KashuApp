@@ -46,6 +46,9 @@ import androidx.compose.ui.unit.sp
 import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.data.account.Account
 import com.kashuapp.data.category.Category
+// RF-11.1 PASO 1: Descomenta estos imports para reutilizar la presentación de categorías.
+// import com.kashuapp.ui.category.categoryIcon
+// import com.kashuapp.ui.category.categoryColor
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.list.TransactionState
@@ -53,6 +56,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import androidx.compose.foundation.lazy.items
+import com.kashuapp.ui.category.categoryColor
+import com.kashuapp.ui.category.categoryIcon
 
 @Composable
 fun TransactionFilters(
@@ -144,33 +149,31 @@ fun TransactionFilters(
 
 @Composable
 fun TransactionList(
-    uiState: TransactionState,
-    onTransactionClick: (Transaction) -> Unit
+    uiState: TransactionState, onTransactionClick: (Transaction) -> Unit
 ) {
-    LazyColumn (
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxWidth()
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()
     ) {
         items(uiState.transactions) { transaction ->
-            val categoryName = uiState.categories
-                .find { it.id == transaction.categoryId }
-                ?.name ?: "Sin categoría"
+            val category = uiState.categories.find { it.id == transaction.categoryId }
+            val categoryName = category?.name ?: "Sin categoría"
 
-            val account = uiState.accounts
-                .find { it.id == transaction.accountId }
+
+            val account = uiState.accounts.find { it.id == transaction.accountId }
 
             TransactionItemCard(
                 item = transaction,
+                category = category,
                 categoryName = categoryName,
                 accountName = account?.name ?: "Sin cuenta",
                 currency = account?.currency ?: "",
                 onClickCard = {
                     onTransactionClick(transaction)
-                }
-            )
+                })
         }
     }
 }
+
 @Composable
 fun KashuDatePickerField(
     modifier: Modifier = Modifier,
@@ -308,7 +311,9 @@ fun TransactionItemCard(
     val amountColor = if (isIncome) Color(0xFF10B981) else Color(0xFFEF4444)
     val amountPrefix = if (isIncome) "+ $currency" else "- $currency"
 
-    val iconVector = if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
+    val iconVector = category?.let { categoryIcon(it.icon) }
+        ?: if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
+    val iconColor = category?.let { categoryColor(it.color) } ?: amountColor
 
 
     Card(
@@ -331,13 +336,13 @@ fun TransactionItemCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(amountColor.copy(alpha = 0.15f)),
+                        .background(iconColor.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = iconVector,
-                        contentDescription = item.type,
-                        tint = amountColor,
+                        contentDescription = category?.name ?: item.type,
+                        tint = iconColor,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -353,7 +358,7 @@ fun TransactionItemCard(
                     )
                     if (!item.description.isNullOrBlank()) {
                         Text(
-                            text = item.description.orEmpty(),
+                            text = item.description,
                             fontSize = 12.sp,
                             color = KashuTheme.colors.subtitle,
                             maxLines = 1

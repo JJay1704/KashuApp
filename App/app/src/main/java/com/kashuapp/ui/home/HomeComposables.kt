@@ -111,14 +111,15 @@ fun HomeView(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(uiState.transactions) { item ->
-                val categoryName = uiState.categories
-                    .find { it.id == item.categoryId }
-                    ?.name ?: "Sin categoría"
+                 val category = uiState.categories.find { it.id == item.categoryId }
+                 val categoryName = category?.name ?: "Sin categoría"
+
 
                 val account = uiState.accounts
                     .find { it.id == item.accountId }
                 TransactionItemCard(
                     item = item,
+                    category = category,
                     categoryName = categoryName,
                     accountName = account?.name ?: "Sin cuenta",
                     currency = account?.currency ?: ""
