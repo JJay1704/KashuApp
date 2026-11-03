@@ -5,13 +5,12 @@ interface ITransactionRepository {
 
 
     suspend fun getAll(
-        userId: String ,
+        userId: String,
         accountId: String? = null,
-        categoryId: String?= null,
-        date: String?= null,
+        categoryId: String? = null,
         startDate: String? = null,
-        endDate: String?= null,
-        type : String? = null
+        endDate: String? = null,
+        type: String? = null
     ): Result<List<Transaction>>
 
     suspend fun postTrans(trans: Transaction): Result<Unit>

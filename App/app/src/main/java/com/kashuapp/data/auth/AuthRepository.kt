@@ -3,7 +3,6 @@ package com.kashuapp.data.auth
 import com.kashuapp.data.KashuSupaBase
 import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.providers.builtin.Email
-import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
@@ -11,7 +10,7 @@ import kotlinx.serialization.json.put
 class AuthRepository : IAuthRepository {
 
 
-    override suspend fun login(email: String, password: String): Result<UserInfo> {
+    override suspend fun login(email: String, password: String): Result<Unit> {
 
         try {
 
@@ -28,7 +27,7 @@ class AuthRepository : IAuthRepository {
             return if (user != null) {
 
 
-                Result.success(user)
+                Result.success(Unit)
             } else {
                 Result.failure(Exception("Usuario no encontrado"))
 
@@ -94,7 +93,7 @@ class AuthRepository : IAuthRepository {
         fatherName: String,
         motherName: String,
         lastName: String
-    ): Result<UserInfo> {
+    ): Result<Unit> {
         try {
 
             KashuSupaBase.auth.signUpWith(Email) {
@@ -112,7 +111,7 @@ class AuthRepository : IAuthRepository {
             }
             val user = KashuSupaBase.auth.currentUserOrNull()
             return if (user != null) {
-                Result.success(user)
+                Result.success(Unit)
             } else {
                 Result.failure(Exception("Error al registrar el usuario"))
             }

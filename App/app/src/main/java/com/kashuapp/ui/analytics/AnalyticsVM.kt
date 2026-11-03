@@ -39,7 +39,12 @@ class AnalyticsVM(
     fun loadData() {
         val userId = authRepo.getCurrentUserId().id
         if (userId.isBlank() || userId == "Not Gotten") {
-            _uiState.update { it.copy(isLoading = false, errorMessage = "Inicia sesión para ver tus estadísticas.") }
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    errorMessage = "Inicia sesión para ver tus estadísticas."
+                )
+            }
             return
         }
 
@@ -66,7 +71,6 @@ class AnalyticsVM(
                 userId = userId,
                 accountId = null,
                 categoryId = null,
-                date = null,
                 startDate = startDate,
                 endDate = endDate,
                 type = null
@@ -90,7 +94,8 @@ class AnalyticsVM(
                     .map { (catId, itemsInCat) ->
                         val sum = itemsInCat.sumOf { it.amount }
                         val cat = catList.find { it.id == catId }
-                        val pct = if (totalExpense > 0.0) ((sum / totalExpense) * 100).toFloat() else 0f
+                        val pct =
+                            if (totalExpense > 0.0) ((sum / totalExpense) * 100).toFloat() else 0f
                         val angle = (pct / 100f) * 360f
 
                         CategoryExpenseShare(

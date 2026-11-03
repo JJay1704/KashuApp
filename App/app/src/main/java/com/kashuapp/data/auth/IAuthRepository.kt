@@ -1,11 +1,10 @@
 package com.kashuapp.data.auth
 
-import io.github.jan.supabase.auth.user.UserInfo
 
 interface IAuthRepository {
 
 
-    suspend fun login(email: String, password: String): Result<UserInfo>
+    suspend fun login(email: String, password: String): Result<Unit>
 
 
     suspend fun logOut(): Result<Unit>
@@ -16,7 +15,7 @@ interface IAuthRepository {
         fatherName: String,
         motherName: String,
         lastName: String
-    ): Result<UserInfo>
+    ): Result<Unit>
 
     fun getCurrentUserId(): UserProfile
 

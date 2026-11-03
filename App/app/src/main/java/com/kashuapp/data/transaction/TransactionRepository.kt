@@ -46,7 +46,6 @@ class TransactionRepository : ITransactionRepository {
         userId: String,
         accountId: String?,
         categoryId: String?,
-        date: String?,
         startDate: String?,
         endDate: String?,
         type: String?

@@ -29,6 +29,8 @@ class BudgetVM(
     private val initialCalendar = Calendar.getInstance()
     private val initialMonth = initialCalendar.get(Calendar.MONTH) + 1
     private val initialYear = initialCalendar.get(Calendar.YEAR)
+    private var lastKnownMonth = initialMonth
+    private var lastKnownYear = initialYear
 
     private val _uiState = MutableStateFlow(
         BudgetState(
@@ -83,13 +85,13 @@ class BudgetVM(
                 userId = userId,
                 accountId = null,
                 categoryId = null,
-                date = null,
                 startDate = startDate,
                 endDate = endDate,
                 type = "EXPENSE"
             ).getOrDefault(emptyList())
 
             currentTransactions = transactions
+
 
             val budgetResult = budgetRepo.getBudgets(userId, month, year)
             budgetResult.onSuccess { budgetList ->
@@ -133,6 +135,28 @@ class BudgetVM(
                     )
                 }
             }
+        }
+    }
+
+    fun checkMonthChange() {
+        val calendar = Calendar.getInstance()
+        val currentMonth = calendar.get(Calendar.MONTH) + 1
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        if (currentMonth == lastKnownMonth && currentYear == lastKnownYear) return
+
+        val state = _uiState.value
+        val wasViewingCurrentMonth = state.selectedMonth == lastKnownMonth &&
+            state.selectedYear == lastKnownYear
+
+        lastKnownMonth = currentMonth
+        lastKnownYear = currentYear
+
+        if (wasViewingCurrentMonth) {
+            _uiState.update {
+                it.copy(selectedMonth = currentMonth, selectedYear = currentYear)
+            }
+            loadData()
         }
     }
 
