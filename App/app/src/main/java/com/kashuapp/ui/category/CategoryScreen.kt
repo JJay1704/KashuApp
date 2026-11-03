@@ -131,8 +131,16 @@ fun CategoryScreen(
                 isLoading = uiState.isLoading,
                 errorMessage = uiState.errorMessage,
                 onDismiss = { viewModel.closeForm() },
-                onSave = { name, type ->
-                    viewModel.saveCategory(name, type, onSuccess = {})
+                onSave = { name, type, icon, color ->
+
+                    viewModel.saveCategory(
+                         name = name,
+                        type = type,
+                        icon = icon,
+                        color = color,
+                        onSuccess = {}
+                     )
+
                 },
                 onDelete = { id ->
                     viewModel.deleteCategory(id)

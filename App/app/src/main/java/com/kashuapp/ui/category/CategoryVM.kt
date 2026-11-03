@@ -43,7 +43,13 @@ class CategoryVM(
     }
 
     fun openEdit(category: Category) {
-        _uiState.update { it.copy(categoryToEdit = category, isFormOpen = true, errorMessage = null) }
+        _uiState.update {
+            it.copy(
+                categoryToEdit = category,
+                isFormOpen = true,
+                errorMessage = null
+            )
+        }
     }
 
     fun closeForm() {
@@ -53,6 +59,8 @@ class CategoryVM(
     fun saveCategory(
         name: String,
         type: String,
+        icon: String,
+        color: String,
         onSuccess: () -> Unit
     ) {
         val userId = authRepo.getCurrentUserId().id
@@ -70,6 +78,8 @@ class CategoryVM(
             val result: Result<Unit> = if (currentCategory != null) {
                 val updatedCat = currentCategory.copy(
                     name = name.trim(),
+                    icon = icon,
+                    color = color,
                     type = type.uppercase()
                 )
                 catRepo.updateCategory(updatedCat)
@@ -78,10 +88,11 @@ class CategoryVM(
                     userId = userId,
                     name = name.trim(),
                     type = type.uppercase(),
-                    icon = "category",
-                    color = "#34D399"
+                    icon = icon,
+                    color = color
+
                 )
-                catRepo.createCategory(newCat).map {  }
+                catRepo.createCategory(newCat).map { }
             }
 
             result.onSuccess {

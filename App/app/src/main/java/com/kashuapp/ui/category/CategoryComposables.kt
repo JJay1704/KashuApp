@@ -15,7 +15,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -26,23 +29,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kashuapp.data.account.Account
 import com.kashuapp.data.category.Category
 import com.kashuapp.ui.theme.KashuTheme
+import androidx.core.graphics.toColorInt
 
+fun categoryIcon(id: String): ImageVector = when (id) {
+    "food" -> Icons.Default.Restaurant
+    "transport" -> Icons.Default.DirectionsBus
+    "shopping" -> Icons.Default.ShoppingCart
+    else -> Icons.Default.Category
+}
 
-
-
+fun categoryColor(hex: String): Color = try {
+    Color(hex.toColorInt())
+} catch (e: IllegalArgumentException) {
+    Color(0xFF34D399)
+}
 
 
 @Composable
 fun CategoryItemCard(
-    category: Category,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    category: Category, onEditClick: () -> Unit, onDeleteClick: () -> Unit
 
 ) {
     Card(
@@ -58,21 +69,18 @@ fun CategoryItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
+                verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)
             ) {
                 Box(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .background(KashuTheme.colors.mainColor.copy(alpha = 0.15f)),
+                        .background(categoryColor(category.color).copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Category,
-                        contentDescription = category.name,
-                        tint = KashuTheme.colors.mainColor,
-                        modifier = Modifier.size(22.dp)
+                        imageVector = categoryIcon(category.icon), contentDescription = category.name,
+                        tint = categoryColor(category.color), modifier = Modifier.size(22.dp)
                     )
                 }
 
@@ -86,7 +94,10 @@ fun CategoryItemCard(
                         color = KashuTheme.colors.title
                     )
                     Text(
-                        text = if (category.type.equals("EXPENSE", ignoreCase = true)) "Gasto" else "Ingreso",
+                        text = if (category.type.equals(
+                                "EXPENSE", ignoreCase = true
+                            )
+                        ) "Gasto" else "Ingreso",
                         fontSize = 12.sp,
                         color = if (category.type == "INCOME") KashuTheme.colors.mainColor else Color.Red
                     )
@@ -102,15 +113,12 @@ fun CategoryItemCard(
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Sistema",
-                            fontSize = 11.sp,
-                            color = KashuTheme.colors.subtitle
+                            text = "Sistema", fontSize = 11.sp, color = KashuTheme.colors.subtitle
                         )
                     }
                 } else {
                     IconButton(
-                        onClick = onEditClick,
-                        modifier = Modifier.size(36.dp)
+                        onClick = onEditClick, modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -120,8 +128,7 @@ fun CategoryItemCard(
                         )
                     }
                     IconButton(
-                        onClick = onDeleteClick,
-                        modifier = Modifier.size(36.dp)
+                        onClick = onDeleteClick, modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
