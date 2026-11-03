@@ -71,5 +71,28 @@ class AccountVM(
 
         _uiState.update { it.copy(accountToEdit = null, isFormOpen = false) }
     }
+
+    fun setAccountActive(account: Account, isActive: Boolean) {
+
+        if (account.id == null) return
+
+        if (!_uiState.value.isLoading) {
+            viewModelScope.launch {
+
+                _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+                val result = accountRepo.setAccountActive(account.id, isActive)
+                result.onSuccess {
+
+                    loadData()
+
+                }
+                result.onFailure {error ->
+                    _uiState.update { it.copy(isLoading = false, errorMessage = error.message?: "No se puede cambiar el estado de l cuenta") }
+                }
+            }
+        }
+
+
+    }
 }
 

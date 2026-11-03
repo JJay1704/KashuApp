@@ -118,6 +118,10 @@ fun AccountScreen(
                     items(uiState.accounts, key = { it.id?: it.name }) { account ->
                         AccountItemCard(
                             account = account,
+                             onToggleActive = {
+                                 viewModel.setAccountActive(account, !account.isActive)
+                             },
+                             isUpdatingStatus = uiState.isLoading,
                             onEditClick = { viewModel.openEdit(account) },
                             onDeleteClick = { account.id?.let { viewModel.deleteAccount(it) } }
                         )

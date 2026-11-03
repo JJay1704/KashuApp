@@ -1,8 +1,5 @@
 package com.kashuapp.ui.transaction.form
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kashuapp.data.account.Account
@@ -31,6 +28,7 @@ class TransactionFormVM(
 
     private val _uiStateTran = MutableStateFlow(TransactionFormState())
     val uiStateTran = _uiStateTran.asStateFlow()
+    private var originalAccountId: String? = null
 
 
     fun initForm(
@@ -41,6 +39,7 @@ class TransactionFormVM(
 
         initialCategoryName: String = ""
     ) {
+        originalAccountId = trans?.accountId
         if (trans != null) {
             val rawDate = trans.transactionDate.replace("T", " ").trim()
             val dateParts = rawDate.split(" ")
@@ -87,7 +86,9 @@ class TransactionFormVM(
             _uiStateTran.update { current ->
                 current.copy(
                     categories = catList,
-                    accounts = accList,
+                    accounts = accList.filter { account ->
+                        account.isActive || account.id == trans?.accountId
+                    },
                     accountName = account?.name ?: current.accountName,
                     categoryName = category?.name ?: current.categoryName
                 )
@@ -116,11 +117,13 @@ class TransactionFormVM(
 
     fun onType(selectedType: String) {
 
-        _uiStateTran.update { it.copy(
-            selectedTypeTrans = selectedType,
-            categoryId = "",
-            categoryName = ""
-        ) }
+        _uiStateTran.update {
+            it.copy(
+                selectedTypeTrans = selectedType,
+                categoryId = "",
+                categoryName = ""
+            )
+        }
 
 
     }
@@ -130,6 +133,7 @@ class TransactionFormVM(
     }
 
     fun resetForm() {
+        originalAccountId = null
         _uiStateTran.update { current ->
             TransactionFormState(
                 categories = current.categories,
@@ -207,21 +211,41 @@ class TransactionFormVM(
             transactionDate = "$date $time"
         )
         viewModelScope.launch {
-            val resultPost = if (stateValues.id != null) {
+            val accountResult = accountRepo.findById(stateValues.accountId)
+            accountResult.onSuccess { account ->
+                val keepsOriginalAccount = stateValues.id != null &&
+                        stateValues.accountId == originalAccountId
 
-                transRepo.updateTrans(transPost)
-            } else {
-                transRepo.postTrans(transPost)
+                if (account.isActive || keepsOriginalAccount) {
+                    val resultPost = if (stateValues.id != null) {
 
+                        transRepo.updateTrans(transPost)
+                    } else {
+                        transRepo.postTrans(transPost)
+
+                    }
+                    resultPost.onSuccess {
+                        onSuccess()
+
+
+                        resetForm()
+                    }
+                    resultPost.onFailure { error -> println(error) }
+
+
+                } else {
+                    _uiStateTran.update {
+                        it.copy(isAccountError = "Selecciona una cuenta activa")
+                    }
+                }
             }
-            resultPost.onSuccess {
-                onSuccess()
-
-
-                resetForm()
+            accountResult.onFailure {
+                _uiStateTran.update {
+                    it.copy(isAccountError = "No se pudo verificar la cuenta")
+                }
             }
-            resultPost.onFailure { error -> println(error) }
+
+
         }
     }
-
 }

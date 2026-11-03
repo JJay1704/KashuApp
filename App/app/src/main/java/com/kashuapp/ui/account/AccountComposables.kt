@@ -24,6 +24,8 @@ import java.util.Locale
 @Composable
 fun AccountItemCard(
     account: Account,
+     onToggleActive: () -> Unit,
+     isUpdatingStatus: Boolean = false,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -74,6 +76,14 @@ fun AccountItemCard(
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
+                 Switch(
+                     checked = account.isActive,
+                     onCheckedChange = { onToggleActive() },
+                     enabled = !isUpdatingStatus,
+                     colors = SwitchDefaults.colors(
+                         checkedTrackColor = KashuTheme.colors.mainColor
+                     )
+                 )
                 IconButton(onClick = onEditClick, modifier = Modifier.size(36.dp)) {
                     Icon(
                         imageVector = Icons.Default.Edit,

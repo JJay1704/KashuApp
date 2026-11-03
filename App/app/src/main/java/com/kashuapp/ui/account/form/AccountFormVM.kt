@@ -123,6 +123,7 @@ class AccountFormVM(
                 selectedAccountType = null,
                 selectedCurrency = null,
                 isNameError = null,
+
                 isAccountTypeError = null,
                 isInitialBalanceError = null,
                 isCurrencyError = null,
@@ -191,8 +192,9 @@ class AccountFormVM(
                 return@launch
             }
             val validBalance = balanceParsed ?: 0.0
-
             val accountData = Account(
+//                isActive = accountToEdit?.isActive ?: true,
+
                 id = accountToEdit?.id,
                 userId = userId,
                 name = state.name.trim(),
