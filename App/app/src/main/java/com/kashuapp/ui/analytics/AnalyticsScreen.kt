@@ -11,13 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.ui.budget.MonthSelector
 import com.kashuapp.ui.theme.KashuTheme
 
@@ -40,9 +41,6 @@ fun AnalyticsScreen(
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Distribución (Torta)", "Comparativa (Barras)")
 
-    LaunchedEffect(Unit) {
-        viewModel.loadData()
-    }
 
     Column(
         modifier = Modifier
@@ -62,12 +60,19 @@ fun AnalyticsScreen(
             month = uiState.selectedMonth,
             year = uiState.selectedYear,
             onPrevious = { viewModel.changeMonth(-1) },
-            onNext = { viewModel.changeMonth(1) }
-        )
+            onNext = { viewModel.changeMonth(1) })
 
         Spacer(modifier = Modifier.height(14.dp))
 
+        KashuDropdownField(
+            label = "Moneda",
+            selectedValue = uiState.selectedCurrency,
+            items = uiState.availableCurrencies,
+            itemLabel = { it },
+            onItemSelected = { viewModel.changeCurrency(it) })
+        Spacer(modifier = Modifier.height(14.dp))
         MetricSummaryCards(
+            currency = uiState.selectedCurrency,
             totalIncome = uiState.totalIncome,
             totalExpense = uiState.totalExpense,
             netSavings = uiState.netSavings
@@ -84,8 +89,7 @@ fun AnalyticsScreen(
                     Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
                     color = KashuTheme.colors.mainColor
                 )
-            }
-        ) {
+            }) {
             tabTitles.forEachIndexed { index, title ->
                 Tab(
                     selected = selectedTabIndex == index,
@@ -96,8 +100,7 @@ fun AnalyticsScreen(
                             fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
                             color = if (selectedTabIndex == index) KashuTheme.colors.mainColor else KashuTheme.colors.subtitle
                         )
-                    }
-                )
+                    })
             }
         }
 
@@ -105,11 +108,15 @@ fun AnalyticsScreen(
 
         if (uiState.isLoading) {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = KashuTheme.colors.mainColor)
             }
+
+        } else if (uiState.errorMessage != null) {
+            Text(
+                text = uiState.errorMessage.orEmpty(), color = MaterialTheme.colorScheme.error
+            )
         } else if (!uiState.hasData) {
             Box(
                 modifier = Modifier
@@ -118,7 +125,8 @@ fun AnalyticsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Sin movimientos registrados en este mes",
+                    text = if (uiState.availableCurrencies.isEmpty()) "No hay cuentas registradas"
+                    else "Sin movimientos en ${uiState.selectedCurrency} para este mes",
                     color = KashuTheme.colors.subtitle,
                     fontSize = 14.sp
                 )
@@ -132,11 +140,13 @@ fun AnalyticsScreen(
                 item {
                     if (selectedTabIndex == 0) {
                         PieChartExpenses(
+                            currency = uiState.selectedCurrency,
                             shares = uiState.categoryExpenses,
                             totalExpense = uiState.totalExpense
                         )
                     } else {
                         ComparisonBarChart(
+                            currency = uiState.selectedCurrency,
                             income = uiState.totalIncome,
                             expense = uiState.totalExpense
                         )

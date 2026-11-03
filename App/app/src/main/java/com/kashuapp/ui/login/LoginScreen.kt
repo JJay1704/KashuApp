@@ -54,14 +54,12 @@ fun LoginScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToRegister: () -> Unit,
     viewModel: LoginVM = viewModel(),
-//    onNavigateToResetPswd: () -> Unit,
 ) {
     val uiStateValues by viewModel.uiState.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-
-        Column(
+Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(KashuTheme.colors.mainBackground)
@@ -103,14 +101,12 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 trailingIcon = null
 
-
-            )
+)
             Spacer(modifier = Modifier.height(14.dp))
             KashuTextField(
                 label = "Password",
                 extraLabel = "Forgot your password?",
                 onExtraClick = {
-//                    onNavigateToResetPswd()
                     viewModel.openResetPswd(true)
 
                 },
@@ -122,8 +118,7 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (uiStateValues.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
 
-
-                trailingIcon = {
+trailingIcon = {
                     IconButton(onClick = { viewModel.onTogglePassword() }) {
                         Icon(
                             imageVector = if (uiStateValues.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
@@ -138,8 +133,7 @@ fun LoginScreen(
             ) {
                 KashuButton(
 
-
-                    onClickFun = {
+onClickFun = {
                         viewModel.loginSuccess(
                             onSucces = { onNavigateToHome() })
                     },
@@ -148,8 +142,7 @@ fun LoginScreen(
                     isLoading = uiStateValues.isLoading,
                     enabled = !uiStateValues.isLoading
 
-
-                )
+)
                 Spacer(modifier = Modifier.width(4.dp))
 
             }
@@ -187,8 +180,7 @@ fun LoginScreen(
             }
             Spacer(modifier = Modifier.weight(0.2f))
 
-
-        }
+}
         if (uiStateValues.isOpenResetPswd) {
             Dialog(
                 onDismissRequest = { viewModel.openResetPswd(false) },

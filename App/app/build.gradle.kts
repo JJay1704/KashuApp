@@ -75,7 +75,6 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended")
 
-    // Credential Manager (La forma oficial moderna de Google)
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
@@ -85,7 +84,6 @@ dependencies {
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.auth)
     implementation(libs.supabase.postgrest)
-    // Motor de red para Supabase
     implementation(libs.ktor.client.okhttp)
 
 }

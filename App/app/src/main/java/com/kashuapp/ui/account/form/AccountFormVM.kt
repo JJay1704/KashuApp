@@ -25,12 +25,10 @@ class AccountFormVM(
     private val currencyRepo: ICurrencyRepository = CurrencyRepository()
 ) : ViewModel() {
 
-
-    private val _uiState = MutableStateFlow(AccountFormState())
+private val _uiState = MutableStateFlow(AccountFormState())
     val uiState = _uiState.asStateFlow()
 
-
-    init {
+init {
 
         loadAccountData()
 
@@ -39,11 +37,9 @@ class AccountFormVM(
     fun loadAccountData() {
         viewModelScope.launch {
 
+_uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-
-
-            val resultCurrency = currencyRepo.getAllCurrency()
+val resultCurrency = currencyRepo.getAllCurrency()
             resultCurrency.onSuccess { list ->
                 _uiState.update { it.copy(currency = list) }
             }
@@ -51,8 +47,7 @@ class AccountFormVM(
                 _uiState.update { it.copy(errorMessage = error.message) }
             }
 
-
-            val result = accountTypeRepo.getAllAccountTypes()
+val result = accountTypeRepo.getAllAccountTypes()
             result.onSuccess { list ->
                 _uiState.update { it.copy(accountTypes = list) }
             }
@@ -84,8 +79,7 @@ class AccountFormVM(
 
         _uiState.update { it.copy(name = onName) }
 
-
-    }
+}
 
     fun initForm(accountToEdit: Account?) {
         if (accountToEdit != null) {
@@ -114,8 +108,7 @@ class AccountFormVM(
 
     }
 
-
-    fun resetForm() {
+fun resetForm() {
         _uiState.update {
             it.copy(
                 name = "",
@@ -136,8 +129,7 @@ class AccountFormVM(
         _uiState.update { it.copy(initialBalance = newBalance, isInitialBalanceError = null) }
     }
 
-
-    fun saveAccount(accountToEdit: Account?, onSuccess: () -> Unit) {
+fun saveAccount(accountToEdit: Account?, onSuccess: () -> Unit) {
         val state = _uiState.value
         val userId = authRepo.getCurrentUserId().id
 
@@ -156,8 +148,7 @@ class AccountFormVM(
             null
         }
 
-
-        if (nameError != null || typeError != null || currencyError != null || balanceError != null) {
+if (nameError != null || typeError != null || currencyError != null || balanceError != null) {
             _uiState.update {
                 it.copy(
                     isNameError = nameError,
@@ -172,9 +163,7 @@ class AccountFormVM(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-
-
-            val currentAccounts = accountRepo.getAllAccount(userId).getOrDefault(emptyList())
+val currentAccounts = accountRepo.getAllAccount(userId).getOrDefault(emptyList())
             val isStrictDuplicate = currentAccounts.any { existing ->
                 val sameName = existing.name.trim().equals(state.name.trim(), ignoreCase = true)
                 val sameType = existing.type.equals(state.selectedAccountType!!.id, ignoreCase = true)
@@ -193,7 +182,6 @@ class AccountFormVM(
             }
             val validBalance = balanceParsed ?: 0.0
             val accountData = Account(
-//                isActive = accountToEdit?.isActive ?: true,
 
                 id = accountToEdit?.id,
                 userId = userId,
@@ -222,8 +210,4 @@ class AccountFormVM(
         }
     }
 }
-
-
-
-
 

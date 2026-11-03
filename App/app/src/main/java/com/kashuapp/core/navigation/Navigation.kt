@@ -16,12 +16,10 @@ import com.kashuapp.ui.resetPswd.ResetPswdScreen
 import com.kashuapp.ui.signUp.RegisterView
 import com.kashuapp.ui.theme.KashuAppTheme
 
-
 @Composable
 fun Navigation() {
 
-
-    KashuAppTheme {
+KashuAppTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             val navController = rememberNavController()
 
@@ -34,9 +32,6 @@ fun Navigation() {
                 composable("login") {
 
                     LoginScreen(
-//                        onNavigateToResetPswd = {
-//                            navController.navigate("resetpswd")
-//                        },
                         onNavigateToHome = {
                             navController.navigate("home") {
 
@@ -72,8 +67,7 @@ fun Navigation() {
 
                 }
 
-
-                composable("category") {
+composable("category") {
                     CategoryScreen(
                         onBackToHome = { navController.popBackStack() })
                 }
@@ -88,5 +82,4 @@ fun Navigation() {
         }
     }
 }
-
 

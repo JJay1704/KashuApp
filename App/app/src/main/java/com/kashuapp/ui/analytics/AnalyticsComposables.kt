@@ -37,8 +37,13 @@ private val chartPalette = listOf(
     Color(0xFFEC4899)
 )
 
+private fun analyticsMoney(currency: String, amount: Double): String =
+    "$currency ${String.format(java.util.Locale.US, "%.2f", amount)}"
+
+
 @Composable
 fun MetricSummaryCards(
+    currency: String,
     totalIncome: Double,
     totalExpense: Double,
     netSavings: Double,
@@ -59,7 +64,7 @@ fun MetricSummaryCards(
                 Text(text = "Ingresos", fontSize = 12.sp, color = KashuTheme.colors.subtitle)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "S/. $totalIncome",
+                    text = analyticsMoney(currency, totalIncome),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF10B981)
@@ -78,7 +83,7 @@ fun MetricSummaryCards(
                 Text(text = "Gastos", fontSize = 12.sp, color = KashuTheme.colors.subtitle)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "S/. $totalExpense",
+                    text = analyticsMoney(currency, totalExpense),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFEF4444)
@@ -98,7 +103,7 @@ fun MetricSummaryCards(
                 Spacer(modifier = Modifier.height(4.dp))
                 val netColor = if (netSavings >= 0.0) Color(0xFF10B981) else Color(0xFFEF4444)
                 Text(
-                    text = "S/. $netSavings",
+                    text = analyticsMoney(currency, netSavings),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = netColor
@@ -110,6 +115,8 @@ fun MetricSummaryCards(
 
 @Composable
 fun PieChartExpenses(
+
+    currency: String,
     shares: List<CategoryExpenseShare>,
     totalExpense: Double,
     modifier: Modifier = Modifier
@@ -167,7 +174,7 @@ fun PieChartExpenses(
                         color = KashuTheme.colors.subtitle
                     )
                     Text(
-                        text = "S/. $totalExpense",
+                        text = analyticsMoney(currency, totalExpense),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = KashuTheme.colors.title
@@ -203,7 +210,7 @@ fun PieChartExpenses(
                             modifier = Modifier.weight(1f)
                         )
                         Text(
-                            text = "S/. ${share.amount} ($pctInt%)",
+                            text = "${analyticsMoney(currency, share.amount)} ($pctInt%)",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = KashuTheme.colors.title
@@ -217,15 +224,20 @@ fun PieChartExpenses(
 
 @Composable
 fun ComparisonBarChart(
+
+    currency: String,
     income: Double,
     expense: Double,
     modifier: Modifier = Modifier
 ) {
-    val maxVal = if (income >= expense && income > 0.0) income else if (expense > 0.0) expense else 1.0
+    val maxVal =
+        if (income >= expense && income > 0.0) income else if (expense > 0.0) expense else 1.0
     val rawIncomeFraction = (income / maxVal).toFloat()
     val rawExpenseFraction = (expense / maxVal).toFloat()
-    val incomeHeightFraction = if (rawIncomeFraction < 0.05f) 0.05f else if (rawIncomeFraction > 1.0f) 1.0f else rawIncomeFraction
-    val expenseHeightFraction = if (rawExpenseFraction < 0.05f) 0.05f else if (rawExpenseFraction > 1.0f) 1.0f else rawExpenseFraction
+    val incomeHeightFraction =
+        if (rawIncomeFraction < 0.05f) 0.05f else if (rawIncomeFraction > 1.0f) 1.0f else rawIncomeFraction
+    val expenseHeightFraction =
+        if (rawExpenseFraction < 0.05f) 0.05f else if (rawExpenseFraction > 1.0f) 1.0f else rawExpenseFraction
 
     Box(
         modifier = modifier
@@ -260,7 +272,7 @@ fun ComparisonBarChart(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "S/. $income",
+                        text = analyticsMoney(currency, income),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF10B981)
@@ -287,7 +299,7 @@ fun ComparisonBarChart(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "S/. $expense",
+                        text = analyticsMoney(currency, expense),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFEF4444)

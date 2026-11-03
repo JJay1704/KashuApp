@@ -1,6 +1,5 @@
 package com.kashuapp.ui.signUp
 
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -96,7 +95,6 @@ fun RegisterView(
             trailingIcon = null,
             isError = uiState.isFullNameError != null
         )
-//        Spacer(modifier = Modifier.height(14.dp))
         KashuTextField(
             label = "Email",
             errorMessage = uiState.isEmailError,
@@ -110,7 +108,6 @@ fun RegisterView(
             trailingIcon = null,
             isError = uiState.isEmailError != null
         )
-//        Spacer(modifier = Modifier.height(14.dp))
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
@@ -148,7 +145,6 @@ fun RegisterView(
                 trailingIcon = null
             )
         }
-//        Spacer(modifier = Modifier.height(14.dp))
 
         KashuTextField(
             isError = uiState.isPasswordError != null,
@@ -191,7 +187,6 @@ fun RegisterView(
                     )
                 }
             })
-//        Spacer(modifier = Modifier.height(10.dp))
         if (uiState.errorMessage.isNotBlank()) {
             Text(
                 text = uiState.errorMessage,

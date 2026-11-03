@@ -46,9 +46,6 @@ import androidx.compose.ui.unit.sp
 import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.data.account.Account
 import com.kashuapp.data.category.Category
-// RF-11.1 PASO 1: Descomenta estos imports para reutilizar la presentación de categorías.
-// import com.kashuapp.ui.category.categoryIcon
-// import com.kashuapp.ui.category.categoryColor
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.list.TransactionState
@@ -91,8 +88,7 @@ fun TransactionFilters(
                 isFilter = true,
                 onClearFilter = { onAccountSelected(null) })
 
-
-        }
+}
 
         item {
 
@@ -115,8 +111,7 @@ fun TransactionFilters(
         }
         item {
 
-
-            KashuDropdownField(
+KashuDropdownField(
                 fillMaxWidth = false,
                 selectedValue = uiState.selectedType ?: "",
                 placeholder = "Type",
@@ -128,8 +123,7 @@ fun TransactionFilters(
                 onClearFilter = { onTypeSelected(null) })
         }
 
-
-        item {
+item {
             KashuDropdownField(
                 fillMaxWidth = false,
                 selectedValue = uiState.selectedPeriod ?: "",
@@ -158,8 +152,7 @@ fun TransactionList(
             val category = uiState.categories.find { it.id == transaction.categoryId }
             val categoryName = category?.name ?: "Sin categoría"
 
-
-            val account = uiState.accounts.find { it.id == transaction.accountId }
+val account = uiState.accounts.find { it.id == transaction.accountId }
 
             TransactionItemCard(
                 item = transaction,
@@ -235,7 +228,6 @@ fun KashuDatePickerField(
     }
 }
 
-
 @Composable
 fun KashuTimePickerField(
     modifier: Modifier = Modifier,
@@ -295,7 +287,6 @@ fun KashuTimePickerField(
     }
 }
 
-
 @Composable
 fun TransactionItemCard(
     item: Transaction,
@@ -315,8 +306,7 @@ fun TransactionItemCard(
         ?: if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
     val iconColor = category?.let { categoryColor(it.color) } ?: amountColor
 
-
-    Card(
+Card(
         onClick = onClickCard,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),

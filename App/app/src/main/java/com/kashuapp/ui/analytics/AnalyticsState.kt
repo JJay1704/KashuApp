@@ -18,5 +18,7 @@ data class AnalyticsState(
     val categoryExpenses: List<CategoryExpenseShare> = emptyList(),
     val hasData: Boolean = false,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val selectedCurrency: String = "PEN",
+    val availableCurrencies: List<String> = emptyList(),
 )
