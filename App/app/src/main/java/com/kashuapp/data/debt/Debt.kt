@@ -22,5 +22,6 @@ data class DebtPayment(
     val amount: Double,
     val currency: String,
     @SerialName("paid_at") val paidAt: String,
-    val description: String = ""
+    val description: String = "",
+    @SerialName("user_id") val userId: String = ""
 )

@@ -6,6 +6,5 @@ interface IDebtRepository {
     suspend fun createDebt(debt: Debt): Result<Unit>
     suspend fun updateDetails(id: String, name: String, creditor: String): Result<Unit>
     suspend fun deleteDebt(id: String): Result<Unit>
-    suspend fun payDebt(requestId: String, debtId: String, accountId: String,
-                        amount: String, paidAt: String, description: String): Result<Unit>
+    suspend fun payDebt(payment: DebtPayment): Result<Unit>
 }

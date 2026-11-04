@@ -11,6 +11,9 @@ import com.kashuapp.data.currency.ICurrencyRepository
 import com.kashuapp.data.debt.Debt
 import com.kashuapp.data.debt.DebtRepository
 import com.kashuapp.data.debt.IDebtRepository
+import com.kashuapp.data.debt.DebtPayment
+import com.kashuapp.data.debt.DebtOperationException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -46,33 +49,47 @@ class DebtVM(
         }
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
         viewModelScope.launch {
-            val debts = debtRepo.getDebts(userId)
-            val payments = debtRepo.getPayments(userId)
-            val accounts = accountRepo.getAllAccount(userId)
-            val currencies = currencyRepo.getAllCurrency()
-            if (debts.isSuccess && payments.isSuccess && accounts.isSuccess && currencies.isSuccess) {
-                val list = debts.getOrThrow().sortedBy { it.name.lowercase() }
-                val ownAccounts = accounts.getOrThrow().filter { it.userId == userId }
+            try {
+                val list = debtRepo.getDebts(userId).getOrThrow()
+                    .sortedWith(compareBy<Debt> { it.outstandingAmount <= 0 }.thenBy { it.name.lowercase(Locale.ROOT) })
+                val payments = debtRepo.getPayments(userId).getOrThrow()
+                    .sortedByDescending { it.paidAt }
+                val ownAccounts = accountRepo.getAllAccount(userId).getOrThrow().filter { it.userId == userId }
+                val currencies = currencyRepo.getAllCurrency().getOrThrow().map { it.code }.distinct().sorted()
+                // Una respuesta perdida puede haber guardado la operación: se concilia por su UUID.
+                val creationFound = pendingCreation?.let { pending -> list.any { it.id == pending.id } } == true
+                val paymentFound = pendingPayment?.let { pending -> payments.any { it.id == pending.requestId } } == true
+                if (creationFound) pendingCreation = null
+                if (paymentFound) pendingPayment = null
                 _uiState.update { it.copy(
                     debts = list,
-                    payments = payments.getOrThrow().sortedByDescending { payment -> payment.paidAt },
+                    payments = payments,
                     accounts = ownAccounts,
-                    currencies = currencies.getOrThrow().map { currency -> currency.code }.distinct(),
+                    currencies = currencies,
                     totalsByCurrency = list.groupBy { debt -> debt.currency }
                         .mapValues { (_, values) -> values.sumOf { debt -> debt.outstandingAmount } },
+                    form = if (creationFound) null else it.form,
+                    paymentForm = if (paymentFound) null else it.paymentForm,
                     paymentAccounts = ownAccounts.filter { account -> account.isActive &&
                         account.currency == it.paymentForm?.debt?.currency },
-                    isLoading = false
+                    isLoading = false,
+                    infoMessage = if (creationFound || paymentFound) "Operación confirmada en el historial" else it.infoMessage
                 ) }
-            } else {
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
                 _uiState.update { it.copy(isLoading = false,
-                    errorMessage = "No se pudo cargar Deudas. Revisa la conexión y la configuración del backend.") }
+                    errorMessage = "No se pudieron cargar las deudas. Revisa tu conexión y pulsa actualizar.") }
             }
         }
     }
 
     fun openCreate() {
         if (busy()) return
+        if (_uiState.value.currencies.isEmpty()) {
+            showError("No hay monedas disponibles. Actualiza antes de registrar una deuda")
+            return
+        }
         _uiState.update { it.copy(form = pendingCreation ?: DebtFormState(
             id = UUID.randomUUID().toString(), currency = it.currencies.firstOrNull() ?: "PEN"),
             errorMessage = null, infoMessage = null) }
@@ -134,8 +151,10 @@ class DebtVM(
         fun format(pattern: String) = SimpleDateFormat(pattern, Locale.US).apply {
             timeZone = TimeZone.getTimeZone("America/Lima")
         }.format(now)
+        val accounts = _uiState.value.accounts.filter { it.isActive && it.currency == debt.currency }
         _uiState.update { it.copy(paymentForm = previous ?: DebtPaymentState(
-            UUID.randomUUID().toString(), debt, date = format("yyyy-MM-dd"), time = format("HH:mm")),
+            UUID.randomUUID().toString(), debt, accountId = accounts.singleOrNull()?.id.orEmpty(),
+            date = format("yyyy-MM-dd"), time = format("HH:mm")),
             paymentAccounts = it.accounts.filter { account -> account.isActive && account.currency == debt.currency },
             errorMessage = null, infoMessage = null) }
     }
@@ -155,6 +174,8 @@ class DebtVM(
 
     fun pay() {
         if (busy()) return
+        val userId = authRepo.getCurrentUserId().id
+        if (userId.isBlank() || userId == "Not Gotten") { showError("Sesión no válida"); return }
         val form = _uiState.value.paymentForm ?: return
         val amount = positiveAmount(form.amount)
         if (amount == null) { showError("Ingresa un monto positivo con hasta dos decimales"); return }
@@ -172,8 +193,10 @@ class DebtVM(
             showError("Usa fecha AAAA-MM-DD, hora HH:mm y descripción de hasta 250 caracteres"); return
         }
         pendingPayment = form
-        save { debtRepo.payDebt(form.requestId, form.debt.id, form.accountId, amount,
-            "${form.date} ${form.time}", form.description.trim()) }
+        val paidAt = "${form.date}T${form.time}:00-05:00"
+        save { debtRepo.payDebt(DebtPayment(id = form.requestId, debtId = form.debt.id,
+            accountId = form.accountId, amount = amount.toDouble(), currency = form.debt.currency,
+            paidAt = paidAt, description = form.description.trim(), userId = userId)) }
     }
 
     fun requestDelete(debt: Debt) {
@@ -199,13 +222,24 @@ class DebtVM(
     private fun save(action: suspend () -> Result<Unit>) {
         _uiState.update { it.copy(isSaving = true, errorMessage = null, infoMessage = null) }
         viewModelScope.launch {
-            action().onSuccess {
+            val result = try {
+                action()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Result.failure(error)
+            }
+            result.onSuccess {
                 if (_uiState.value.paymentForm != null) pendingPayment = null
                 if (_uiState.value.form?.isEditing == false) pendingCreation = null
                 _uiState.update { it.copy(isSaving = false, form = null, paymentForm = null,
                     debtToDelete = null, infoMessage = "Operación guardada") }
                 loadData()
             }.onFailure { failure ->
+                if (failure is DebtOperationException && failure.confirmedRejected) {
+                    if (_uiState.value.paymentForm != null) pendingPayment = null
+                    if (_uiState.value.form?.isEditing == false) pendingCreation = null
+                }
                 _uiState.update { it.copy(isSaving = false,
                     errorMessage = failure.message ?: "No se pudo guardar. Revisa el historial antes de repetir.") }
             }

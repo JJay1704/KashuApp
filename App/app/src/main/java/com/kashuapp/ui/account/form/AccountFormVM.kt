@@ -25,10 +25,10 @@ class AccountFormVM(
     private val currencyRepo: ICurrencyRepository = CurrencyRepository()
 ) : ViewModel() {
 
-private val _uiState = MutableStateFlow(AccountFormState())
+    private val _uiState = MutableStateFlow(AccountFormState())
     val uiState = _uiState.asStateFlow()
 
-init {
+    init {
 
         loadAccountData()
 
@@ -37,9 +37,9 @@ init {
     fun loadAccountData() {
         viewModelScope.launch {
 
-_uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-val resultCurrency = currencyRepo.getAllCurrency()
+            val resultCurrency = currencyRepo.getAllCurrency()
             resultCurrency.onSuccess { list ->
                 _uiState.update { it.copy(currency = list) }
             }
@@ -47,7 +47,7 @@ val resultCurrency = currencyRepo.getAllCurrency()
                 _uiState.update { it.copy(errorMessage = error.message) }
             }
 
-val result = accountTypeRepo.getAllAccountTypes()
+            val result = accountTypeRepo.getAllAccountTypes()
             result.onSuccess { list ->
                 _uiState.update { it.copy(accountTypes = list) }
             }
@@ -67,6 +67,7 @@ val result = accountTypeRepo.getAllAccountTypes()
             )
         }
     }
+
     fun onCurrency(selected: Currency) {
         _uiState.update {
             it.copy(
@@ -79,13 +80,15 @@ val result = accountTypeRepo.getAllAccountTypes()
 
         _uiState.update { it.copy(name = onName) }
 
-}
+    }
 
     fun initForm(accountToEdit: Account?) {
         if (accountToEdit != null) {
             val matchingType = _uiState.value.accountTypes.find {
-                it.id.equals(accountToEdit.type, ignoreCase = true) ||
-                        it.name.equals(accountToEdit.type, ignoreCase = true)
+                it.id.equals(
+                    accountToEdit.type,
+                    ignoreCase = true
+                ) || it.name.equals(accountToEdit.type, ignoreCase = true)
             }
             val matchingCurrency = _uiState.value.currency.find {
                 it.code.equals(accountToEdit.currency, ignoreCase = true)
@@ -108,7 +111,7 @@ val result = accountTypeRepo.getAllAccountTypes()
 
     }
 
-fun resetForm() {
+    fun resetForm() {
         _uiState.update {
             it.copy(
                 name = "",
@@ -129,7 +132,7 @@ fun resetForm() {
         _uiState.update { it.copy(initialBalance = newBalance, isInitialBalanceError = null) }
     }
 
-fun saveAccount(accountToEdit: Account?, onSuccess: () -> Unit) {
+    fun saveAccount(accountToEdit: Account?, onSuccess: () -> Unit) {
         val state = _uiState.value
         val userId = authRepo.getCurrentUserId().id
 
@@ -148,7 +151,7 @@ fun saveAccount(accountToEdit: Account?, onSuccess: () -> Unit) {
             null
         }
 
-if (nameError != null || typeError != null || currencyError != null || balanceError != null) {
+        if (nameError != null || typeError != null || currencyError != null || balanceError != null) {
             _uiState.update {
                 it.copy(
                     isNameError = nameError,
@@ -163,49 +166,50 @@ if (nameError != null || typeError != null || currencyError != null || balanceEr
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-val currentAccounts = accountRepo.getAllAccount(userId).getOrDefault(emptyList())
+            val currentAccounts = accountRepo.getAllAccount(userId).getOrDefault(emptyList())
             val isStrictDuplicate = currentAccounts.any { existing ->
                 val sameName = existing.name.trim().equals(state.name.trim(), ignoreCase = true)
-                val sameType = existing.type.equals(state.selectedAccountType!!.id, ignoreCase = true)
-                val sameCurrency = existing.currency.equals(state.selectedCurrency!!.code, ignoreCase = true)
+                val sameType =
+                    existing.type.equals(state.selectedAccountType!!.id, ignoreCase = true)
+                val sameCurrency =
+                    existing.currency.equals(state.selectedCurrency!!.code, ignoreCase = true)
                 val isDifferentAccount = existing.id != accountToEdit?.id
                 sameName && sameType && sameCurrency && isDifferentAccount
             }
             if (isStrictDuplicate) {
                 _uiState.update {
                     it.copy(
-                        isLoading = false,
-                        errorMessage = "Account is already existed"
+                        isLoading = false, errorMessage = "Account is already existed"
                     )
                 }
-                return@launch
-            }
-            val validBalance = balanceParsed ?: 0.0
-            val accountData = Account(
-
-                id = accountToEdit?.id,
-                userId = userId,
-                name = state.name.trim(),
-                type = state.selectedAccountType!!.id,
-                currency = state.selectedCurrency!!.code,
-                currentBalance = validBalance,
-                initialBalance = accountToEdit?.initialBalance ?: validBalance,
-            )
-
-            val result = if (accountToEdit == null) {
-                accountRepo.createAccount(accountData)
             } else {
-                accountRepo.updateAccount(accountData)
-            }
+                val validBalance = balanceParsed ?: 0.0
+                val accountData = Account(
+                    isActive = accountToEdit?.isActive ?: true,
+                    id = accountToEdit?.id,
+                    userId = userId,
+                    name = state.name.trim(),
+                    type = state.selectedAccountType!!.id,
+                    currency = state.selectedCurrency!!.code,
+                    currentBalance = validBalance,
+                    initialBalance = accountToEdit?.initialBalance ?: validBalance,
+                )
 
-            _uiState.update { it.copy(isLoading = false) }
+                val result = if (accountToEdit == null) {
+                    accountRepo.createAccount(accountData)
+                } else {
+                    accountRepo.updateAccount(accountData)
+                }
 
-            result.onSuccess {
-                resetForm()
-                onSuccess()
-            }
-            result.onFailure { error ->
-                _uiState.update { it.copy(errorMessage = error.message) }
+                _uiState.update { it.copy(isLoading = false) }
+
+                result.onSuccess {
+                    resetForm()
+                    onSuccess()
+                }
+                result.onFailure { error ->
+                    _uiState.update { it.copy(errorMessage = error.message) }
+                }
             }
         }
     }

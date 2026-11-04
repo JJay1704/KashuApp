@@ -37,9 +37,11 @@ fun HomeScreen(
     onNavigateToCategory: () -> Unit = {},
     onLogout: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
-    homeVM: HomeVM = viewModel()
+    homeVM: HomeVM = viewModel(),
+    onNavigateToDebt: () -> Unit = {},
 
-) {
+
+    ) {
 
     val homeState by homeVM.uiState.collectAsState()
     val transactionListVM: TransactionVM = viewModel()
@@ -51,7 +53,6 @@ fun HomeScreen(
                 showAddTransaction = false
                 transactionListVM.getTrans()
                 homeVM.loadData()
-                // El gasto guardado también cambia el consumo de presupuestos.
                 budgetVM.loadData()
             }, onNavigateToCategory = onNavigateToCategory
         )
@@ -67,8 +68,12 @@ fun HomeScreen(
             KashuTopBar(
                 onNavigateToCategory = onNavigateToCategory,
                 onNavigateToAccount = onNavigateToAccount,
+                onNavigateToDebt = onNavigateToDebt,
                 onLogout = onLogout,
-                onNewTrans = { showAddTransaction = true })
+                onNewTrans = { showAddTransaction = true },
+
+
+                )
         }, bottomBar = {
             NavigationBar(
                 containerColor = KashuTheme.colors.surface,
@@ -109,8 +114,7 @@ fun HomeScreen(
                         homeVM.loadData()
                     }
                     HomeView(
-                        uiState = homeState,
-                        onViewAllClick = { selectedTab = HomeTab.History })
+                        uiState = homeState, onViewAllClick = { selectedTab = HomeTab.History })
                 }
 
                 is HomeTab.Goals -> {

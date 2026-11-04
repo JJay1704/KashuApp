@@ -20,8 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,10 +57,11 @@ fun KashuHomeMenu(
     onNavigateToCategory: () -> Unit = {},
 
     onTabSelected: (String) -> Unit = {},
-    onCloseMenu: () -> Unit = {},
+
     viewModel: MenuVM = viewModel(),
     onLogout: () -> Unit = {},
-    onAccount : ()-> Unit = {}
+    onAccount: () -> Unit = {},
+    onNavigateToDebt: () -> Unit = {}
 
 
 ) {
@@ -184,9 +185,7 @@ fun KashuHomeMenu(
 
                                             is MenuTab.Categories -> onNavigateToCategory()
                                             is MenuTab.Accounts -> onAccount()
-                                            is MenuTab.Profile -> {}
-                                            is MenuTab.Settings -> {}
-
+                                            is MenuTab.Debts -> onNavigateToDebt()
                                         }
                                     })
                             }
@@ -204,7 +203,7 @@ fun KashuHomeMenu(
                             NavigationDrawerItem(
                                 icon = {
                                     Icon(
-                                        Icons.Default.ExitToApp,
+                                        Icons.AutoMirrored.Filled.ExitToApp,
                                         contentDescription = "Cerrar Sesión"
                                     )
                                 },

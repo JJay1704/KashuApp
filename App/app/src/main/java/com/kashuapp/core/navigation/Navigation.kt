@@ -10,16 +10,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.kashuapp.ui.account.list.AccountScreen
 import com.kashuapp.ui.category.CategoryScreen
+import com.kashuapp.ui.debt.DebtScreen
 import com.kashuapp.ui.home.HomeScreen
 import com.kashuapp.ui.login.LoginScreen
-import com.kashuapp.ui.resetPswd.ResetPswdScreen
 import com.kashuapp.ui.signUp.RegisterView
 import com.kashuapp.ui.theme.KashuAppTheme
 
 @Composable
 fun Navigation() {
 
-KashuAppTheme {
+    KashuAppTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             val navController = rememberNavController()
 
@@ -31,29 +31,31 @@ KashuAppTheme {
             ) {
                 composable("login") {
 
-                    LoginScreen(
-                        onNavigateToHome = {
-                            navController.navigate("home") {
+                    LoginScreen(onNavigateToHome = {
+                        navController.navigate("home") {
 
-                                popUpTo("login") { inclusive = true }
-                            }
-                        },
-                        onNavigateToRegister = {
-                            navController.navigate("register")
+                            popUpTo("login") { inclusive = true }
                         }
-                    )
+                    }, onNavigateToRegister = {
+                        navController.navigate("register")
+                    })
                 }
                 composable("home") {
-                    HomeScreen(onNavigateToCategory = {
-                        navController.navigate("category")
+                    HomeScreen(
+                        onNavigateToCategory = {
+                            navController.navigate("category")
 
-                    }, onNavigateToAccount = { navController.navigate("account") }, onLogout = {
+                        },
+                        onNavigateToDebt = {
+                            navController.navigate("debt")
+                        },
+                        onNavigateToAccount = { navController.navigate("account") }, onLogout = {
 
-                        navController.navigate("login") {
+                            navController.navigate("login") {
 
-                            popUpTo(0) { inclusive = true }
+                                popUpTo(0) { inclusive = true }
+                            }
                         }
-                    }
 
                     )
 
@@ -67,7 +69,7 @@ KashuAppTheme {
 
                 }
 
-composable("category") {
+                composable("category") {
                     CategoryScreen(
                         onBackToHome = { navController.popBackStack() })
                 }
@@ -75,6 +77,13 @@ composable("category") {
 
                     AccountScreen(
                         onBackToHome = { navController.popBackStack() })
+
+                }
+                composable("debt") {
+
+                    DebtScreen(
+                        onBack = {navController.popBackStack()}
+                    )
 
                 }
 

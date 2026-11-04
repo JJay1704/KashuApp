@@ -105,8 +105,7 @@ fun NetWorthCard(
 fun BalanceCard(
     balance: String,
 ) {
-    Row(
-    ) {
+    Row{
         Text(
             text = "Balance: ", color = KashuTheme.colors.title
         )
@@ -484,6 +483,7 @@ fun KashuTopBar(
     onLogout: () -> Unit = {},
     onNewTrans: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
+    onNavigateToDebt: () -> Unit = {},
 
     ) {
 
@@ -498,8 +498,10 @@ fun KashuTopBar(
         navigationIcon = {
 
             KashuHomeMenu(
-                onNavigateToCategory = onNavigateToCategory, onLogout = onLogout,
+                onNavigateToCategory = onNavigateToCategory,
+                onLogout = onLogout,
                 onAccount = onNavigateToAccount,
+                onNavigateToDebt = onNavigateToDebt
             )
         }, title = {
 

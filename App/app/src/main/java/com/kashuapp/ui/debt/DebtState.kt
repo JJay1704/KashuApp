@@ -28,7 +28,7 @@ data class DebtState(
     val payments: List<DebtPayment> = emptyList(),
     val accounts: List<Account> = emptyList(),
     val paymentAccounts: List<Account> = emptyList(),
-    val currencies: List<String> = listOf("PEN", "USD"),
+    val currencies: List<String> = emptyList(),
     val totalsByCurrency: Map<String, Double> = emptyMap(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
