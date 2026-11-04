@@ -55,7 +55,7 @@ fun DebtView(
     onPaymentChange: (DebtPaymentState) -> Unit, onSavePayment: () -> Unit, onDismissPayment: () -> Unit,
     onConfirmDelete: () -> Unit, onCancelDelete: () -> Unit
 ) {
-    BackHandler(enabled = state.isSaving) { /* Esperar la respuesta antes de salir. */ }
+    BackHandler(enabled = state.isSaving) { }
     DebtContent(state, onBack, onRefresh, onCreate, onEdit, onPay, onRequestDelete)
     state.form?.let {
         DebtForm(it, state.currencies, state.isSaving, state.errorMessage, onFormChange, onSaveDebt, onDismissForm)
@@ -308,7 +308,6 @@ private fun DebtForm(form: DebtFormState, currencies: List<String>, saving: Bool
 @Composable
 private fun DebtPaymentForm(form: DebtPaymentState, accounts: List<Account>, saving: Boolean, error: String?,
     onChange: (DebtPaymentState) -> Unit, onSave: () -> Unit, onDismiss: () -> Unit) {
-    // Los selectores compartidos recuerdan sus callbacks: deben usar el formulario actual.
     val currentForm by rememberUpdatedState(form)
     val currentSaving by rememberUpdatedState(saving)
     val currentOnChange by rememberUpdatedState(onChange)

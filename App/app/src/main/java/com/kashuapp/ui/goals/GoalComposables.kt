@@ -362,7 +362,7 @@ fun AddSavingsDialog(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 trailingIcon = null
             )
-            if (!errorMessage.isNullOrEmpty()) {                       // <-- AGREGA ESTE IF
+            if (!errorMessage.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = errorMessage,

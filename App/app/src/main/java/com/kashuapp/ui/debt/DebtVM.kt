@@ -56,7 +56,6 @@ class DebtVM(
                     .sortedByDescending { it.paidAt }
                 val ownAccounts = accountRepo.getAllAccount(userId).getOrThrow().filter { it.userId == userId }
                 val currencies = currencyRepo.getAllCurrency().getOrThrow().map { it.code }.distinct().sorted()
-                // Una respuesta perdida puede haber guardado la operación: se concilia por su UUID.
                 val creationFound = pendingCreation?.let { pending -> list.any { it.id == pending.id } } == true
                 val paymentFound = pendingPayment?.let { pending -> payments.any { it.id == pending.requestId } } == true
                 if (creationFound) pendingCreation = null

@@ -50,7 +50,6 @@ class DebtRepository : IDebtRepository {
     }
 
     override suspend fun payDebt(payment: DebtPayment): Result<Unit> = request {
-        // El trigger de debt_payment valida y descuenta ambos saldos en la misma transacción.
         KashuSupaBase.db.from("debt_payment").insert(payment)
         Unit
     }

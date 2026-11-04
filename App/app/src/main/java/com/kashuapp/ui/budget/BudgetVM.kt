@@ -44,7 +44,6 @@ class BudgetVM(
 
     private var currentTransactions: List<Transaction> = emptyList()
 
-    // Descarta resultados y errores de consultas anteriores.
     private var latestRequestId = 0L
 
     init {
@@ -88,7 +87,6 @@ class BudgetVM(
             val startDate = "$year-$monthStr-01 00:00"
             val endDate = "$year-$monthStr-$maxDayStr 23:59"
 
-            // Si falla el catálogo, informa el error y no calcula con datos incompletos.
             val categories = catRepo.getAllCateg(userId).getOrNull()
             if (categories == null) {
                 if (requestId == latestRequestId) {
@@ -100,8 +98,6 @@ class BudgetVM(
                 }
             } else {
 
-                // Incluye cuentas inactivas: sus gastos históricos también consumen presupuesto.
-                // Si falla la consulta, detén la carga; no supongas que el consumo es cero.
                 val accounts = accountRepo.getAllAccount(userId).getOrNull()
                 if (accounts == null) {
 

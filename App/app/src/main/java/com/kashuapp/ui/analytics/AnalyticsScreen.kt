@@ -39,7 +39,6 @@ fun AnalyticsScreen(
     viewModel: AnalyticsVM = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    // Recupera los movimientos actualizados al entrar a esta pantalla.
     LaunchedEffect(viewModel) {
         viewModel.loadData()
     }
