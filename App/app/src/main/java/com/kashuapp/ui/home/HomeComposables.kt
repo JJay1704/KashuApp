@@ -68,7 +68,9 @@ fun HomeView(
 
                         ) {
                             NetWorthCard(
-                                accountNetWorth = item.formattedTotal,
+                                totalBalance = item.formattedBalance,
+                                totalDebt = item.formattedDebt,
+                                accountNetWorth = item.formattedNetWorth,
                                 modifier = Modifier.fillMaxHeight()
 
                             )

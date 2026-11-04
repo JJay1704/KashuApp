@@ -8,6 +8,8 @@ import com.kashuapp.data.auth.AuthRepository
 import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.category.CategoryRepository
 import com.kashuapp.data.category.ICategoryRepository
+import com.kashuapp.data.debt.DebtRepository
+import com.kashuapp.data.debt.IDebtRepository
 import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.transaction.TransactionRepository
 import kotlinx.coroutines.CancellationException
@@ -21,12 +23,12 @@ class HomeVM(
     private val authRepo: IAuthRepository = AuthRepository(),
     private val accountRepo: IAccountRepository = AccountRepository(),
     private val transRepo: ITransactionRepository = TransactionRepository(),
-    private val catRepo: ICategoryRepository = CategoryRepository()
+    private val catRepo: ICategoryRepository = CategoryRepository(),
+    private val debtRepo: IDebtRepository = DebtRepository()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
     val uiState: StateFlow<HomeState> = _uiState.asStateFlow()
-
     init {
         loadData()
     }
@@ -52,19 +54,29 @@ class HomeVM(
                 val transactions = transRepo.getAll(userId).getOrThrow()
                 val categories = catRepo.getAllCateg(userId).getOrThrow()
                 val accounts = accountRepo.getAllAccount(userId).getOrThrow()
+                val debts = debtRepo.getDebts(userId).getOrThrow()
 
                 val balances = accounts
                     .filter { it.isActive }
                     .groupBy { it.currency }
                     .map { (currency, accountsInCurrency) ->
-                        val total = accountsInCurrency.sumOf {
+                        val totalBalance = accountsInCurrency.sumOf {
                             it.currentBalance
                         }
+                        val totalDebt = debts
+                            .filter { it.currency == currency }
+                            .sumOf { it.outstandingAmount }
+
+                        val netWorth = totalBalance - totalDebt
 
                         AccountByCurrency(
                             currency = currency,
-                            totalAmount = total,
-                            formattedTotal = "$currency $total"
+                            totalBalance = totalBalance,
+                            totalDebt = totalDebt,
+                            netWorth = netWorth,
+                            formattedBalance = "$currency $totalBalance",
+                            formattedDebt = "- $currency $totalDebt",
+                            formattedNetWorth = "$currency $netWorth"
                         )
                     }
 

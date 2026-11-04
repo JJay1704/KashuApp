@@ -1,12 +1,13 @@
 package com.kashuapp.ui.goals.list
 
+import com.kashuapp.data.account.Account
 import com.kashuapp.data.goal.Goal
 
 data class GoalsState(
     val goals: List<Goal> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-
+    val accounts: List<Account> = emptyList(),
     val isFormOpen: Boolean = false,
     val goalToEdit: Goal? = null,
     val isAddSavingsOpen: Boolean = false,

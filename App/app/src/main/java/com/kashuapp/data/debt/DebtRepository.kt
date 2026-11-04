@@ -17,7 +17,6 @@ class DebtRepository : IDebtRepository {
     }
 
     override suspend fun createDebt(debt: Debt): Result<Unit> = request {
-        // El mismo UUID permite confirmar un registro si se perdió la respuesta anterior.
         val existing = KashuSupaBase.db.from("debt").select {
             filter { eq("id", debt.id) }
         }.decodeList<Debt>().singleOrNull()

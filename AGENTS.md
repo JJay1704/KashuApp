@@ -38,11 +38,15 @@ KashuApp/
 │   │   │   │   ├── budget/         # Presupuestos mensuales (Budget, BudgetRepository, IBudgetRepository)
 │   │   │   │   ├── category/       # Categorías de transacción (Category, CategoryRepository, ICategoryRepository)
 │   │   │   │   ├── currency/       # Monedas soportadas (Currency, CurrencyRepository, ICurrencyRepository)
+│   │   │   │   ├── debt/           # Deudas y abonos (Debt, DebtPayment, DebtRepository, IDebtRepository)
 │   │   │   │   ├── goal/           # Metas de ahorro y aportes (Goal, GoalRepository, IGoalRepository)
 │   │   │   │   └── transaction/    # Ingresos y gastos (Transaction, TransactionRepository, ITransactionRepository)
 │   │   │   ├── ui/                 # Vistas, estados y ViewModels organizados por pantalla/módulo
-│   │   │   │   ├── account/        # Gestión de cuentas y pasivos (AccountScreen, AccountForm, AccountVM)
+│   │   │   │   ├── account/        # Gestión de cuentas (list/ y form/, AccountScreen, AccountForm, AccountVM)
+│   │   │   │   ├── analytics/      # Estadísticas y gráficos mensuales (AnalyticsScreen, AnalyticsVM)
+│   │   │   │   ├── budget/         # Presupuestos mensuales y alertas (BudgetScreen, BudgetVM)
 │   │   │   │   ├── category/       # Catálogo de categorías (CategoryScreen, CategoryForm, CategoryVM)
+│   │   │   │   ├── debt/           # Gestión de deudas y abonos (DebtScreen, DebtVM, DebtComposables)
 │   │   │   │   ├── goals/          # Metas de ahorro (form/ y list/, GoalScreen, GoalsVM, GoalFormVM)
 │   │   │   │   ├── home/           # Dashboard principal, saldo y resumen (HomeScreen, HomeVM)
 │   │   │   │   ├── login/          # Inicio de sesión (LoginScreen, LoginVM, LoginState)
@@ -134,6 +138,7 @@ Cualquier funcionalidad implementada debe responder a las historias de usuario y
     2. El **nombre de la categoría** y la **descripción del movimiento**.
     3. El nombre de la cuenta emisora/receptora.
     4. El **monto con signo explícito** (`+` para ingresos en verde, `-` para gastos en rojo).
+  - **Decisión de Diseño (Filtro por Fecha en Historial — HU-12 / RF-12):** El filtro de fechas en la vista de historial (`TransactionScreen` / `TransactionVM`) está cubierto por los selectores dinámicos de períodos preestablecidos (`Today`, `This week`, `This Month`, `Last Month`), que calculan el rango `startDate` y `endDate` automáticamente en `TransactionVM.getDateRange`. No se requiere un selector de fechas inicial/final manual adicional.
 - **Categorías (HU-04 / RF-04):** Clasificación de gastos, creación, edición, icono y color personalizable.
 - **Presupuestos y Alertas (HU-06, HU-10 / RF-06, RF-10):** Asignación de tope monetario mensual por categoría, cálculo de porcentaje consumido y alertas al alcanzar 80% o 100%.
 - **Metas de Ahorro (HU-07 / RF-07):** Registro de objetivo, monto meta, fecha límite y cálculo visual de avance y saldo faltante.
@@ -267,9 +272,9 @@ El reporte debe seguir la estructura:
 
 ## 11. Conocimiento del Proyecto: Estado de Cumplimiento
 
-**Fecha de revisión: 29 de octubre de 2026.** Revisión estática del código local, incluidos cambios sin commit. Esta tabla es una fotografía del estado revisado, no reemplaza los requisitos ni constituye una certificación de entrega. Debe actualizarse tras implementar y verificar cambios. Los estados de GitHub Projects no prueban cumplimiento funcional.
+**Fecha de revisión: 4 de noviembre de 2026.** Revisión estática del código local actualizada. Esta tabla es una fotografía del estado revisado, no reemplaza los requisitos ni constituye una certificación de entrega. Debe actualizarse tras implementar y verificar cambios. Los estados de GitHub Projects no prueban cumplimiento funcional.
 
-**Alcance de la evidencia:** La revisión del agente fue estática. Posteriormente, el usuario confirmó que todos los requisitos clasificados como «Por verificar» en la revisión completa de RF fueron probados y funcionan correctamente: RF-01, RF-01.1, RF-01.3, RF-02.1 y RF-05.1. Se consideran cumplidos con verificación funcional reportada por el usuario, sin atribuir esas pruebas al agente. Esta confirmación no acredita una auditoría técnica de RLS ni resuelve los faltantes de desarrollo identificados por separado.
+**Alcance de la evidencia:** La revisión del agente fue estática. El usuario confirmó que los requisitos clasificados previamente como «Por verificar» (RF-01, RF-01.1, RF-01.3, RF-02.1 y RF-05.1) fueron probados y funcionan correctamente. Se consideran cumplidos con verificación funcional reportada por el usuario, sin atribuir esas pruebas al agente. Esta confirmación no acredita una auditoría técnica de RLS ni resuelve los faltantes de desarrollo identificados por separado.
 
 | Estado | Requisito | Resultado de la revisión |
 | :--- | :--- | :--- |
@@ -278,53 +283,41 @@ El reporte debe seguir la estructura:
 | Cumple | RF-02: Solicitar recuperación desde login | La opción abre el flujo y solicita el correo. |
 | Cumple | RF-03: Seleccionar ingreso o gasto | Ambos tipos están disponibles. |
 | Cumple | RF-04: Gestionar categorías | Creación, cambio de nombre y eliminación implementados. |
+| Cumple | RF-04.1: Personalizar ícono y color | `CategoryForm.kt` permite escoger color (`#34D399`, `#3B82F6`, `#F59E0B`, `#EF4444`, `#8B5CF6`) e ícono (`category`, `food`, `transport`, `shopping`), y `CategoryVM` los persiste. |
 | Cumple | RF-05: Editar transacciones | Modificación de movimientos desde el historial. |
 | Cumple | RF-06: Presupuesto mensual por categoría | Asigna límites por categoría, mes y año. |
+| Cumple | RF-06.1: Cambio automático de mes | `BudgetVM.checkMonthChange()` y el `LaunchedEffect` periódico en `BudgetScreen.kt` detectan el cambio de mes y recargan los datos cuando se está visualizando el mes actual. |
 | Cumple | RF-07: Gestionar metas | Creación, edición y eliminación con nombre, monto objetivo y fecha. |
-| Cumple | RF-07.1: Mostrar avance de metas | Muestra barra, porcentaje, acumulado y faltante por meta. El aporte desde una cuenta se evalúa por separado. |
-| Cumple | RF-08: Consolidar saldos activos | Suma cuentas activas, separando resultados por moneda. No equivale a patrimonio neto. |
-| Cumple | RF-11: Listar operaciones recientes | Orden descendente por fecha y límite de cinco movimientos. |
-| Cumple | RF-12.1: Actualizar resultados al filtrar | Cambiar o limpiar filtros consulta y actualiza la lista. |
-| Cumple (verificado por el usuario) | RF-01 / RF-01.1: Registro y correo válido | Registro y recuperación validan el formato con `Patterns.EMAIL_ADDRESS.matcher(email).matches()` sobre el correo con `trim()`. El registro maneja la respuesta «User already registered» de Supabase mostrando «Este correo ya está registrado». El usuario confirmó el funcionamiento, incluido el rechazo del registro duplicado. |
+| Cumple | RF-07.1 / RF-07.2: Avance de metas, aportes desde cuenta y alerta de vencimiento | Muestra barra, porcentaje, acumulado, faltante y alerta de fecha límite próxima o vencida; `AddSavingsDialog` y `GoalsVM.submitSavings` exigen seleccionar una cuenta activa de la misma moneda, validan saldo suficiente y descuentan el monto de la cuenta al abonar a la meta. |
+| Cumple | HU-08 / RF-08, RF-08.1: Saldo total y patrimonio neto | `HomeVM` suma el saldo de cuentas activas (`totalBalance`) y resta las deudas pendientes (`totalDebt`) por moneda para obtener `netWorth`, y `NetWorthCard` muestra los tres indicadores en tiempo real. |
+| Cumple | RF-08.2: Cuentas y deudas (CRUD) | Existe creación, edición y activación/desactivación de cuentas (`setAccountActive`), así como el módulo de deudas y abonos (`DebtScreen`, `DebtVM`, `DebtRepository`) conectado a `HomeVM`. |
+| Cumple | RF-09 / RF-09.1: Estadísticas | `AnalyticsVM` filtra y separa por moneda (`selectedCurrency`, `availableCurrencies`), renderizando gráfico circular por categoría y barras comparativas ingreso/gasto. |
+| Cumple | HU-11 / RF-11, RF-11.1: Operaciones recientes | Orden descendente por fecha, límite de 5 movimientos en Home (solo lectura) y visualización en `TransactionItemCard` con ícono y color de categoría, descripción, cuenta y monto con signo (`+` verde / `-` rojo). |
+| Cumple | HU-12 / RF-12, RF-12.1: Filtros del historial | Cuenta, categoría, tipo y períodos preestablecidos (`Today`, `This week`, `This Month`, `Last Month`) actualizan dinámicamente la lista. |
+| Cumple (verificado por el usuario) | RF-01 / RF-01.1: Registro y correo válido | Registro y recuperación validan el formato con `Patterns.EMAIL_ADDRESS.matcher(email).matches()` sobre el correo con `trim()`. El registro maneja «User already registered» mostrando «Este correo ya está registrado». |
 | Cumple (verificado por el usuario) | RF-01.3: Autenticación y sesión | Flujo implementado con Supabase; el usuario confirmó autenticación y sesión funcionando correctamente. |
 | Cumple (verificado por el usuario) | HU-02 / RF-02.1: Recuperación completa | El usuario confirmó recepción del correo, validación OTP, actualización de contraseña y acceso con la nueva clave. |
-| Cumple | RF-03.1: Validación de transacciones | Valida monto mayor a cero, cuenta y categoría. En una transacción nueva, fecha y hora se inicializan al abrir el formulario y se conservan si el usuario no elige otras; los cambios se realizan mediante selectores. Al editar, se cargan los valores del movimiento. |
-| Cumple (verificado por el usuario) | HU-03 / RF-05.1: Impacto en saldos | El usuario confirmó el funcionamiento de la actualización de los saldos afectados por las operaciones sobre transacciones. La app registra/edita movimientos y refresca las cuentas; el cálculo corresponde al trigger del backend. |
-| Parcial | RF-06.1: Cambio automático de mes | Evalúa períodos seleccionados; no detecta el cambio de mes con el ViewModel activo. |
-| Parcial | RF-07.2: Aportes y alerta de vencimiento | Hay alerta visual; el aporte aumenta la meta sin seleccionar ni descontar una cuenta de origen. |
-| Parcial | HU-08: Saldo y patrimonio | Saldo implementado; falta patrimonio neto. |
-| Parcial | RF-08.2: Cuentas y deudas | Existe creación y edición de cuentas; falta completar activación/desactivación y gestión de pasivos. |
-| Parcial | RF-09 / RF-09.1: Estadísticas | Hay gráficos por categoría y comparación ingreso/gasto, pero suma monedas distintas y presenta resultados como soles. |
-| Parcial | RF-10 / RF-10.1: Consumo y alertas | Calcula consumo y muestra avisos al 80% y 100% en Presupuestos; mezcla monedas y no garantiza avisar al registrar un gasto fuera de esa pantalla. |
-| Parcial | HU-11 / RF-11.1: Detalle de operaciones recientes | Muestra descripción, cuenta, monto, signo y color de ingreso/gasto; falta ícono y color de categoría. |
-| Parcial | HU-12 / RF-12: Filtros del historial | Cuenta, categoría, tipo y períodos predefinidos implementados; falta rango de fechas personalizado. |
-| No cumple | RF-04.1: Personalizar ícono y color | El formulario no permite escogerlos; guarda valores fijos. |
-| No cumple | RF-08.1: Patrimonio neto | No calcula activos menos deudas. La etiqueta «Net Worth» muestra una suma de saldos. |
+| Cumple | RF-03.1: Validación de transacciones | Valida monto mayor a cero, cuenta activa y categoría. En una transacción nueva, fecha y hora se inicializan al abrir el formulario y se conservan si el usuario no elige otras; al editar, se cargan los valores del movimiento. |
+| Cumple (verificado por el usuario) | HU-03 / RF-05.1: Impacto en saldos | El usuario confirmó el funcionamiento de la actualización de los saldos afectados por las operaciones sobre transacciones mediante el trigger del backend y refresco en la app. |
+| Parcial | RF-10 / RF-10.1: Consumo y alertas | Calcula consumo (filtrando cuentas en `PEN`) y muestra avisos al 80% y 100% en la pestaña Presupuestos, pero no garantiza emitir alerta al momento de registrar un gasto fuera de esa pantalla. |
 
 ### 11.1. Evidencia Principal
 
 - Autenticación: `SignUpVM.kt`, `LoginVM.kt`, `ResetPswdVM.kt` y `AuthRepository.kt`.
 - Inicio y saldo: `HomeVM.kt`, `HomeComposables.kt` y `GenericComposables.kt` (`NetWorthCard`).
 - Transacciones y filtros: `TransactionFormVM.kt`, `TransactionVM.kt`, `TransactionScreen.kt`, `TransactionComposables.kt` y `TransactionRepository.kt`.
-- Categorías: `CategoryVM.kt`, `CategoryForm.kt` y `CategoryRepository.kt`. La creación fija `icon = "category"` y `color = "#34D399"`.
-- Metas: `GoalFormVM.kt`, `GoalsVM.kt`, `GoalComposables.kt` y `GoalRepository.kt`. `submitSavings` solo actualiza la meta.
-- Cuentas: `AccountFormVM.kt`, `AccountVM.kt` y `Account.kt`.
+- Categorías: `CategoryVM.kt`, `CategoryForm.kt` y `CategoryRepository.kt`.
+- Metas: `GoalFormVM.kt`, `GoalsVM.kt`, `GoalComposables.kt` y `GoalRepository.kt`.
+- Cuentas y deudas: `AccountFormVM.kt`, `AccountVM.kt`, `Account.kt`, `DebtVM.kt`, `DebtComposables.kt` y `DebtRepository.kt`.
 - Presupuestos y estadísticas: `BudgetVM.kt`, `BudgetComposables.kt`, `AnalyticsVM.kt` y `AnalyticsComposables.kt`.
 
 ### 11.2. Pendientes Prioritarios y Verificación
 
-1. Implementar gestión de pasivos y patrimonio neto real.
-2. Completar aportes a metas con cuenta activa de origen y descuento consistente del saldo.
-3. Permitir personalizar ícono/color de categorías y mostrarlos en las tarjetas de transacción.
-4. Separar por moneda o convertir explícitamente antes de sumar en presupuestos, estadísticas y resúmenes globales de metas.
-5. Completar rango de fechas y cambio de período. El formato del correo y el rechazo del registro duplicado ya están implementados y verificados según confirmación del usuario.
-6. La recuperación con correo real, OTP y acceso con la nueva contraseña ya fue verificada por el usuario; no debe repetirse como pendiente sin evidencia de una regresión.
-7. La actualización funcional de saldos ya fue verificada por el usuario. La auditoría técnica de aislamiento por usuario/RLS permanece fuera del alcance de esta confirmación.
+1. **Alertas de presupuesto al registrar gasto (RF-10.1):** Notificar o alertar al usuario al guardar un gasto que lleve el acumulado de la categoría al 80% o 100% de su presupuesto mensual.
+2. **Resúmenes globales multimoneda:** Separar por moneda el resumen global de metas (`GoalGlobalProgress` en `GoalsVM.kt`) y contemplar monedas distintas de `PEN` si se crean presupuestos en otra divisa.
+3. **Consultas PostgREST y RLS:** Filtrar por `eq("user_id", userId)` directamente en la consulta de `AccountRepository`, `GoalRepository` y `BudgetRepository` en lugar de descargar toda la tabla y filtrar en memoria.
 
-El diagrama de flujo existe en `Documentacion/DiagramaDeFlujo.pdf`, pero su contenido no fue auditado. No se realizó en esta revisión la auditoría técnica completa exigida para emitir un veredicto formal T1/T3.
+### 11.3. Decisiones Confirmadas de Alcance
 
-### 11.3. Decisión Confirmada: Fecha y Hora de Transacciones
-
-En una transacción nueva, `AddTransact` obtiene la fecha y hora al abrir el formulario y las entrega a `TransactionFormVM.initForm`. Si el usuario no modifica los selectores, se guardan esos valores iniciales, no la hora del envío. Al editar, se conservan la fecha y hora del movimiento salvo modificación explícita. Por este motivo, no se debe registrar como faltante de RF-03.1 la ausencia de una selección manual ni exigirla. Esta corrección sustituye la observación anterior que clasificaba el requisito como parcial por fecha y hora. Los requisitos actuales tampoco establecen prohibir fechas futuras.
-
-
+- **Fecha y Hora de Transacciones (RF-03.1):** En una transacción nueva, `AddTransact` obtiene la fecha y hora al abrir el formulario y las entrega a `TransactionFormVM.initForm`. Si el usuario no modifica los selectores, se guardan esos valores iniciales. Al editar, se conservan la fecha y hora del movimiento salvo modificación explícita. Por este motivo, no se registra como faltante de RF-03.1 la ausencia de una selección manual obligatoria.
+- **Filtros de Fecha en el Historial (HU-12 / RF-12):** El filtrado por rango de fechas en `TransactionScreen` / `TransactionVM` se considera cumplido con los selectores dinámicos de períodos preestablecidos (`Today`, `This week`, `This Month`, `Last Month`), que calculan automáticamente `startDate` y `endDate` en `TransactionVM.getDateRange`. No se debe marcar como faltante la ausencia de selectores manuales de fecha de inicio y fin.

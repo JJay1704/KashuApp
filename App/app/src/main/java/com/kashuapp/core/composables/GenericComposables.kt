@@ -68,44 +68,72 @@ import com.kashuapp.ui.menu.KashuHomeMenu
 
 @Composable
 fun NetWorthCard(
-
     modifier: Modifier = Modifier,
-
-    accountNetWorth: String
+    accountNetWorth: String,
+    totalBalance: String = "",
+    totalDebt: String = ""
 ) {
-
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(KashuTheme.colors.surface)
-            .padding(vertical = 20.dp, horizontal = 20.dp),
+            .padding(vertical = 16.dp, horizontal = 20.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Patrimonio Neto", fontSize = 15.sp, color = KashuTheme.colors.subtitle
+            )
+            Text(
+                text = accountNetWorth,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = KashuTheme.colors.title
+            )
 
-            Text(
-                modifier = Modifier.padding(vertical = 5.dp),
-                text = "Net Worth",
-                fontSize = 20.sp,
-                color = KashuTheme.colors.subtitle
-            )
-            Text(
-                text = accountNetWorth, fontSize = 30.sp, color = KashuTheme.colors.title
-            )
+            Spacer(modifier = Modifier.height(12.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "Saldo Total", fontSize = 12.sp, color = KashuTheme.colors.subtitle
+                    )
+                    Text(
+                        text = totalBalance,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = KashuTheme.colors.mainColor
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "Deudas", fontSize = 12.sp, color = KashuTheme.colors.subtitle
+                    )
+                    Text(
+                        text = totalDebt,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFEF4444)
+                    )
+                }
+            }
         }
-
     }
-
-
 }
-
 
 @Composable
 fun BalanceCard(
     balance: String,
 ) {
-    Row{
+    Row {
         Text(
             text = "Balance: ", color = KashuTheme.colors.title
         )

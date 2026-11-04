@@ -1,5 +1,6 @@
 package com.kashuapp.ui.goals
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +42,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kashuapp.core.composables.KashuButton
+import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.core.composables.KashuTextField
+import com.kashuapp.data.account.Account
 import com.kashuapp.data.goal.Goal
 import com.kashuapp.ui.goals.list.GoalsState
 import com.kashuapp.ui.theme.KashuTheme
@@ -128,13 +131,15 @@ fun GoalGlobalProgress(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun GoalCard(
+    modifier: Modifier = Modifier,
+
     goal: Goal,
     onAddSavingsClick: () -> Unit,
     onClickCard: () -> Unit,
     deadlineAlert: String = "",
-    modifier: Modifier = Modifier
 ) {
     val isTargetReached = goal.currentAmount >= goal.targetAmount
     val remainingAmount = (goal.targetAmount - goal.currentAmount).coerceAtLeast(0.0)
@@ -296,10 +301,15 @@ fun GoalCard(
 @Composable
 fun AddSavingsDialog(
     goal: Goal,
+    accounts: List<Account>,
+    errorMessage: String? = null,
     onDismiss: () -> Unit,
-    onConfirmSavings: (amountStr: String) -> Unit
+    onConfirmSavings: (amountStr: String, selectedAccount: Account?) -> Unit
 ) {
     var depositInput by remember { mutableStateOf("") }
+    var selectedAccount by remember { mutableStateOf<Account?>(null) }
+
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -330,6 +340,17 @@ fun AddSavingsDialog(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+            KashuDropdownField(
+
+                label = "Cuenta de origen",
+                selectedValue = selectedAccount?.name ?: "",
+                placeholder = "Seleccionar cuenta",
+                items = accounts,
+                itemLabel = { it.name },
+                onItemSelected = { selectedAccount = it }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             KashuTextField(
                 label = "Monto a abonar",
@@ -341,12 +362,22 @@ fun AddSavingsDialog(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 trailingIcon = null
             )
+            if (!errorMessage.isNullOrEmpty()) {                       // <-- AGREGA ESTE IF
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = errorMessage,
+                    color = Color(0xFFEF4444),
+                    fontSize = 12.sp
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
+
             KashuButton(
                 text = "Confirmar Abono",
-                onClickFun = { onConfirmSavings(depositInput) },
+                onClickFun = { onConfirmSavings(depositInput, selectedAccount) },
+
                 modifier = Modifier.fillMaxWidth()
             )
         }

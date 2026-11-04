@@ -62,9 +62,11 @@ fun GoalsScreen(
     if (uiState.isAddSavingsOpen && selectedGoal != null) {
         AddSavingsDialog(
             goal = selectedGoal,
+            accounts = uiState.accounts.filter { it.currency == selectedGoal.currency },
+            errorMessage = uiState.errorMessage,
             onDismiss = { goalsVM.closeAddSavings() },
-            onConfirmSavings = { amountStr ->
-                goalsVM.submitSavings(amountStr)
+            onConfirmSavings = { amountStr, selectedAccount ->
+                goalsVM.submitSavings(amountStr, selectedAccount)
             }
         )
     }

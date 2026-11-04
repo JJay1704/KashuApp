@@ -2,6 +2,9 @@ package com.kashuapp.ui.goals.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kashuapp.data.account.Account
+import com.kashuapp.data.account.AccountRepository
+import com.kashuapp.data.account.IAccountRepository
 import com.kashuapp.data.auth.AuthRepository
 import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.goal.Goal
@@ -17,7 +20,8 @@ import java.util.Locale
 
 class GoalsVM(
     private val goalRepo: IGoalRepository = GoalRepository(),
-    private val authRepo: IAuthRepository = AuthRepository()
+    private val authRepo: IAuthRepository = AuthRepository(),
+            private val accountRepo: IAccountRepository = AccountRepository()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GoalsState())
@@ -54,7 +58,7 @@ class GoalsVM(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             val result = goalRepo.getAllGoals(userId)
-
+            val accountsList = accountRepo.getAllAccount(userId).getOrDefault(emptyList())
             result.onSuccess { list ->
                 val totalTarget = list.sumOf { it.targetAmount }
                 val totalSaved = list.sumOf { it.currentAmount }
@@ -69,6 +73,7 @@ class GoalsVM(
 
                 _uiState.update {
                     it.copy(
+                        accounts = accountsList.filter { acc -> acc.isActive },
                         goals = list,
                         totalTargetAmount = totalTarget,
                         totalSavedAmount = totalSaved,
@@ -132,14 +137,28 @@ class GoalsVM(
         }
     }
 
-    fun submitSavings(amountStr: String, onSuccess: () -> Unit = {}) {
+    fun submitSavings(amountStr: String, selectedAccount: Account?, onSuccess: () -> Unit = {}) {
         val goal = _uiState.value.selectedGoalForSavings ?: return
 
         val amount = amountStr.toDoubleOrNull()
+
+        if (selectedAccount == null) {
+            _uiState.update { it.copy(errorMessage = "Selecciona una cuenta de origen") }
+            return
+        }
+
         if (amount == null || amount <= 0.0) {
             _uiState.update { it.copy(errorMessage = "El monto a abonar debe ser mayor a 0") }
             return
         }
+        if (amount > selectedAccount.currentBalance) {
+            _uiState.update { it.copy(errorMessage = "Saldo insuficiente en la cuenta") }
+            return
+        }
+
+        val updatedAccount = selectedAccount.copy(
+            currentBalance = selectedAccount.currentBalance - amount
+        )
 
         val newCurrentAmount = goal.currentAmount + amount
         val updatedGoal = goal.copy(
@@ -149,6 +168,7 @@ class GoalsVM(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            accountRepo.updateAccount(updatedAccount)
             val result = goalRepo.updateGoal(updatedGoal)
             result.onSuccess {
                 closeAddSavings()
