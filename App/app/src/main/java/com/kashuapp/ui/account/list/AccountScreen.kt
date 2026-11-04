@@ -137,6 +137,10 @@ fun AccountScreen(
 
 
                 onDismiss = { viewModel.closeForm() },
+                onSaved = {
+                    viewModel.closeForm()
+                    viewModel.loadData()
+                },
                 onDelete = { id ->
                     viewModel.deleteAccount(id)
                 })

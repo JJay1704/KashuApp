@@ -18,6 +18,7 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -38,6 +39,11 @@ fun AnalyticsScreen(
     viewModel: AnalyticsVM = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    // Recupera los movimientos actualizados al entrar a esta pantalla.
+    LaunchedEffect(viewModel) {
+        viewModel.loadData()
+    }
+
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Distribución (Torta)", "Comparativa (Barras)")
 

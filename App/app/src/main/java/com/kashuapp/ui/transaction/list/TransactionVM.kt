@@ -40,6 +40,8 @@ class TransactionVM(
     private val _uiState = MutableStateFlow(TransactionState())
     val uiState: StateFlow<TransactionState> = _uiState.asStateFlow()
 
+    private var latestRequestId = 0L
+
 
     init {
         loadData()
@@ -120,20 +122,15 @@ class TransactionVM(
 
 
     fun getCategoryName(categoryId: String): String {
-        return _uiState.value.categories
-            .find { it.id == categoryId }
-            ?.name ?: "Sin categoría"
+        return _uiState.value.categories.find { it.id == categoryId }?.name ?: "Sin categoría"
     }
 
     fun getAccountName(accountId: String?): String {
-        return _uiState.value.accounts
-            .find { it.id == accountId }
-            ?.name ?: "Sin cuenta"
+        return _uiState.value.accounts.find { it.id == accountId }?.name ?: "Sin cuenta"
     }
 
     fun getBalance(accountId: String?): String {
-        val account = _uiState.value.accounts
-            .find { it.id == accountId }
+        val account = _uiState.value.accounts.find { it.id == accountId }
 
         return if (account != null) {
             "${account.currentBalance} ${account.currency}"
@@ -141,19 +138,21 @@ class TransactionVM(
             "0.00"
         }
     }
+
     fun getTrans(
         filterAccount: String? = _uiState.value.selectedAccount?.id,
         filterCategory: String? = _uiState.value.selectedCategory?.id,
         period: String? = _uiState.value.selectedPeriod,
         type: String? = _uiState.value.selectedType
     ) {
+        latestRequestId += 1
+        val requestId = latestRequestId
         val userId = authRepo.getCurrentUserId().id
 
         if (userId.isBlank() || userId == "Not Gotten") {
             _uiState.update {
                 it.copy(
-                    isLoading = false,
-                    errorMessage = "Sesión no válida"
+                    isLoading = false, errorMessage = "Sesión no válida"
                 )
             }
             return
@@ -180,33 +179,32 @@ class TransactionVM(
                     type = type
                 ).getOrThrow()
 
-                val categories = catRepo
-                    .getAllCateg(userId)
-                    .getOrThrow()
+                val categories = catRepo.getAllCateg(userId).getOrThrow()
 
-                val accounts = accountRepo
-                    .getAllAccount(userId)
-                    .getOrThrow()
+                val accounts = accountRepo.getAllAccount(userId).getOrThrow()
 
-                _uiState.update {
-                    it.copy(
-                        transactions = transactions.sortedByDescending {
-                                transaction -> transaction.transactionDate
-                        },
-                        categories = categories,
-                        accounts = accounts,
-                        isLoading = false,
-                        errorMessage = null
-                    )
+                if (requestId == latestRequestId) {
+                    _uiState.update {
+                        it.copy(
+                            transactions = transactions.sortedByDescending { transaction ->
+                                transaction.transactionDate
+                            },
+                            categories = categories,
+                            accounts = accounts,
+                            isLoading = false,
+                            errorMessage = null
+                        )
+                    }
                 }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "No se pudo cargar el historial"
-                    )
+                if (requestId == latestRequestId) {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false, errorMessage = "No se pudo cargar el historial"
+                        )
+                    }
                 }
             }
         }

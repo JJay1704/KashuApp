@@ -2,6 +2,8 @@ package com.kashuapp.ui.budget
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kashuapp.data.account.AccountRepository
+import com.kashuapp.data.account.IAccountRepository
 import com.kashuapp.data.auth.AuthRepository
 import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.budget.Budget
@@ -23,7 +25,8 @@ class BudgetVM(
     private val budgetRepo: IBudgetRepository = BudgetRepository(),
     private val catRepo: ICategoryRepository = CategoryRepository(),
     private val transRepo: ITransactionRepository = TransactionRepository(),
-    private val authRepo: IAuthRepository = AuthRepository()
+    private val authRepo: IAuthRepository = AuthRepository(),
+    private val accountRepo: IAccountRepository = AccountRepository()
 ) : ViewModel() {
 
     private val initialCalendar = Calendar.getInstance()
@@ -34,13 +37,15 @@ class BudgetVM(
 
     private val _uiState = MutableStateFlow(
         BudgetState(
-            selectedMonth = initialMonth,
-            selectedYear = initialYear
+            selectedMonth = initialMonth, selectedYear = initialYear
         )
     )
     val uiState = _uiState.asStateFlow()
 
     private var currentTransactions: List<Transaction> = emptyList()
+
+    // Descarta resultados y errores de consultas anteriores.
+    private var latestRequestId = 0L
 
     init {
         loadData()
@@ -51,12 +56,15 @@ class BudgetVM(
     }
 
     fun getSpentForCategory(categoryId: String): Double {
-        return currentTransactions
-            .filter { it.categoryId == categoryId }
-            .sumOf { it.amount }
+        return currentTransactions.filter { it.categoryId == categoryId }.sumOf { it.amount }
     }
 
     fun loadData() {
+
+        latestRequestId += 1
+        val requestId = latestRequestId
+        val requestedMonth = _uiState.value.selectedMonth
+        val requestedYear = _uiState.value.selectedYear
         val userId = authRepo.getCurrentUserId().id
         if (userId.isBlank() || userId == "Not Gotten") {
             _uiState.update { it.copy(isLoading = false, errorMessage = "Sesión no válida") }
@@ -66,8 +74,8 @@ class BudgetVM(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            val month = _uiState.value.selectedMonth
-            val year = _uiState.value.selectedYear
+            val month = requestedMonth
+            val year = requestedYear
 
             val calendar = Calendar.getInstance()
             calendar.set(Calendar.YEAR, year)
@@ -80,60 +88,129 @@ class BudgetVM(
             val startDate = "$year-$monthStr-01 00:00"
             val endDate = "$year-$monthStr-$maxDayStr 23:59"
 
-            val categories = catRepo.getAllCateg(userId).getOrDefault(emptyList())
-            val transactions = transRepo.getAll(
-                userId = userId,
-                accountId = null,
-                categoryId = null,
-                startDate = startDate,
-                endDate = endDate,
-                type = "EXPENSE"
-            ).getOrDefault(emptyList())
-
-            currentTransactions = transactions
-
-
-            val budgetResult = budgetRepo.getBudgets(userId, month, year)
-            budgetResult.onSuccess { budgetList ->
-                val totalBudget = budgetList.sumOf { it.amountLimit }
-                val totalSpent = budgetList.sumOf { budget ->
-                    transactions
-                        .filter { it.categoryId == budget.categoryId }
-                        .sumOf { it.amount }
+            // Si falla el catálogo, informa el error y no calcula con datos incompletos.
+            val categories = catRepo.getAllCateg(userId).getOrNull()
+            if (categories == null) {
+                if (requestId == latestRequestId) {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false, errorMessage = "No se pudieron cargar las categorías"
+                        )
+                    }
                 }
+            } else {
 
-                val rawOverall = if (totalBudget > 0.0) {
-                    (totalSpent / totalBudget).toFloat()
+                // Incluye cuentas inactivas: sus gastos históricos también consumen presupuesto.
+                // Si falla la consulta, detén la carga; no supongas que el consumo es cero.
+                val accounts = accountRepo.getAllAccount(userId).getOrNull()
+                if (accounts == null) {
+
+                    if (requestId == latestRequestId) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = "No se pudieron cargar las cuentas"
+                            )
+                        }
+                    }
                 } else {
-                    0.0f
-                }
-                val overallFraction = if (rawOverall > 1.0f) 1.0f else if (rawOverall < 0.0f) 0.0f else rawOverall
-                val overallPct = if (totalBudget > 0.0) {
-                    ((totalSpent / totalBudget) * 100).toInt()
-                } else {
-                    0
+                    val penAccountIds = accounts.filter {
+                        it.userId == userId && it.currency.equals(
+                            "PEN", ignoreCase = true
+                        )
+                    }.mapNotNull { it.id }.toSet()
+
+                    val transactions = transRepo.getAll(
+                        userId = userId,
+                        accountId = null,
+                        categoryId = null,
+                        startDate = startDate,
+                        endDate = endDate,
+                        type = "EXPENSE"
+                    ).getOrNull()
+
+                    if (transactions == null) {
+
+                        if (requestId == latestRequestId) {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    errorMessage = "No se pudieron cargar los gastos"
+                                )
+                            }
+                        }
+                    } else {
+
+                        val knownAccountIds = accounts.mapNotNull { it.id }.toSet()
+                        if (transactions.any { it.accountId !in knownAccountIds }) {
+
+                            if (requestId == latestRequestId) {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        errorMessage = "Hay gastos cuya cuenta no se pudo identificar"
+                                    )
+                                }
+                            }
+                        } else {
+                            val penTransactions =
+                                transactions.filter { it.accountId in penAccountIds }
+
+                            val budgetResult = budgetRepo.getBudgets(userId, month, year)
+                            budgetResult.onSuccess { budgetList ->
+                                val totalBudget = budgetList.sumOf { it.amountLimit }
+                                val totalSpent = budgetList.sumOf { budget ->
+
+                                    penTransactions.filter { it.categoryId == budget.categoryId }
+                                        .sumOf { it.amount }
+                                }
+
+                                val rawOverall = if (totalBudget > 0.0) {
+                                    (totalSpent / totalBudget).toFloat()
+                                } else {
+                                    0.0f
+                                }
+                                val overallFraction =
+                                    if (rawOverall > 1.0f) 1.0f else if (rawOverall < 0.0f) 0.0f else rawOverall
+                                val overallPct = if (totalBudget > 0.0) {
+                                    ((totalSpent / totalBudget) * 100).toInt()
+                                } else {
+                                    0
+                                }
+
+                                if (requestId == latestRequestId) {
+                                    currentTransactions = penTransactions
+                                    _uiState.update {
+                                        it.copy(
+                                            budgets = budgetList,
+                                            categories = categories.filter { cat -> cat.type == "EXPENSE" },
+                                            totalBudgeted = totalBudget,
+                                            totalSpent = totalSpent,
+                                            overallProgressFraction = overallFraction,
+                                            overallPercentage = overallPct,
+                                            isLoading = false
+                                        )
+                                    }
+                                }
+                            }
+
+                            budgetResult.onFailure { error ->
+
+                                if (requestId == latestRequestId) {
+                                    _uiState.update {
+                                        it.copy(
+                                            errorMessage = error.message
+                                                ?: "Error al cargar presupuestos", isLoading = false
+                                        )
+
+                                    }
+                                }
+                            }
+
+                        }
+                    }
                 }
 
-                _uiState.update {
-                    it.copy(
-                        budgets = budgetList,
-                        categories = categories.filter { cat -> cat.type == "EXPENSE" },
-                        totalBudgeted = totalBudget,
-                        totalSpent = totalSpent,
-                        overallProgressFraction = overallFraction,
-                        overallPercentage = overallPct,
-                        isLoading = false
-                    )
-                }
-            }
-
-            budgetResult.onFailure { error ->
-                _uiState.update {
-                    it.copy(
-                        errorMessage = error.message ?: "Error al cargar presupuestos",
-                        isLoading = false
-                    )
-                }
             }
         }
     }
@@ -146,8 +223,8 @@ class BudgetVM(
         if (currentMonth == lastKnownMonth && currentYear == lastKnownYear) return
 
         val state = _uiState.value
-        val wasViewingCurrentMonth = state.selectedMonth == lastKnownMonth &&
-            state.selectedYear == lastKnownYear
+        val wasViewingCurrentMonth =
+            state.selectedMonth == lastKnownMonth && state.selectedYear == lastKnownYear
 
         lastKnownMonth = currentMonth
         lastKnownYear = currentYear
@@ -177,8 +254,7 @@ class BudgetVM(
 
         _uiState.update {
             it.copy(
-                selectedMonth = newMonth,
-                selectedYear = newYear
+                selectedMonth = newMonth, selectedYear = newYear
             )
         }
         loadData()
@@ -232,9 +308,7 @@ class BudgetVM(
     fun onCategory(category: Category) {
         _uiState.update {
             it.copy(
-                categoryId = category.id ?: "",
-                categoryName = category.name,
-                isCategoryError = null
+                categoryId = category.id ?: "", categoryName = category.name, isCategoryError = null
             )
         }
     }
@@ -246,14 +320,15 @@ class BudgetVM(
     fun saveBudget() {
         val state = _uiState.value
         val amount = state.amountLimit.toDoubleOrNull()
-        val amountErr = if (amount == null || amount <= 0.0) "Ingrese monto válido mayor a 0" else null
-        val categoryErr = if (state.categoryId.isBlank()) "Seleccione una categoría válida" else null
+        val amountErr =
+            if (amount == null || amount <= 0.0) "Ingrese monto válido mayor a 0" else null
+        val categoryErr =
+            if (state.categoryId.isBlank()) "Seleccione una categoría válida" else null
 
         if (amountErr != null || categoryErr != null) {
             _uiState.update {
                 it.copy(
-                    isAmountError = amountErr,
-                    isCategoryError = categoryErr
+                    isAmountError = amountErr, isCategoryError = categoryErr
                 )
             }
             return
@@ -309,8 +384,7 @@ class BudgetVM(
             result.onFailure { error ->
                 _uiState.update {
                     it.copy(
-                        isLoading = false,
-                        errorMessage = error.message ?: "Error al eliminar"
+                        isLoading = false, errorMessage = error.message ?: "Error al eliminar"
                     )
                 }
             }

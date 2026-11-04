@@ -44,6 +44,8 @@ fun BudgetScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(viewModel) {
+        // Recupera cambios hechos desde otras pestañas, incluidas ediciones del historial.
+        viewModel.loadData()
         while (isActive){
             viewModel.checkMonthChange()
             delay(1.minutes)

@@ -24,6 +24,7 @@ import com.kashuapp.core.composables.KashuTopBar
 import com.kashuapp.core.navigation.HomeTab
 import com.kashuapp.ui.analytics.AnalyticsScreen
 import com.kashuapp.ui.budget.BudgetScreen
+import com.kashuapp.ui.budget.BudgetVM
 import com.kashuapp.ui.goals.list.GoalsScreen
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.form.AddTransact
@@ -42,6 +43,7 @@ fun HomeScreen(
 
     val homeState by homeVM.uiState.collectAsState()
     val transactionListVM: TransactionVM = viewModel()
+    val budgetVM: BudgetVM = viewModel()
     var showAddTransaction by remember { mutableStateOf(false) }
     if (showAddTransaction) {
         AddTransact(
@@ -49,6 +51,8 @@ fun HomeScreen(
                 showAddTransaction = false
                 transactionListVM.getTrans()
                 homeVM.loadData()
+                // El gasto guardado también cambia el consumo de presupuestos.
+                budgetVM.loadData()
             }, onNavigateToCategory = onNavigateToCategory
         )
     }
@@ -115,7 +119,7 @@ fun HomeScreen(
                 }
 
                 is HomeTab.Budget -> {
-                    BudgetScreen()
+                    BudgetScreen(viewModel = budgetVM)
                 }
 
                 is HomeTab.Analytics -> {

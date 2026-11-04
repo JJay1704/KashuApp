@@ -38,6 +38,7 @@ import com.kashuapp.ui.theme.KashuTheme
 fun AccountForm(
     accountToEdit: Account? = null,
     onDismiss: () -> Unit,
+    onSaved: () -> Unit,
     onDelete: ((accountId: String) -> Unit)? = null,
     viewModel: AccountFormVM = viewModel(),
 
@@ -152,7 +153,7 @@ fun AccountForm(
                     viewModel.saveAccount(
 
                         accountToEdit = accountToEdit,
-                        onSuccess = { onDismiss() })
+                        onSuccess = onSaved)
                 })
 
             if (accountToEdit?.id != null && onDelete != null) {
