@@ -77,7 +77,8 @@ class AccountVM(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = error.message ?: "No se puede cambiar el estado de la cuenta"
+                            errorMessage = error.message
+                                ?: "No se puede cambiar el estado de la cuenta"
                         )
                     }
                 }

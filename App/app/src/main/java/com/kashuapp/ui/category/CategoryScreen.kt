@@ -37,14 +37,12 @@ import com.kashuapp.ui.theme.KashuTheme
 
 @Composable
 fun CategoryScreen(
-    onBackToHome: () -> Unit,
-    viewModel: CategoryVM = viewModel()
+    onBackToHome: () -> Unit, viewModel: CategoryVM = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
-        containerColor = KashuTheme.colors.mainBackground,
-        topBar = {
+        containerColor = KashuTheme.colors.mainBackground, topBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,8 +81,7 @@ fun CategoryScreen(
                     )
                 }
             }
-        }
-    ) { innerPadding ->
+        }) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -93,15 +90,13 @@ fun CategoryScreen(
         ) {
             if (uiState.isLoading && uiState.categories.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = KashuTheme.colors.mainColor)
                 }
             } else if (uiState.categories.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "Aún no tienes categorías registradas",
@@ -114,12 +109,11 @@ fun CategoryScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(uiState.categories, key = { it.id?: it.name }) { category ->
+                    items(uiState.categories, key = { it.id ?: it.name }) { category ->
                         CategoryItemCard(
                             category = category,
                             onEditClick = { viewModel.openEdit(category) },
-                            onDeleteClick = { category.id?.let { viewModel.deleteCategory(it) } }
-                        )
+                            onDeleteClick = { category.id?.let { viewModel.deleteCategory(it) } })
                     }
                 }
             }
@@ -134,18 +128,12 @@ fun CategoryScreen(
                 onSave = { name, type, icon, color ->
 
                     viewModel.saveCategory(
-                         name = name,
-                        type = type,
-                        icon = icon,
-                        color = color,
-                        onSuccess = {}
-                     )
+                        name = name, type = type, icon = icon, color = color, onSuccess = {})
 
                 },
                 onDelete = { id ->
                     viewModel.deleteCategory(id)
-                }
-            )
+                })
         }
     }
 }

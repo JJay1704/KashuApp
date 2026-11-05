@@ -7,8 +7,7 @@ class CurrencyRepository : ICurrencyRepository {
 
     override suspend fun getAllCurrency(): Result<List<Currency>> {
         try {
-            val accTypeTable =
-                KashuSupaBase.db.from("currency").select().decodeList<Currency>()
+            val accTypeTable = KashuSupaBase.db.from("currency").select().decodeList<Currency>()
             return Result.success(accTypeTable)
 
         } catch (e: Exception) {

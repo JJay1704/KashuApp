@@ -104,8 +104,7 @@ class GoalFormVM(
     fun onCategory(newCategory: Category) {
         _uiState.update {
             it.copy(
-                categoryId = newCategory.id,
-                categoryName = newCategory.name
+                categoryId = newCategory.id, categoryName = newCategory.name
             )
         }
     }
@@ -132,7 +131,8 @@ class GoalFormVM(
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
         val titleErr = if (state.title.trim().isBlank()) "El nombre es obligatorio" else null
-        val targetErr = if (parsedTarget == null || parsedTarget <= 0.0) "Ingrese monto válido mayor a 0" else null
+        val targetErr =
+            if (parsedTarget == null || parsedTarget <= 0.0) "Ingrese monto válido mayor a 0" else null
         val deadlineErr = when {
             state.deadline.trim().isBlank() -> "La fecha límite es obligatoria"
             state.deadline < today -> "La fecha límite debe ser hoy o futura"

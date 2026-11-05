@@ -45,9 +45,7 @@ class CategoryVM(
     fun openEdit(category: Category) {
         _uiState.update {
             it.copy(
-                categoryToEdit = category,
-                isFormOpen = true,
-                errorMessage = null
+                categoryToEdit = category, isFormOpen = true, errorMessage = null
             )
         }
     }
@@ -57,11 +55,7 @@ class CategoryVM(
     }
 
     fun saveCategory(
-        name: String,
-        type: String,
-        icon: String,
-        color: String,
-        onSuccess: () -> Unit
+        name: String, type: String, icon: String, color: String, onSuccess: () -> Unit
     ) {
         val userId = authRepo.getCurrentUserId().id
 
@@ -77,10 +71,7 @@ class CategoryVM(
 
             val result: Result<Unit> = if (currentCategory != null) {
                 val updatedCat = currentCategory.copy(
-                    name = name.trim(),
-                    icon = icon,
-                    color = color,
-                    type = type.uppercase()
+                    name = name.trim(), icon = icon, color = color, type = type.uppercase()
                 )
                 catRepo.updateCategory(updatedCat)
             } else {

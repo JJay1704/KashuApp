@@ -1,4 +1,5 @@
 package com.kashuapp.ui.account.list
+
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -74,7 +75,7 @@ fun AccountScreen(
                 }
 
                 IconButton(
-                    onClick = { viewModel.openForm()},
+                    onClick = { viewModel.openForm() },
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
@@ -115,16 +116,15 @@ fun AccountScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(uiState.accounts, key = { it.id?: it.name }) { account ->
+                    items(uiState.accounts, key = { it.id ?: it.name }) { account ->
                         AccountItemCard(
                             account = account,
-                             onToggleActive = {
-                                 viewModel.setAccountActive(account, !account.isActive)
-                             },
-                             isUpdatingStatus = uiState.isLoading,
+                            onToggleActive = {
+                                viewModel.setAccountActive(account, !account.isActive)
+                            },
+                            isUpdatingStatus = uiState.isLoading,
                             onEditClick = { viewModel.openEdit(account) },
-                            onDeleteClick = { account.id?.let { viewModel.deleteAccount(it) } }
-                        )
+                            onDeleteClick = { account.id?.let { viewModel.deleteAccount(it) } })
                     }
                 }
             }
@@ -136,12 +136,10 @@ fun AccountScreen(
                 accountToEdit = uiState.accountToEdit,
 
 
-                onDismiss = { viewModel.closeForm() },
-                onSaved = {
+                onDismiss = { viewModel.closeForm() }, onSaved = {
                     viewModel.closeForm()
                     viewModel.loadData()
-                },
-                onDelete = { id ->
+                }, onDelete = { id ->
                     viewModel.deleteAccount(id)
                 })
 

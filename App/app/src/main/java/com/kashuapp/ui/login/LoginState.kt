@@ -8,3 +8,4 @@ data class LoginState(
     val errorMessage: String = "",
     val isOpenResetPswd: Boolean = false
 )
+

@@ -12,7 +12,6 @@ data class GoalsState(
     val goalToEdit: Goal? = null,
     val isAddSavingsOpen: Boolean = false,
     val selectedGoalForSavings: Goal? = null,
-
     val totalTargetAmount: Double = 0.0,
     val totalSavedAmount: Double = 0.0,
     val overallProgressFraction: Float = 0.0f,

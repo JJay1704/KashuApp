@@ -22,5 +22,5 @@ interface IAuthRepository {
 
     suspend fun sendCode(email: String): Result<Unit>
     suspend fun confirmToken(email: String, code: String): Result<Unit>
-    suspend fun updatePassword(password: String): Result <Unit>
+    suspend fun updatePassword(password: String): Result<Unit>
 }

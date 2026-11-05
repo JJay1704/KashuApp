@@ -1,7 +1,6 @@
 package com.kashuapp.data.category
 
 
-
 interface ICategoryRepository {
 
 

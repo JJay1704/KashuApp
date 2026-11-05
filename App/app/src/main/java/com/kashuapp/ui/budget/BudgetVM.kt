@@ -94,8 +94,7 @@ class BudgetVM(
                 if (accounts == null) {
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
-                            errorMessage = "No se pudieron cargar las cuentas"
+                            isLoading = false, errorMessage = "No se pudieron cargar las cuentas"
                         )
                     }
                 } else {
@@ -117,8 +116,7 @@ class BudgetVM(
                     if (transactions == null) {
                         _uiState.update {
                             it.copy(
-                                isLoading = false,
-                                errorMessage = "No se pudieron cargar los gastos"
+                                isLoading = false, errorMessage = "No se pudieron cargar los gastos"
                             )
                         }
                     } else {

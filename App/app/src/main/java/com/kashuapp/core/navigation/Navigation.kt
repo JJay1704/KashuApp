@@ -43,29 +43,24 @@ fun Navigation() {
                     })
                 }
                 composable("home") {
-                    HomeScreen(
-                        onNavigateToCategory = {
-                            navController.navigate("category") {
-                                launchSingleTop = true
-                            }
-                        },
-                        onNavigateToDebt = {
-                            navController.navigate("debt") {
-                                launchSingleTop = true
-                            }
-                        },
-                        onNavigateToAccount = {
-                            navController.navigate("account") {
-                                launchSingleTop = true
-                            }
-                        },
-                        onLogout = {
-                            navController.navigate("login") {
-                                popUpTo(0) { inclusive = true }
-                                launchSingleTop = true
-                            }
+                    HomeScreen(onNavigateToCategory = {
+                        navController.navigate("category") {
+                            launchSingleTop = true
                         }
-                    )
+                    }, onNavigateToDebt = {
+                        navController.navigate("debt") {
+                            launchSingleTop = true
+                        }
+                    }, onNavigateToAccount = {
+                        navController.navigate("account") {
+                            launchSingleTop = true
+                        }
+                    }, onLogout = {
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    })
                 }
                 composable("register") {
                     RegisterView(onNavigateToHome = {
@@ -82,22 +77,19 @@ fun Navigation() {
                     CategoryScreen(
                         onBackToHome = {
                             navController.popBackStack("home", inclusive = false)
-                        }
-                    )
+                        })
                 }
                 composable("account") {
                     AccountScreen(
                         onBackToHome = {
                             navController.popBackStack("home", inclusive = false)
-                        }
-                    )
+                        })
                 }
                 composable("debt") {
                     DebtScreen(
                         onBack = {
                             navController.popBackStack("home", inclusive = false)
-                        }
-                    )
+                        })
                 }
 
             }

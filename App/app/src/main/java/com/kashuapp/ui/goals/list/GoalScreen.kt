@@ -50,12 +50,10 @@ fun GoalsScreen(
 
     if (uiState.isFormOpen) {
         GoalFormDialog(
-            goalToEdit = uiState.goalToEdit,
-            onDismiss = {
+            goalToEdit = uiState.goalToEdit, onDismiss = {
                 goalsVM.closeForm()
                 goalsVM.loadGoals()
-            }
-        )
+            })
     }
 
     val selectedGoal = uiState.selectedGoalForSavings
@@ -67,8 +65,7 @@ fun GoalsScreen(
             onDismiss = { goalsVM.closeAddSavings() },
             onConfirmSavings = { amountStr, selectedAccount ->
                 goalsVM.submitSavings(amountStr, selectedAccount)
-            }
-        )
+            })
     }
 
     Column(
@@ -107,8 +104,7 @@ fun GoalsScreen(
 
         if (uiState.isLoading && uiState.goals.isEmpty()) {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = KashuTheme.colors.mainColor)
             }
@@ -161,8 +157,7 @@ fun GoalsScreen(
                         goal = goal,
                         deadlineAlert = goalsVM.getDeadlineAlert(goal),
                         onAddSavingsClick = { goalsVM.openAddSavings(goal) },
-                        onClickCard = { goalsVM.openEditGoal(goal) }
-                    )
+                        onClickCard = { goalsVM.openEditGoal(goal) })
                 }
             }
         }

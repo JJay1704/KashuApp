@@ -22,10 +22,7 @@ class ResetPswdVM(
 
         _uiState.update {
             it.copy(
-                email = email,
-                code = "",
-                isError = null,
-                successMessage = ""
+                email = email, code = "", isError = null, successMessage = ""
             )
         }
     }
@@ -44,11 +41,7 @@ class ResetPswdVM(
         if (emailErr == null) {
             _uiState.update {
                 it.copy(
-                    email = email,
-                    isLoading = true,
-                    isError = null,
-                    successMessage = "",
-                    code = ""
+                    email = email, isLoading = true, isError = null, successMessage = "", code = ""
                 )
             }
 
@@ -99,17 +92,14 @@ class ResetPswdVM(
             result.onSuccess {
                 _uiState.update {
                     it.copy(
-                        step = ResetSteps.NEW_PASSWORD,
-                        isLoading = false,
-                        isError = null
+                        step = ResetSteps.NEW_PASSWORD, isLoading = false, isError = null
                     )
                 }
             }
             result.onFailure {
                 _uiState.update {
                     it.copy(
-                        isLoading = false,
-                        isError = "El código no es correcto"
+                        isLoading = false, isError = "El código no es correcto"
                     )
                 }
             }
@@ -135,8 +125,7 @@ class ResetPswdVM(
                     ResetSteps.CODE -> ResetSteps.EMAIL
                     ResetSteps.NEW_PASSWORD -> ResetSteps.CODE
                     else -> it.step
-                },
-                isError = null
+                }, isError = null
             )
         }
     }

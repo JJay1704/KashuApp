@@ -145,9 +145,7 @@ class AuthRepository : IAuthRepository {
 
         return try {
             KashuSupaBase.auth.verifyEmailOtp(
-                type = OtpType.Email.RECOVERY,
-                email = email,
-                token = code
+                type = OtpType.Email.RECOVERY, email = email, token = code
             )
 
             Result.success(Unit)
@@ -162,7 +160,9 @@ class AuthRepository : IAuthRepository {
         return try {
             KashuSupaBase.auth.updateUser { this.password = password }
             Result.success(Unit)
-        }catch (e : Exception){Result.failure(e)}
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
 

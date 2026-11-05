@@ -10,10 +10,10 @@ import com.kashuapp.data.auth.IAuthRepository
 import com.kashuapp.data.category.Category
 import com.kashuapp.data.category.CategoryRepository
 import com.kashuapp.data.category.ICategoryRepository
-
-import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.debt.DebtRepository
 import com.kashuapp.data.debt.IDebtRepository
+import com.kashuapp.data.transaction.ITransactionRepository
+import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.data.transaction.TransactionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
 class TransactionVM(
     private val transRepo: ITransactionRepository = TransactionRepository(),
@@ -30,7 +31,6 @@ class TransactionVM(
     private val authRepo: IAuthRepository = AuthRepository(),
     private val accountRepo: IAccountRepository = AccountRepository(),
     private val debtRepo: IDebtRepository = DebtRepository()
-
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TransactionState())
@@ -39,7 +39,6 @@ class TransactionVM(
     init {
         loadData()
     }
-
 
     val periods = listOf("Today", "This week", "This Month", "Last Month")
     val transactionTypes = listOf("EXPENSE", "INCOME", "DEBT_PAYMENT")
@@ -99,11 +98,9 @@ class TransactionVM(
         return start to end
     }
 
-
     fun loadData() {
         getTrans()
     }
-
 
     fun getCategoryName(categoryId: String): String {
         return _uiState.value.categories.find { it.id == categoryId }?.name ?: "Sin categoría"
@@ -162,35 +159,55 @@ class TransactionVM(
                 ).getOrThrow()
 
                 val categories = catRepo.getAllCateg(userId).getOrThrow()
-
                 val accounts = accountRepo.getAllAccount(userId).getOrThrow()
 
                 val selectedCategoryObj = categories.find { it.id == filterCategory }
-                val isDebtCategoryFilter = selectedCategoryObj?.name?.contains("deuda", ignoreCase = true) == true
-                val includePayments = (filterCategory == null || isDebtCategoryFilter) && (type == null || type == "DEBT_PAYMENT")
-                val payments = if (includePayments) debtRepo.getPayments(userId).getOrThrow() else emptyList()
+                val isDebtCategoryFilter =
+                    selectedCategoryObj?.name?.contains("deuda", ignoreCase = true) == true
+                val includePayments =
+                    (filterCategory == null || isDebtCategoryFilter) && (type == null || type == "DEBT_PAYMENT")
+                val payments =
+                    if (includePayments) debtRepo.getPayments(userId).getOrThrow() else emptyList()
                 val debtNames = if (payments.isNotEmpty()) {
                     debtRepo.getDebts(userId).getOrThrow().associate { it.id to it.name }
                 } else emptyMap()
-                val start = dateRange.first?.let { historyTimestamp(it) }
-                val end = dateRange.second?.let { historyTimestamp(it) }
-                val paymentEntries = payments.filter { filterAccount == null || it.accountId == filterAccount }
-                    .map { payment ->
-                        HistoryMovement.DebtPaymentEntry(
-                            payment,
-                            debtNames[payment.debtId] ?: "Deuda",
-                            historyTimestamp(payment.paidAt)
-                        )
-                    }.filter { entry ->
-                        (start == null || entry.occurredAt >= start) && (end == null || entry.occurredAt <= end)
-                    }
-                val movements = (transactions.map { transaction ->
-                    HistoryMovement.TransactionEntry(transaction, historyTimestamp(transaction.transactionDate))
-                } + paymentEntries).sortedByDescending { it.occurredAt }
+
+                val debtCategory = categories.find {
+                    it.name.contains("deuda", ignoreCase = true)
+                }
+                val startMillis = dateRange.first?.let { parseTransactionDate(it) }
+                val endMillis = dateRange.second?.let { parseTransactionDate(it) }
+
+                val debtTransactions =
+                    payments.filter { filterAccount == null || it.accountId == filterAccount }
+                        .filter { payment ->
+                            val paidAtMillis = parseTransactionDate(payment.paidAt)
+                            (startMillis == null || paidAtMillis >= startMillis) && (endMillis == null || paidAtMillis <= endMillis)
+                        }.map { payment ->
+                            val debtName = debtNames[payment.debtId] ?: "Deuda"
+                            val desc = if (payment.description.isNotBlank()) {
+                                "$debtName - ${payment.description}"
+                            } else {
+                                "Abono a deuda: $debtName"
+                            }
+                            Transaction(
+                                id = payment.id,
+                                userId = payment.userId,
+                                accountId = payment.accountId,
+                                categoryId = debtCategory?.id ?: "",
+                                amount = payment.amount,
+                                type = "EXPENSE",
+                                description = desc,
+                                transactionDate = payment.paidAt
+                            )
+                        }
+
+                val allTransactions =
+                    (transactions + debtTransactions).sortedByDescending { parseTransactionDate(it.transactionDate) }
 
                 _uiState.update {
                     it.copy(
-                        movements = movements,
+                        transactions = allTransactions,
                         categories = categories,
                         accounts = accounts,
                         isLoading = false,
@@ -206,4 +223,21 @@ class TransactionVM(
             }
         }
     }
+}
+
+internal fun parseTransactionDate(value: String): Long {
+    val text = value.trim().replace(' ', 'T').substringBefore('.')
+    val patterns = listOf(
+        "yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd'T'HH:mm"
+    )
+    for (pattern in patterns) {
+        try {
+            val formatter = SimpleDateFormat(pattern, Locale.US)
+            formatter.timeZone = TimeZone.getTimeZone("UTC")
+            val parsed = formatter.parse(text)
+            if (parsed != null) return parsed.time
+        } catch (_: Exception) {
+        }
+    }
+    return 0L
 }

@@ -43,7 +43,7 @@ fun AccountForm(
     viewModel: AccountFormVM = viewModel(),
 
 
-) {
+    ) {
 
 
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -152,8 +152,8 @@ fun AccountForm(
                 onClickFun = {
                     viewModel.saveAccount(
 
-                        accountToEdit = accountToEdit,
-                        onSuccess = onSaved)
+                        accountToEdit = accountToEdit, onSuccess = onSaved
+                    )
                 })
 
             if (accountToEdit?.id != null && onDelete != null) {

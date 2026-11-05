@@ -1,7 +1,6 @@
 package com.kashuapp.ui.login
 
 
-
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 
@@ -28,21 +27,19 @@ import com.kashuapp.R
 import com.kashuapp.ui.theme.KashuTheme
 
 
-
-
 @Composable
 fun KashuSocialButton(
 
     onClickFun: () -> Unit,
     @DrawableRes iconRes: Int = R.drawable.ic_google,
     contentDescription: String = "Social Login",
-    width : Int = 100,
+    width: Int = 100,
     height: Int = 48,
     rounded: Int = 12,
-    colorLogo : Color = Color.Unspecified,
-    logoSize : Int = 20
+    colorLogo: Color = Color.Unspecified,
+    logoSize: Int = 20
 
- ){
+) {
 
     OutlinedButton(
         onClick = onClickFun,
@@ -51,27 +48,25 @@ fun KashuSocialButton(
             .height(height.dp),
         shape = RoundedCornerShape(rounded.dp),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = KashuTheme.colors.surface,
-            contentColor = KashuTheme.colors.surface
+            containerColor = KashuTheme.colors.surface, contentColor = KashuTheme.colors.surface
         ),
         border = BorderStroke(
-            width = 2.dp,
-            color = MaterialTheme.colorScheme.outline)
+            width = 2.dp, color = MaterialTheme.colorScheme.outline
+        )
     ) {
-            Icon(
-                painter = painterResource(id = iconRes),
-                contentDescription = contentDescription,
-                tint = colorLogo   ,
-                modifier = Modifier.size(logoSize.dp)
-            )
-        }
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = contentDescription,
+            tint = colorLogo,
+            modifier = Modifier.size(logoSize.dp)
+        )
+    }
 }
+
 @Composable
-fun Subtitle(text: String, subtitleColor: Color ){
+fun Subtitle(text: String, subtitleColor: Color) {
     Text(
-        text = text,
-        color = subtitleColor,
-        fontSize = 15.sp
+        text = text, color = subtitleColor, fontSize = 15.sp
     )
 }
 

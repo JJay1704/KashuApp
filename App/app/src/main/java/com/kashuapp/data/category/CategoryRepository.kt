@@ -27,11 +27,9 @@ class CategoryRepository : ICategoryRepository {
                 put("color", newCat.color.ifBlank { "#34D399" })
                 put("is_default", false)
             }
-            val response = KashuSupaBase.db.from("category")
-                .insert(json) {
+            val response = KashuSupaBase.db.from("category").insert(json) {
                     select()
-                }
-                .decodeSingle<Category>()
+                }.decodeSingle<Category>()
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)

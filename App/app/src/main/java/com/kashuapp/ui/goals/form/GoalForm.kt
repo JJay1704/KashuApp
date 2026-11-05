@@ -40,9 +40,7 @@ import com.kashuapp.ui.transaction.KashuDatePickerField
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoalFormDialog(
-    goalToEdit: Goal? = null,
-    onDismiss: () -> Unit,
-    viewModel: GoalFormVM = viewModel()
+    goalToEdit: Goal? = null, onDismiss: () -> Unit, viewModel: GoalFormVM = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -119,8 +117,7 @@ fun GoalFormDialog(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Fecha límite",
                 selectedDate = uiState.deadline.ifEmpty { "Seleccionar fecha" },
-                onDateSelected = { viewModel.onDeadline(it) }
-            )
+                onDateSelected = { viewModel.onDeadline(it) })
 
             if (uiState.isDeadlineError != null) {
                 Spacer(modifier = Modifier.height(4.dp))
@@ -144,8 +141,7 @@ fun GoalFormDialog(
                 itemLabel = { it.name },
                 onItemSelected = { selectedAccount ->
                     viewModel.onAccount(selectedAccount)
-                }
-            )
+                })
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -159,15 +155,12 @@ fun GoalFormDialog(
                 itemLabel = { it.name },
                 onItemSelected = { selectedCategory ->
                     viewModel.onCategory(selectedCategory)
-                }
-            )
+                })
 
             if (!uiState.errorMessage.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = uiState.errorMessage ?: "",
-                    color = Color(0xFFEF4444),
-                    fontSize = 12.sp
+                    text = uiState.errorMessage ?: "", color = Color(0xFFEF4444), fontSize = 12.sp
                 )
             }
 
@@ -179,13 +172,10 @@ fun GoalFormDialog(
                 isLoading = uiState.isLoading,
                 onClickFun = {
                     viewModel.saveGoal(
-                        goalToEdit = goalToEdit,
-                        onSuccess = {
+                        goalToEdit = goalToEdit, onSuccess = {
                             onDismiss()
-                        }
-                    )
-                }
-            )
+                        })
+                })
 
             if (uiState.isEditing) {
                 Spacer(modifier = Modifier.height(14.dp))
@@ -196,13 +186,10 @@ fun GoalFormDialog(
                     text = "Eliminar Meta",
                     onClickFun = {
                         viewModel.deleteGoal(
-                            goalId = goalToEdit?.id,
-                            onSuccess = {
+                            goalId = goalToEdit?.id, onSuccess = {
                                 onDismiss()
-                            }
-                        )
-                    }
-                )
+                            })
+                    })
             }
         }
     }

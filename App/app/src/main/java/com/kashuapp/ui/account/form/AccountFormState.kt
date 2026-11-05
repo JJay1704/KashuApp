@@ -10,7 +10,6 @@ data class AccountFormState(
     val accountTypes: List<AccountType> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-
     val isFormOpen: Boolean = false,
     val accountToEdit: Account? = null,
     val name: String = "",

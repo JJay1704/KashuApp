@@ -35,8 +35,7 @@ fun KashuAppTheme(
 
     CompositionLocalProvider(LocalKashuColors provides currentColors) {
         MaterialTheme(
-            typography = Typography,
-            content = content
+            typography = Typography, content = content
         )
     }
 }

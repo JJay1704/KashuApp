@@ -183,8 +183,7 @@ fun AddTransact(
                 icon = Icons.Default.Category,
                 items = uiState.categories.filter {
                     it.type.equals(
-                        uiState.selectedTypeTrans,
-                        ignoreCase = true
+                        uiState.selectedTypeTrans, ignoreCase = true
                     )
                 },
                 itemLabel = { it.name },

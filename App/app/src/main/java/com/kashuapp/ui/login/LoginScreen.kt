@@ -59,7 +59,7 @@ fun LoginScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-Column(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(KashuTheme.colors.mainBackground)
@@ -101,7 +101,7 @@ Column(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 trailingIcon = null
 
-)
+            )
             Spacer(modifier = Modifier.height(14.dp))
             KashuTextField(
                 label = "Password",
@@ -118,7 +118,7 @@ Column(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (uiStateValues.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
 
-trailingIcon = {
+                trailingIcon = {
                     IconButton(onClick = { viewModel.onTogglePassword() }) {
                         Icon(
                             imageVector = if (uiStateValues.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
@@ -133,7 +133,7 @@ trailingIcon = {
             ) {
                 KashuButton(
 
-onClickFun = {
+                    onClickFun = {
                         viewModel.loginSuccess(
                             onSucces = { onNavigateToHome() })
                     },
@@ -142,7 +142,7 @@ onClickFun = {
                     isLoading = uiStateValues.isLoading,
                     enabled = !uiStateValues.isLoading
 
-)
+                )
                 Spacer(modifier = Modifier.width(4.dp))
 
             }
@@ -180,7 +180,7 @@ onClickFun = {
             }
             Spacer(modifier = Modifier.weight(0.2f))
 
-}
+        }
         if (uiStateValues.isOpenResetPswd) {
             Dialog(
                 onDismissRequest = { viewModel.openResetPswd(false) },
@@ -190,8 +190,7 @@ onClickFun = {
                 )
             ) {
                 ResetPswdScreen(
-                    onBackToHome = { viewModel.openResetPswd(false) }
-                )
+                    onBackToHome = { viewModel.openResetPswd(false) })
             }
         }
         if (uiStateValues.isLoading) {
@@ -199,8 +198,7 @@ onClickFun = {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.65f))
-                    .clickable(enabled = false) {},
-                contentAlignment = Alignment.Center
+                    .clickable(enabled = false) {}, contentAlignment = Alignment.Center
             ) {
                 Surface(
                     shape = RoundedCornerShape(16.dp),

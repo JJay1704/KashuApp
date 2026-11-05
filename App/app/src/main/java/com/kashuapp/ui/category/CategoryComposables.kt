@@ -79,8 +79,10 @@ fun CategoryItemCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = categoryIcon(category.icon), contentDescription = category.name,
-                        tint = categoryColor(category.color), modifier = Modifier.size(22.dp)
+                        imageVector = categoryIcon(category.icon),
+                        contentDescription = category.name,
+                        tint = categoryColor(category.color),
+                        modifier = Modifier.size(22.dp)
                     )
                 }
 

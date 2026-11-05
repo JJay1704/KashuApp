@@ -49,15 +49,21 @@ import com.kashuapp.ui.theme.KashuTheme
 
 @Composable
 fun MonthSelector(
-    month: Int,
-    year: Int,
-    onPrevious: () -> Unit,
-    onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    month: Int, year: Int, onPrevious: () -> Unit, onNext: () -> Unit, modifier: Modifier = Modifier
 ) {
     val months = listOf(
-        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre"
     )
     val monthName = if (month in 1..12) months[month - 1] else ""
 
@@ -89,9 +95,7 @@ fun MonthSelector(
                     color = KashuTheme.colors.title
                 )
                 Text(
-                    text = "$year",
-                    fontSize = 13.sp,
-                    color = KashuTheme.colors.subtitle
+                    text = "$year", fontSize = 13.sp, color = KashuTheme.colors.subtitle
                 )
             }
 
@@ -162,14 +166,11 @@ fun OverallBudgetSummaryCard(
             Spacer(modifier = Modifier.height(14.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
                     Text(
-                        text = "Gastado",
-                        fontSize = 12.sp,
-                        color = KashuTheme.colors.subtitle
+                        text = "Gastado", fontSize = 12.sp, color = KashuTheme.colors.subtitle
                     )
                     Text(
                         text = "S/. $totalSpent",
@@ -181,9 +182,7 @@ fun OverallBudgetSummaryCard(
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "Límite Total",
-                        fontSize = 12.sp,
-                        color = KashuTheme.colors.subtitle
+                        text = "Límite Total", fontSize = 12.sp, color = KashuTheme.colors.subtitle
                     )
                     Text(
                         text = "S/. $totalBudgeted",
@@ -239,8 +238,7 @@ fun BudgetCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
+                    verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)
                 ) {
                     Box(
                         modifier = Modifier
@@ -315,8 +313,7 @@ fun BudgetCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = if (isExceeded) {
@@ -405,9 +402,7 @@ fun BudgetFormDialog(
             if (!state.errorMessage.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = state.errorMessage,
-                    color = Color(0xFFEF4444),
-                    fontSize = 12.sp
+                    text = state.errorMessage, color = Color(0xFFEF4444), fontSize = 12.sp
                 )
             }
 

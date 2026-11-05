@@ -86,8 +86,7 @@ class AccountFormVM(
         if (accountToEdit != null) {
             val matchingType = _uiState.value.accountTypes.find {
                 it.id.equals(
-                    accountToEdit.type,
-                    ignoreCase = true
+                    accountToEdit.type, ignoreCase = true
                 ) || it.name.equals(accountToEdit.type, ignoreCase = true)
             }
             val matchingCurrency = _uiState.value.currency.find {

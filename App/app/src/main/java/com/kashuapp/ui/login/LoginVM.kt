@@ -10,25 +10,26 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginVM(
-    private val authRepo : IAuthRepository = AuthRepository()
-) : ViewModel(){
+    private val authRepo: IAuthRepository = AuthRepository()
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginState())
-    val uiState  = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
 
-    fun openResetPswd(value : Boolean){
+    fun openResetPswd(value: Boolean) {
 
         _uiState.update { it.copy(isOpenResetPswd = value) }
 
     }
 
-    fun onEmail (newEmail: String){
-        _uiState.update { it.copy(email = newEmail, errorMessage = "" )}
+    fun onEmail(newEmail: String) {
+        _uiState.update { it.copy(email = newEmail, errorMessage = "") }
     }
-    fun onPassword (newPassword: String){
 
-        _uiState.update { it.copy(password= newPassword, errorMessage = "" )}
+    fun onPassword(newPassword: String) {
+
+        _uiState.update { it.copy(password = newPassword, errorMessage = "") }
 
     }
 
@@ -39,7 +40,11 @@ class LoginVM(
 
     }
 
-    fun loginSuccess (email : String = uiState.value.email, password : String =uiState.value.password ,  onSucces : ()->Unit) {
+    fun loginSuccess(
+        email: String = uiState.value.email,
+        password: String = uiState.value.password,
+        onSucces: () -> Unit
+    ) {
         if (email.isBlank() || password.isBlank()) {
             _uiState.update { it.copy(errorMessage = "Por favor, ingresa tu correo y contraseña") }
             return
@@ -49,26 +54,21 @@ class LoginVM(
             _uiState.update { it.copy(isLoading = true, errorMessage = "") }
 
 
+            val result = authRepo.login(email, password)
 
-        val result = authRepo.login(email,password)
-
-        _uiState.update { it.copy(isLoading = false) }
+            _uiState.update { it.copy(isLoading = false) }
 
 
-        result.onSuccess {
-            onSucces()
+            result.onSuccess {
+                onSucces()
+            }
+            result.onFailure { error ->
+                println("ERROR LOGIN SUPABASE: ${error.message}")
+                _uiState.update { it.copy(errorMessage = "Correo o contraseña incorrectos") }
+            }
+
         }
-        result.onFailure {error ->
-            println("ERROR LOGIN SUPABASE: ${error.message}")
-            _uiState.update { it.copy(errorMessage = "Correo o contraseña incorrectos")  }
-        }
-
     }
-    }
-
-
-
-
 
 
 }

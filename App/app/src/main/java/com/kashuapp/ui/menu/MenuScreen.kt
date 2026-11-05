@@ -202,11 +202,11 @@ fun KashuHomeMenu(
 
                             NavigationDrawerItem(
                                 icon = {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.ExitToApp,
-                                        contentDescription = "Cerrar Sesión"
-                                    )
-                                },
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ExitToApp,
+                                    contentDescription = "Cerrar Sesión"
+                                )
+                            },
                                 label = { Text("Cerrar Sesión") },
                                 selected = false,
                                 colors = NavigationDrawerItemDefaults.colors(

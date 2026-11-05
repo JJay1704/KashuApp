@@ -52,8 +52,7 @@ fun BudgetScreen(
             onAmountChange = { viewModel.onAmountLimit(it) },
             onConfirm = { viewModel.saveBudget() },
             onDelete = { viewModel.deleteBudget(uiState.budgetToEdit?.id) },
-            onDismiss = { viewModel.closeForm() }
-        )
+            onDismiss = { viewModel.closeForm() })
     }
 
     Column(
@@ -94,15 +93,13 @@ fun BudgetScreen(
             month = uiState.selectedMonth,
             year = uiState.selectedYear,
             onPrevious = { viewModel.changeMonth(-1) },
-            onNext = { viewModel.changeMonth(1) }
-        )
+            onNext = { viewModel.changeMonth(1) })
 
         Spacer(modifier = Modifier.height(16.dp))
 
         if (uiState.isLoading && uiState.budgets.isEmpty()) {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = KashuTheme.colors.mainColor)
             }
@@ -147,8 +144,7 @@ fun BudgetScreen(
                         budget = budget,
                         categoryName = viewModel.getCategoryName(budget.categoryId),
                         spentAmount = viewModel.getSpentForCategory(budget.categoryId),
-                        onClickCard = { viewModel.openEdit(budget) }
-                    )
+                        onClickCard = { viewModel.openEdit(budget) })
                 }
             }
         }

@@ -41,15 +41,12 @@ fun HomeView(
 
     ) {
         val showInitialLoading =
-            uiState.isLoading &&
-                    uiState.accounts.isEmpty() &&
-                    uiState.transactions.isEmpty()
+            uiState.isLoading && uiState.accounts.isEmpty() && uiState.transactions.isEmpty()
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp),
-            contentAlignment = Alignment.Center
+                .height(160.dp), contentAlignment = Alignment.Center
         ) {
             if (showInitialLoading) {
                 CircularProgressIndicator(
@@ -83,8 +80,7 @@ fun HomeView(
 
         if (message != null) {
             Text(
-                text = message,
-                color = MaterialTheme.colorScheme.error
+                text = message, color = MaterialTheme.colorScheme.error
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -109,16 +105,14 @@ fun HomeView(
 
 
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.fillMaxWidth()
+            verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()
         ) {
             items(uiState.transactions) { item ->
-                 val category = uiState.categories.find { it.id == item.categoryId }
-                 val categoryName = category?.name ?: "Sin categoría"
+                val category = uiState.categories.find { it.id == item.categoryId }
+                val categoryName = category?.name ?: "Sin categoría"
 
 
-                val account = uiState.accounts
-                    .find { it.id == item.accountId }
+                val account = uiState.accounts.find { it.id == item.accountId }
                 TransactionItemCard(
                     item = item,
                     category = category,

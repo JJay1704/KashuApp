@@ -46,18 +46,14 @@ fun EmailReset(
         text = "Restablecer",
         onClickFun = {
             onSubmit()
-        }
-    )
+        })
 
     Spacer(modifier = Modifier.height(20.dp))
 
     KashuButton(
-        backColor = KashuTheme.colors.surface,
-        text = "Cancelar",
-        onClickFun = {
+        backColor = KashuTheme.colors.surface, text = "Cancelar", onClickFun = {
             onBackToHome()
-        }
-    )
+        })
 
     Spacer(modifier = Modifier.height(10.dp))
 
@@ -65,21 +61,17 @@ fun EmailReset(
 
     if (!successMessage.isNullOrBlank()) {
         Text(
-            text = successMessage,
-            color = KashuTheme.colors.title
+            text = successMessage, color = KashuTheme.colors.title
         )
     }
 }
 
 @Composable
 fun CodeReset(
-    uiState: ResetPswdState,
-    onCodeChange: (String) -> Unit,
-    onSubmit: () -> Unit
+    uiState: ResetPswdState, onCodeChange: (String) -> Unit, onSubmit: () -> Unit
 ) {
     Text(
-        text = "Escribe el código enviado a ${uiState.email}",
-        color = KashuTheme.colors.title
+        text = "Escribe el código enviado a ${uiState.email}", color = KashuTheme.colors.title
     )
 
     Spacer(modifier = Modifier.height(20.dp))
@@ -101,8 +93,7 @@ fun CodeReset(
         text = "Restablecer",
         onClickFun = {
             onSubmit()
-        }
-    )
+        })
 }
 
 @Composable

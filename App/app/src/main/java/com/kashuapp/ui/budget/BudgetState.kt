@@ -14,7 +14,6 @@ data class BudgetState(
     val totalSpent: Double = 0.0,
     val overallProgressFraction: Float = 0.0f,
     val overallPercentage: Int = 0,
-
     val isFormOpen: Boolean = false,
     val isEditing: Boolean = false,
     val budgetToEdit: Budget? = null,

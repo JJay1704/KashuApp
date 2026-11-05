@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,7 +27,6 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -48,16 +48,13 @@ import com.kashuapp.core.composables.KashuDropdownField
 import com.kashuapp.data.account.Account
 import com.kashuapp.data.category.Category
 import com.kashuapp.data.transaction.Transaction
+import com.kashuapp.ui.category.categoryColor
+import com.kashuapp.ui.category.categoryIcon
 import com.kashuapp.ui.theme.KashuTheme
 import com.kashuapp.ui.transaction.list.TransactionState
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import java.util.Date
-import com.kashuapp.ui.transaction.list.HistoryMovement
-import androidx.compose.foundation.lazy.items
-import com.kashuapp.ui.category.categoryColor
-import com.kashuapp.ui.category.categoryIcon
 
 @Composable
 fun TransactionFilters(
@@ -69,13 +66,10 @@ fun TransactionFilters(
     onTypeSelected: (String?) -> Unit,
     onPeriodSelected: (String?) -> Unit
 ) {
-
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()
     ) {
-
         item {
-
             KashuDropdownField(
                 fillMaxWidth = false,
                 selectedValue = uiState.selectedAccount?.name ?: "",
@@ -84,17 +78,13 @@ fun TransactionFilters(
                 items = uiState.accounts,
                 itemLabel = { it.name },
                 onItemSelected = { selectedAccount ->
-                    onAccountSelected(
-                        selectedAccount
-                    )
+                    onAccountSelected(selectedAccount)
                 },
                 isFilter = true,
                 onClearFilter = { onAccountSelected(null) })
-
         }
 
         item {
-
             KashuDropdownField(
                 fillMaxWidth = false,
                 selectedValue = uiState.selectedCategory?.name ?: "",
@@ -103,17 +93,13 @@ fun TransactionFilters(
                 items = uiState.categories,
                 itemLabel = { it.name },
                 onItemSelected = { selectedCategory ->
-                    onCategorySelected(
-                        selectedCategory
-                    )
+                    onCategorySelected(selectedCategory)
                 },
                 isFilter = true,
-                onClearFilter = { onCategorySelected(null) }
-
-            )
+                onClearFilter = { onCategorySelected(null) })
         }
-        item {
 
+        item {
             KashuDropdownField(
                 fillMaxWidth = false,
                 selectedValue = if (uiState.selectedType != null) historyTypeLabel(uiState.selectedType) else "",
@@ -136,11 +122,8 @@ fun TransactionFilters(
                 itemLabel = { it },
                 onItemSelected = { selectedPeriod -> onPeriodSelected(selectedPeriod) },
                 isFilter = true,
-                onClearFilter = {
-                    onPeriodSelected(null)
-                })
+                onClearFilter = { onPeriodSelected(null) })
         }
-
     }
 }
 
@@ -151,35 +134,34 @@ fun TransactionList(
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()
     ) {
-        items(uiState.movements, key = { it.key }) { movement ->
-            when (movement) {
-                is HistoryMovement.TransactionEntry -> {
-                    val transaction = movement.transaction
-                    val category = uiState.categories.find { it.id == transaction.categoryId }
-                    val account = uiState.accounts.find { it.id == transaction.accountId }
-                    val isGoalContribution = category?.name?.contains("aporte", ignoreCase = true) == true ||
-                        transaction.description?.startsWith("Aporte a meta:", ignoreCase = true) == true
-                    TransactionItemCard(
-                        item = transaction,
-                        category = category,
-                        categoryName = category?.name ?: "Sin categoría",
-                        accountName = account?.name ?: "Sin cuenta",
-                        currency = account?.currency ?: "",
-                        onClickCard = {
-                            if (!isGoalContribution) {
-                                onTransactionClick(transaction)
-                            }
-                        }
-                    )
-                }
-                is HistoryMovement.DebtPaymentEntry -> {
-                    val debtCategory = uiState.categories.find {
-                        it.name.contains("deuda", ignoreCase = true)
+        items(uiState.transactions) { transaction ->
+            val category = uiState.categories.find { it.id == transaction.categoryId }
+            val account = uiState.accounts.find { it.id == transaction.accountId }
+            val isGoalContribution = category?.name?.contains(
+                "aporte",
+                ignoreCase = true
+            ) == true || transaction.description?.startsWith(
+                "Aporte a meta:", ignoreCase = true
+            ) == true
+            val isDebtPayment = category?.name?.contains(
+                "deuda",
+                ignoreCase = true
+            ) == true || transaction.description?.startsWith(
+                "Abono a deuda:",
+                ignoreCase = true
+            ) == true
+
+            TransactionItemCard(
+                item = transaction,
+                category = category,
+                categoryName = category?.name ?: "Sin categoría",
+                accountName = account?.name ?: "Sin cuenta",
+                currency = account?.currency ?: "",
+                onClickCard = {
+                    if (!isGoalContribution && !isDebtPayment) {
+                        onTransactionClick(transaction)
                     }
-                    val accountName = uiState.accounts.find { it.id == movement.payment.accountId }?.name ?: "Sin cuenta"
-                    DebtHistoryItemCard(movement, accountName, debtCategory)
-                }
-            }
+                })
         }
     }
 }
@@ -189,37 +171,6 @@ private fun historyTypeLabel(type: String): String = when (type) {
     "INCOME" -> "Ingreso"
     "DEBT_PAYMENT" -> "Abono de deuda"
     else -> type
-}
-
-@Composable
-private fun DebtHistoryItemCard(
-    movement: HistoryMovement.DebtPaymentEntry,
-    accountName: String,
-    category: Category? = null
-) {
-    val payment = movement.payment
-    val desc = if (payment.description.isNotBlank()) {
-        "${movement.debtName} - ${payment.description}"
-    } else {
-        "Abono a deuda: ${movement.debtName}"
-    }
-    TransactionItemCard(
-        item = Transaction(
-            id = payment.id,
-            userId = payment.userId,
-            accountId = payment.accountId,
-            categoryId = category?.id ?: "",
-            amount = payment.amount,
-            type = "EXPENSE",
-            description = desc,
-            transactionDate = payment.paidAt
-        ),
-        category = category,
-        categoryName = category?.name ?: "Deuda",
-        accountName = accountName,
-        currency = payment.currency,
-        onClickCard = {}
-    )
 }
 
 @Composable
@@ -345,14 +296,12 @@ fun KashuTimePickerField(
 @Composable
 fun TransactionItemCard(
     item: Transaction,
-
     categoryName: String,
     accountName: String,
     currency: String = "PEN",
     onClickCard: () -> Unit = {},
     category: Category? = null,
-
-    ) {
+) {
     val isIncome = item.type.equals("INCOME", ignoreCase = true)
     val amountColor = if (isIncome) Color(0xFF10B981) else Color(0xFFEF4444)
     val amountPrefix = if (isIncome) "+ $currency" else "- $currency"

@@ -51,8 +51,7 @@ import com.kashuapp.ui.theme.KashuTheme
 
 @Composable
 fun GoalGlobalProgress(
-    modifier: Modifier = Modifier,
-    uiState: GoalsState = GoalsState()
+    modifier: Modifier = Modifier, uiState: GoalsState = GoalsState()
 ) {
     Box(
         modifier = modifier
@@ -96,8 +95,7 @@ fun GoalGlobalProgress(
             Spacer(modifier = Modifier.height(14.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
                     Text(
@@ -148,7 +146,8 @@ fun GoalCard(
     } else {
         0.0f
     }
-    val progressFraction = if (rawFraction > 1.0f) 1.0f else if (rawFraction < 0.0f) 0.0f else rawFraction
+    val progressFraction =
+        if (rawFraction > 1.0f) 1.0f else if (rawFraction < 0.0f) 0.0f else rawFraction
     val progressPercentage = (progressFraction * 100).toInt()
 
     Card(
@@ -199,13 +198,11 @@ fun GoalCard(
                         )
                         if (deadlineAlert.isNotEmpty()) {
                             Text(
-                                text = deadlineAlert,
-                                color = if (deadlineAlert == "Meta vencida") {
+                                text = deadlineAlert, color = if (deadlineAlert == "Meta vencida") {
                                     Color(0xFFEF4444)
                                 } else {
                                     Color(0xFFF59E0B)
-                                },
-                                fontSize = 12.sp
+                                }, fontSize = 12.sp
                             )
                         }
                     }
@@ -222,8 +219,7 @@ fun GoalCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.Bottom, modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = "${goal.currency} ${goal.currentAmount}",
@@ -243,13 +239,11 @@ fun GoalCard(
                     "Meta alcanzada"
                 } else {
                     "Te faltan ${goal.currency} ${String.format("%.2f", remainingAmount)}"
-                },
-                color = if (isTargetReached) {
+                }, color = if (isTargetReached) {
                     KashuTheme.colors.mainColor
                 } else {
                     KashuTheme.colors.subtitle
-                },
-                fontSize = 13.sp
+                }, fontSize = 13.sp
             )
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -272,8 +266,7 @@ fun GoalCard(
                     .background(KashuTheme.colors.mainColor.copy(alpha = 0.12f))
                     .clickable { onAddSavingsClick() }
                     .padding(vertical = 8.dp),
-                contentAlignment = Alignment.Center
-            ) {
+                contentAlignment = Alignment.Center) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
@@ -347,8 +340,7 @@ fun AddSavingsDialog(
                 placeholder = "Seleccionar cuenta",
                 items = accounts,
                 itemLabel = { it.name },
-                onItemSelected = { selectedAccount = it }
-            )
+                onItemSelected = { selectedAccount = it })
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -365,9 +357,7 @@ fun AddSavingsDialog(
             if (!errorMessage.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = errorMessage,
-                    color = Color(0xFFEF4444),
-                    fontSize = 12.sp
+                    text = errorMessage, color = Color(0xFFEF4444), fontSize = 12.sp
                 )
             }
 

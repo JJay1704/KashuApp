@@ -19,26 +19,20 @@ fun KashuitemMenu(
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     NavigationDrawerItem(
         icon = {
-            Icon(
-                imageVector = icon,
-                contentDescription = title
-            )
-        },
-        label = {
-            Text(text = title)
-        },
-        selected = isSelected,
-        colors = NavigationDrawerItemDefaults.colors(
-            selectedContainerColor = KashuTheme.colors.mainColor.copy(alpha = 0.15f),
-            selectedIconColor = KashuTheme.colors.mainColor,
-            selectedTextColor = KashuTheme.colors.mainColor,
-            unselectedIconColor = KashuTheme.colors.subtitle,
-            unselectedTextColor = KashuTheme.colors.title
-        ),
-        onClick = onClick,
-        modifier = modifier.padding(vertical = 4.dp)
+        Icon(
+            imageVector = icon, contentDescription = title
+        )
+    }, label = {
+        Text(text = title)
+    }, selected = isSelected, colors = NavigationDrawerItemDefaults.colors(
+        selectedContainerColor = KashuTheme.colors.mainColor.copy(alpha = 0.15f),
+        selectedIconColor = KashuTheme.colors.mainColor,
+        selectedTextColor = KashuTheme.colors.mainColor,
+        unselectedIconColor = KashuTheme.colors.subtitle,
+        unselectedTextColor = KashuTheme.colors.title
+    ), onClick = onClick, modifier = modifier.padding(vertical = 4.dp)
     )
 }

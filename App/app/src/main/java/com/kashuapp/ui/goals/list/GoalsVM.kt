@@ -38,6 +38,7 @@ class GoalsVM(
     init {
         loadGoals()
     }
+
     fun getDeadlineAlert(goal: Goal): String {
         if (goal.currentAmount >= goal.targetAmount) {
             return ""
@@ -56,6 +57,7 @@ class GoalsVM(
             else -> ""
         }
     }
+
     fun loadGoals() {
         val userId = authRepo.getCurrentUserId().id
         if (userId == "Not Gotten" || userId.isBlank()) {
@@ -75,7 +77,8 @@ class GoalsVM(
                 } else {
                     0.0f
                 }
-                val fraction = if (rawFraction > 1.0f) 1.0f else if (rawFraction < 0.0f) 0.0f else rawFraction
+                val fraction =
+                    if (rawFraction > 1.0f) 1.0f else if (rawFraction < 0.0f) 0.0f else rawFraction
                 val percentage = (fraction * 100).toInt()
                 val completedCount = list.count { it.currentAmount >= it.targetAmount }
 
@@ -108,9 +111,7 @@ class GoalsVM(
     fun openCreateGoal() {
         _uiState.update {
             it.copy(
-                isFormOpen = true,
-                goalToEdit = null,
-                errorMessage = null
+                isFormOpen = true, goalToEdit = null, errorMessage = null
             )
         }
     }
@@ -118,9 +119,7 @@ class GoalsVM(
     fun openEditGoal(goal: Goal) {
         _uiState.update {
             it.copy(
-                isFormOpen = true,
-                goalToEdit = goal,
-                errorMessage = null
+                isFormOpen = true, goalToEdit = goal, errorMessage = null
             )
         }
     }
@@ -132,9 +131,7 @@ class GoalsVM(
     fun openAddSavings(goal: Goal) {
         _uiState.update {
             it.copy(
-                isAddSavingsOpen = true,
-                selectedGoalForSavings = goal,
-                errorMessage = null
+                isAddSavingsOpen = true, selectedGoalForSavings = goal, errorMessage = null
             )
         }
     }
@@ -173,8 +170,7 @@ class GoalsVM(
 
         val newCurrentAmount = goal.currentAmount + amount
         val updatedGoal = goal.copy(
-            currentAmount = newCurrentAmount,
-            isCompleted = newCurrentAmount >= goal.targetAmount
+            currentAmount = newCurrentAmount, isCompleted = newCurrentAmount >= goal.targetAmount
         )
 
         viewModelScope.launch {
@@ -191,8 +187,10 @@ class GoalsVM(
                 return@launch
             }
 
-            val transactionDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-                .format(Calendar.getInstance().time)
+            val transactionDate = SimpleDateFormat(
+                "yyyy-MM-dd HH:mm",
+                Locale.getDefault()
+            ).format(Calendar.getInstance().time)
             val savingsTransaction = Transaction(
                 userId = userId,
                 accountId = accountId,
@@ -208,7 +206,8 @@ class GoalsVM(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "Error al registrar la transacción del aporte"
+                        errorMessage = error.message
+                            ?: "Error al registrar la transacción del aporte"
                     )
                 }
                 return@launch
@@ -235,13 +234,15 @@ class GoalsVM(
         val categories = catRepo.getAllCateg(userId).getOrDefault(emptyList())
         val expenseCategories = categories.filter { it.type.equals("EXPENSE", ignoreCase = true) }
         val preferred = expenseCategories.firstOrNull {
-            it.name.contains("aporte", ignoreCase = true) ||
-                it.name.contains("ahorro", ignoreCase = true) ||
-                it.name.contains("meta", ignoreCase = true)
+            it.name.contains("aporte", ignoreCase = true) || it.name.contains(
+                "ahorro",
+                ignoreCase = true
+            ) || it.name.contains("meta", ignoreCase = true)
         } ?: categories.firstOrNull {
-            it.name.contains("aporte", ignoreCase = true) ||
-                it.name.contains("ahorro", ignoreCase = true) ||
-                it.name.contains("meta", ignoreCase = true)
+            it.name.contains("aporte", ignoreCase = true) || it.name.contains(
+                "ahorro",
+                ignoreCase = true
+            ) || it.name.contains("meta", ignoreCase = true)
         }
 
         if (preferred?.id != null) {
@@ -254,12 +255,10 @@ class GoalsVM(
 
         return catRepo.createCategory(
             Category(
-                userId = userId,
-                name = "Metas de Ahorro",
-                type = "EXPENSE",
-                icon = goal.icon.ifBlank { "savings" },
-                color = goal.color.ifBlank { "#34D399" }
-            )
-        ).getOrNull()?.id
+            userId = userId,
+            name = "Metas de Ahorro",
+            type = "EXPENSE",
+            icon = goal.icon.ifBlank { "savings" },
+            color = goal.color.ifBlank { "#34D399" })).getOrNull()?.id
     }
 }

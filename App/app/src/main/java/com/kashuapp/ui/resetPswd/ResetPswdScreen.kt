@@ -44,7 +44,8 @@ fun ResetPswdScreen(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(24.dp))
                 .background(KashuTheme.colors.mainBackground)
-                .padding(24.dp), verticalArrangement = Arrangement.Center
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -52,8 +53,7 @@ fun ResetPswdScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    modifier = Modifier.offset(x = (-12).dp),
-                    onClick = {
+                    modifier = Modifier.offset(x = (-12).dp), onClick = {
                         if (uiState.step == ResetSteps.EMAIL) {
                             viewModel.resetFlow()
                             onBackToHome()
@@ -79,52 +79,36 @@ fun ResetPswdScreen(
 
             when (uiState.step) {
                 ResetSteps.EMAIL -> {
-                    EmailReset(
-                        uiState = uiState,
-                        onEmailChange = { email ->
-                            viewModel.onEmail(email)
-                        },
-                        onSubmit = {
-                            viewModel.reset(onSuccess = {})
-                        },
-                        onBackToHome = {
-                            viewModel.resetFlow()
-                            onBackToHome()
-                        }
-                    )
+                    EmailReset(uiState = uiState, onEmailChange = { email ->
+                        viewModel.onEmail(email)
+                    }, onSubmit = {
+                        viewModel.reset(onSuccess = {})
+                    }, onBackToHome = {
+                        viewModel.resetFlow()
+                        onBackToHome()
+                    })
                 }
 
                 ResetSteps.CODE -> {
-                    CodeReset(
-                        uiState = uiState,
-                        onCodeChange = { code ->
-                            viewModel.onCode(code)
-                        },
-                        onSubmit = {
-                            viewModel.confirmToken()
-                        }
-                    )
+                    CodeReset(uiState = uiState, onCodeChange = { code ->
+                        viewModel.onCode(code)
+                    }, onSubmit = {
+                        viewModel.confirmToken()
+                    })
                 }
 
                 ResetSteps.NEW_PASSWORD -> {
-                    PswdReset(
-                        uiState = uiState,
-                        onPasswordChange = {
-                            viewModel.onNewPswd(it)
-                        },
-                        onConfirmPasswordChange = {
-                            viewModel.onConfirmPswd(it)
-                        },
-                        onTogglePasswordVisibility = {
-                            viewModel.togglePasswordVisibility()
-                        },
-                        onToggleConfirmPasswordVisibility = {
-                            viewModel.toggleConfirmPasswordVisibility()
-                        },
-                        onSubmit = {
-                            viewModel.updatePswd()
-                        }
-                    )
+                    PswdReset(uiState = uiState, onPasswordChange = {
+                        viewModel.onNewPswd(it)
+                    }, onConfirmPasswordChange = {
+                        viewModel.onConfirmPswd(it)
+                    }, onTogglePasswordVisibility = {
+                        viewModel.togglePasswordVisibility()
+                    }, onToggleConfirmPasswordVisibility = {
+                        viewModel.toggleConfirmPasswordVisibility()
+                    }, onSubmit = {
+                        viewModel.updatePswd()
+                    })
                 }
 
                 ResetSteps.COMPLETE -> {
@@ -132,8 +116,7 @@ fun ResetPswdScreen(
                         onCompleted = {
                             viewModel.resetFlow()
                             onBackToHome()
-                        }
-                    )
+                        })
                 }
             }
         }

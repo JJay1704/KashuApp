@@ -48,8 +48,10 @@ class DebtVM(
         viewModelScope.launch {
             try {
                 val rawDebts = debtRepo.getDebts(userId).getOrThrow()
-                val pendingDebts = rawDebts.filter { it.outstandingAmount > 0 }.sortedBy { it.name.lowercase() }
-                val paidDebts = rawDebts.filter { it.outstandingAmount <= 0 }.sortedBy { it.name.lowercase() }
+                val pendingDebts =
+                    rawDebts.filter { it.outstandingAmount > 0 }.sortedBy { it.name.lowercase() }
+                val paidDebts =
+                    rawDebts.filter { it.outstandingAmount <= 0 }.sortedBy { it.name.lowercase() }
                 val list = pendingDebts + paidDebts
 
                 val payments = debtRepo.getPayments(userId).getOrThrow()
@@ -174,7 +176,8 @@ class DebtVM(
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply { timeZone = limaTimeZone }
         val timeFormat = SimpleDateFormat("HH:mm", Locale.US).apply { timeZone = limaTimeZone }
 
-        val accounts = _uiState.value.accounts.filter { it.isActive && it.currency == debt.currency }
+        val accounts =
+            _uiState.value.accounts.filter { it.isActive && it.currency == debt.currency }
         _uiState.update {
             it.copy(
                 paymentForm = DebtPaymentState(

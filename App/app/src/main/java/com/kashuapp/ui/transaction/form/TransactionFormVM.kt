@@ -45,12 +45,10 @@ class TransactionFormVM(
             val dateParts = rawDate.split(" ")
             val date =
                 if (dateParts.isNotEmpty() && dateParts[0].length >= 10) dateParts[0].substring(
-                    0,
-                    10
+                    0, 10
                 ) else defaultDate
             val time = if (dateParts.size > 1 && dateParts[1].length >= 5) dateParts[1].substring(
-                0,
-                5
+                0, 5
             ) else defaultTime
 
             _uiStateTran.value = TransactionFormState(
@@ -69,9 +67,7 @@ class TransactionFormVM(
             )
         } else {
             _uiStateTran.value = TransactionFormState(
-                date = defaultDate,
-                time = defaultTime,
-                isEditing = false
+                date = defaultDate, time = defaultTime, isEditing = false
             )
         }
 
@@ -119,9 +115,7 @@ class TransactionFormVM(
 
         _uiStateTran.update {
             it.copy(
-                selectedTypeTrans = selectedType,
-                categoryId = "",
-                categoryName = ""
+                selectedTypeTrans = selectedType, categoryId = "", categoryName = ""
             )
         }
 
@@ -136,8 +130,7 @@ class TransactionFormVM(
         originalAccountId = null
         _uiStateTran.update { current ->
             TransactionFormState(
-                categories = current.categories,
-                accounts = current.accounts
+                categories = current.categories, accounts = current.accounts
             )
         }
     }
@@ -213,8 +206,8 @@ class TransactionFormVM(
         viewModelScope.launch {
             val accountResult = accountRepo.findById(stateValues.accountId)
             accountResult.onSuccess { account ->
-                val keepsOriginalAccount = stateValues.id != null &&
-                        stateValues.accountId == originalAccountId
+                val keepsOriginalAccount =
+                    stateValues.id != null && stateValues.accountId == originalAccountId
 
                 if (account.isActive || keepsOriginalAccount) {
                     val resultPost = if (stateValues.id != null) {

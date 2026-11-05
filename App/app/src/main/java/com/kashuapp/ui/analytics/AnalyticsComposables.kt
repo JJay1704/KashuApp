@@ -50,8 +50,7 @@ fun MetricSummaryCards(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Box(
             modifier = Modifier
@@ -129,8 +128,7 @@ fun PieChartExpenses(
             .padding(20.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Distribución de Gastos por Categoría",
@@ -142,8 +140,7 @@ fun PieChartExpenses(
             Spacer(modifier = Modifier.height(20.dp))
 
             Box(
-                modifier = Modifier.size(200.dp),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.size(200.dp), contentAlignment = Alignment.Center
             ) {
                 Canvas(modifier = Modifier.size(200.dp)) {
                     var currentStartAngle = -90f
@@ -169,9 +166,7 @@ fun PieChartExpenses(
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Total Gastos",
-                        fontSize = 11.sp,
-                        color = KashuTheme.colors.subtitle
+                        text = "Total Gastos", fontSize = 11.sp, color = KashuTheme.colors.subtitle
                     )
                     Text(
                         text = analyticsMoney(currency, totalExpense),
@@ -225,10 +220,7 @@ fun PieChartExpenses(
 @Composable
 fun ComparisonBarChart(
 
-    currency: String,
-    income: Double,
-    expense: Double,
-    modifier: Modifier = Modifier
+    currency: String, income: Double, expense: Double, modifier: Modifier = Modifier
 ) {
     val maxVal =
         if (income >= expense && income > 0.0) income else if (expense > 0.0) expense else 1.0
@@ -247,8 +239,7 @@ fun ComparisonBarChart(
             .padding(20.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Comparativa Mensual: Ingresos vs. Gastos",

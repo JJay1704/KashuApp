@@ -24,8 +24,8 @@ import java.util.Locale
 @Composable
 fun AccountItemCard(
     account: Account,
-     onToggleActive: () -> Unit,
-     isUpdatingStatus: Boolean = false,
+    onToggleActive: () -> Unit,
+    isUpdatingStatus: Boolean = false,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -42,8 +42,7 @@ fun AccountItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
+                verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)
             ) {
                 Box(
                     modifier = Modifier
@@ -68,7 +67,11 @@ fun AccountItemCard(
                         color = KashuTheme.colors.title
                     )
                     Text(
-                        text = "${account.currency} ${String.format(Locale.US, "%.2f", account.currentBalance)}",
+                        text = "${account.currency} ${
+                            String.format(
+                                Locale.US, "%.2f", account.currentBalance
+                            )
+                        }",
                         fontSize = 13.sp,
                         color = KashuTheme.colors.mainColor,
                         fontWeight = FontWeight.Bold
@@ -76,14 +79,14 @@ fun AccountItemCard(
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                 Switch(
-                     checked = account.isActive,
-                     onCheckedChange = { onToggleActive() },
-                     enabled = !isUpdatingStatus,
-                     colors = SwitchDefaults.colors(
-                         checkedTrackColor = KashuTheme.colors.mainColor
-                     )
-                 )
+                Switch(
+                    checked = account.isActive,
+                    onCheckedChange = { onToggleActive() },
+                    enabled = !isUpdatingStatus,
+                    colors = SwitchDefaults.colors(
+                        checkedTrackColor = KashuTheme.colors.mainColor
+                    )
+                )
                 IconButton(onClick = onEditClick, modifier = Modifier.size(36.dp)) {
                     Icon(
                         imageVector = Icons.Default.Edit,

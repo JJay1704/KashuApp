@@ -124,8 +124,10 @@ fun CategoryForm(
             )
 
             val availableColors = listOf(
-                "Verde" to "#34D399", "Azul" to "#3B82F6",
-                "Ámbar" to "#F59E0B", "Rojo" to "#EF4444",
+                "Verde" to "#34D399",
+                "Azul" to "#3B82F6",
+                "Ámbar" to "#F59E0B",
+                "Rojo" to "#EF4444",
                 "Violeta" to "#8B5CF6"
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -142,23 +144,24 @@ fun CategoryForm(
                             .clip(CircleShape)
                             .background(categoryColor(hex))
                             .border(
-                                3.dp,
-                                if (selectedColor.equals(hex, ignoreCase = true))
-                                    KashuTheme.colors.title else Color.Transparent,
-                                CircleShape
+                                3.dp, if (selectedColor.equals(
+                                        hex, ignoreCase = true
+                                    )
+                                ) KashuTheme.colors.title else Color.Transparent, CircleShape
                             )
                             .clickable(enabled = !isLoading) {
                                 selectedColor = hex
-                            }
-                    )
+                            })
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
             Text("Ícono", color = KashuTheme.colors.title)
             val availableIcons = listOf(
-                "category" to "General", "food" to "Alimentación",
-                "transport" to "Transporte", "shopping" to "Compras"
+                "category" to "General",
+                "food" to "Alimentación",
+                "transport" to "Transporte",
+                "shopping" to "Compras"
             )
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -172,15 +175,12 @@ fun CategoryForm(
                             .clip(CircleShape)
                             .background(KashuTheme.colors.surface)
                             .border(
-                                2.dp,
-                                if (selectedIcon == id) KashuTheme.colors.title
-                                else Color.Transparent,
-                                CircleShape
+                                2.dp, if (selectedIcon == id) KashuTheme.colors.title
+                                else Color.Transparent, CircleShape
                             )
                             .clickable(enabled = !isLoading) {
                                 selectedIcon = id
-                            },
-                        contentAlignment = Alignment.Center
+                            }, contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = categoryIcon(id),

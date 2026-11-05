@@ -9,13 +9,13 @@ import androidx.compose.ui.graphics.Color
 data class KashuScheme(
     val mainColor: Color,
     val mainBackground: Color,
-    val surface : Color,
-    val title : Color,
-    val subtitle : Color,
-    val inputContainer : Color,
+    val surface: Color,
+    val title: Color,
+    val subtitle: Color,
+    val inputContainer: Color,
     val inputText: Color,
 
-)
+    )
 
 val LocalKashuColors = staticCompositionLocalOf<KashuScheme> {
     error("No se ha provisto ValKashuColors en el tema")
@@ -24,7 +24,5 @@ val LocalKashuColors = staticCompositionLocalOf<KashuScheme> {
 
 object KashuTheme {
     val colors: KashuScheme
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalKashuColors.current
+        @Composable @ReadOnlyComposable get() = LocalKashuColors.current
 }

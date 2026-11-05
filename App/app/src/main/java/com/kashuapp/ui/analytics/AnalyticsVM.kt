@@ -56,8 +56,7 @@ class AnalyticsVM(
         if (userId.isBlank() || userId == "Not Gotten") {
             _uiState.update {
                 it.copy(
-                    isLoading = false,
-                    errorMessage = "Inicia sesión para ver tus estadísticas."
+                    isLoading = false, errorMessage = "Inicia sesión para ver tus estadísticas."
                 )
             }
             return
@@ -75,8 +74,8 @@ class AnalyticsVM(
                 val maxDayStr = maxDay.toString().padStart(2, '0')
                 val startDate = "$year-$monthStr-01 00:00"
                 val endDate = "$year-$monthStr-$maxDayStr 23:59"
-                val accounts = accountRepo.getAllAccount(userId).getOrThrow()
-                    .filter { it.userId == userId }
+                val accounts =
+                    accountRepo.getAllAccount(userId).getOrThrow().filter { it.userId == userId }
                 val currencies = accounts.map { it.currency }.distinct().sorted()
                 val currency = if (filters.selectedCurrency in currencies) {
                     filters.selectedCurrency
@@ -96,8 +95,8 @@ class AnalyticsVM(
                 if (transactions.any { it.accountId !in knownAccountIds }) {
                     throw IllegalStateException("Hay movimientos cuya cuenta no se pudo identificar")
                 }
-                val accountIds = accounts.filter { it.currency == currency }
-                    .mapNotNull { it.id }.toSet()
+                val accountIds =
+                    accounts.filter { it.currency == currency }.mapNotNull { it.id }.toSet()
                 val filtered = transactions.filter { it.accountId in accountIds }
                 val incomes = filtered.filter { it.type == "INCOME" }
                 val expenses = filtered.filter { it.type == "EXPENSE" }

@@ -13,7 +13,7 @@ import com.kashuapp.data.debt.IDebtRepository
 import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.data.transaction.TransactionRepository
-import com.kashuapp.ui.transaction.list.historyTimestamp
+import com.kashuapp.ui.transaction.list.parseTransactionDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +30,7 @@ class HomeVM(
 
     private val _uiState = MutableStateFlow(HomeState())
     val uiState: StateFlow<HomeState> = _uiState.asStateFlow()
+
     init {
         loadData()
     }
@@ -110,13 +111,7 @@ class HomeVM(
                         accounts = accounts,
                         accountsByCurrency = balances,
                         transactions = (transactions + debtTransactions)
-                            .sortedByDescending { transaction ->
-                                try {
-                                    historyTimestamp(transaction.transactionDate)
-                                } catch (_: Exception) {
-                                    0L
-                                }
-                            }
+                            .sortedByDescending { parseTransactionDate(it.transactionDate) }
                             .take(5),
                         categories = categories,
                         isLoading = false,
