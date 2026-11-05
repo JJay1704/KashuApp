@@ -14,7 +14,6 @@ import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.data.transaction.TransactionRepository
 import com.kashuapp.ui.transaction.list.historyTimestamp
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -112,8 +111,11 @@ class HomeVM(
                         accountsByCurrency = balances,
                         transactions = (transactions + debtTransactions)
                             .sortedByDescending { transaction ->
-                                runCatching { historyTimestamp(transaction.transactionDate) }
-                                    .getOrDefault(0L)
+                                try {
+                                    historyTimestamp(transaction.transactionDate)
+                                } catch (_: Exception) {
+                                    0L
+                                }
                             }
                             .take(5),
                         categories = categories,
@@ -121,8 +123,6 @@ class HomeVM(
                         errorMessage = null
                     )
                 }
-            } catch (error: CancellationException) {
-                    throw error
             } catch (error: Exception) {
                 _uiState.update {
                     it.copy(

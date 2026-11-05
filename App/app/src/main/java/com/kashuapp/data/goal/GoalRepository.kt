@@ -5,14 +5,15 @@ import com.kashuapp.data.KashuSupaBase
 class GoalRepository : IGoalRepository {
 
     override suspend fun getAllGoals(userId: String): Result<List<Goal>> {
-        try {
-            val goalTable = KashuSupaBase.db.from("goal").select().decodeList<Goal>()
-            val filtered = goalTable.filter { goal ->
-                goal.userId == null || goal.userId == userId
-            }
-            return Result.success(filtered)
+        return try {
+            val goals = KashuSupaBase.db.from("goal").select {
+                filter {
+                    eq("user_id", userId)
+                }
+            }.decodeList<Goal>()
+            Result.success(goals)
         } catch (e: Exception) {
-            return Result.failure(e)
+            Result.failure(e)
         }
     }
 
@@ -50,5 +51,4 @@ class GoalRepository : IGoalRepository {
             Result.failure(e)
         }
     }
-
 }

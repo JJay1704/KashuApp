@@ -44,8 +44,6 @@ class BudgetVM(
 
     private var currentTransactions: List<Transaction> = emptyList()
 
-    private var latestRequestId = 0L
-
     init {
         loadData()
     }
@@ -59,9 +57,6 @@ class BudgetVM(
     }
 
     fun loadData() {
-
-        latestRequestId += 1
-        val requestId = latestRequestId
         val requestedMonth = _uiState.value.selectedMonth
         val requestedYear = _uiState.value.selectedYear
         val userId = authRepo.getCurrentUserId().id
@@ -89,25 +84,19 @@ class BudgetVM(
 
             val categories = catRepo.getAllCateg(userId).getOrNull()
             if (categories == null) {
-                if (requestId == latestRequestId) {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false, errorMessage = "No se pudieron cargar las categorías"
-                        )
-                    }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false, errorMessage = "No se pudieron cargar las categorías"
+                    )
                 }
             } else {
-
                 val accounts = accountRepo.getAllAccount(userId).getOrNull()
                 if (accounts == null) {
-
-                    if (requestId == latestRequestId) {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                errorMessage = "No se pudieron cargar las cuentas"
-                            )
-                        }
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "No se pudieron cargar las cuentas"
+                        )
                     }
                 } else {
                     val penAccountIds = accounts.filter {
@@ -126,27 +115,20 @@ class BudgetVM(
                     ).getOrNull()
 
                     if (transactions == null) {
-
-                        if (requestId == latestRequestId) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = "No se pudieron cargar los gastos"
+                            )
+                        }
+                    } else {
+                        val knownAccountIds = accounts.mapNotNull { it.id }.toSet()
+                        if (transactions.any { it.accountId !in knownAccountIds }) {
                             _uiState.update {
                                 it.copy(
                                     isLoading = false,
-                                    errorMessage = "No se pudieron cargar los gastos"
+                                    errorMessage = "Hay gastos cuya cuenta no se pudo identificar"
                                 )
-                            }
-                        }
-                    } else {
-
-                        val knownAccountIds = accounts.mapNotNull { it.id }.toSet()
-                        if (transactions.any { it.accountId !in knownAccountIds }) {
-
-                            if (requestId == latestRequestId) {
-                                _uiState.update {
-                                    it.copy(
-                                        isLoading = false,
-                                        errorMessage = "Hay gastos cuya cuenta no se pudo identificar"
-                                    )
-                                }
                             }
                         } else {
                             val penTransactions =
@@ -156,7 +138,6 @@ class BudgetVM(
                             budgetResult.onSuccess { budgetList ->
                                 val totalBudget = budgetList.sumOf { it.amountLimit }
                                 val totalSpent = budgetList.sumOf { budget ->
-
                                     penTransactions.filter { it.categoryId == budget.categoryId }
                                         .sumOf { it.amount }
                                 }
@@ -174,39 +155,31 @@ class BudgetVM(
                                     0
                                 }
 
-                                if (requestId == latestRequestId) {
-                                    currentTransactions = penTransactions
-                                    _uiState.update {
-                                        it.copy(
-                                            budgets = budgetList,
-                                            categories = categories.filter { cat -> cat.type == "EXPENSE" },
-                                            totalBudgeted = totalBudget,
-                                            totalSpent = totalSpent,
-                                            overallProgressFraction = overallFraction,
-                                            overallPercentage = overallPct,
-                                            isLoading = false
-                                        )
-                                    }
+                                currentTransactions = penTransactions
+                                _uiState.update {
+                                    it.copy(
+                                        budgets = budgetList,
+                                        categories = categories.filter { cat -> cat.type == "EXPENSE" },
+                                        totalBudgeted = totalBudget,
+                                        totalSpent = totalSpent,
+                                        overallProgressFraction = overallFraction,
+                                        overallPercentage = overallPct,
+                                        isLoading = false
+                                    )
                                 }
                             }
 
                             budgetResult.onFailure { error ->
-
-                                if (requestId == latestRequestId) {
-                                    _uiState.update {
-                                        it.copy(
-                                            errorMessage = error.message
-                                                ?: "Error al cargar presupuestos", isLoading = false
-                                        )
-
-                                    }
+                                _uiState.update {
+                                    it.copy(
+                                        errorMessage = error.message
+                                            ?: "Error al cargar presupuestos", isLoading = false
+                                    )
                                 }
                             }
-
                         }
                     }
                 }
-
             }
         }
     }

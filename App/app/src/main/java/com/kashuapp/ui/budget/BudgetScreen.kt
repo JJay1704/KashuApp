@@ -33,9 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.ui.theme.KashuTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun BudgetScreen(
@@ -44,11 +41,8 @@ fun BudgetScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(viewModel) {
+        viewModel.checkMonthChange()
         viewModel.loadData()
-        while (isActive){
-            viewModel.checkMonthChange()
-            delay(1.minutes)
-        }
     }
 
     if (uiState.isFormOpen) {

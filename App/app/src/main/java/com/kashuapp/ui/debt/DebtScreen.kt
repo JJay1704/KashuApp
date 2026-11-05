@@ -11,18 +11,18 @@ fun DebtScreen(onBack: () -> Unit, viewModel: DebtVM = viewModel()) {
     DebtView(
         state = state,
         onBack = onBack,
-        onRefresh = viewModel::loadData,
-        onCreate = viewModel::openCreate,
-        onEdit = viewModel::openEdit,
-        onPay = viewModel::openPayment,
-        onRequestDelete = viewModel::requestDelete,
-        onFormChange = viewModel::changeForm,
-        onSaveDebt = viewModel::saveDebt,
-        onDismissForm = viewModel::dismissForm,
-        onPaymentChange = viewModel::changePayment,
-        onSavePayment = viewModel::pay,
-        onDismissPayment = viewModel::dismissPayment,
-        onConfirmDelete = viewModel::deleteDebt,
-        onCancelDelete = viewModel::cancelDelete
+        onRefresh = { viewModel.loadData() },
+        onCreate = { viewModel.openCreate() },
+        onEdit = { viewModel.openEdit(it) },
+        onPay = { viewModel.openPayment(it) },
+        onRequestDelete = { viewModel.requestDelete(it) },
+        onFormChange = { viewModel.changeForm(it) },
+        onSaveDebt = { viewModel.saveDebt() },
+        onDismissForm = { viewModel.dismissForm() },
+        onPaymentChange = { viewModel.changePayment(it) },
+        onSavePayment = { viewModel.pay() },
+        onDismissPayment = { viewModel.dismissPayment() },
+        onConfirmDelete = { viewModel.deleteDebt() },
+        onCancelDelete = { viewModel.cancelDelete() }
     )
 }

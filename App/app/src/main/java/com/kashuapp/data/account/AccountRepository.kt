@@ -4,9 +4,7 @@ import com.kashuapp.data.KashuSupaBase
 
 class AccountRepository : IAccountRepository {
 
-
     override suspend fun setAccountActive(accountId: String, isActive: Boolean): Result<Unit> {
-
         return try {
             KashuSupaBase.db.from("account").update({
                 set("is_active", isActive)
@@ -21,67 +19,64 @@ class AccountRepository : IAccountRepository {
         }
     }
 
-
-
-override suspend fun findById(accountId: String): Result<Account> {
-    try {
-        val accountById = KashuSupaBase.db.from("account").select {
-            filter { eq("id", accountId) }
-        }.decodeSingle<Account>()
-        return Result.success(accountById)
-    } catch (e: Exception) {
-        return Result.failure(e)
-    }
-
-}
-
-override suspend fun getAllAccount(userId: String): Result<List<Account>> {
-    try {
-        val accTable = KashuSupaBase.db.from("account").select().decodeList<Account>()
-        val filtered = accTable.filter { account ->
-            account.userId == null || account.userId == userId
+    override suspend fun findById(accountId: String): Result<Account> {
+        try {
+            val accountById = KashuSupaBase.db.from("account").select {
+                filter { eq("id", accountId) }
+            }.decodeSingle<Account>()
+            return Result.success(accountById)
+        } catch (e: Exception) {
+            return Result.failure(e)
         }
-        return Result.success(filtered)
-    } catch (e: Exception) {
-        return Result.failure(e)
     }
-}
 
-override suspend fun deleteAccount(accountId: String): Result<Unit> {
-    return try {
-        KashuSupaBase.db.from("account").delete {
-            filter {
-                eq("id", accountId)
+    override suspend fun getAllAccount(userId: String): Result<List<Account>> {
+        return try {
+            val accounts = KashuSupaBase.db.from("account").select {
+                filter {
+                    eq("user_id", userId)
+                }
+            }.decodeList<Account>()
+            Result.success(accounts)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteAccount(accountId: String): Result<Unit> {
+        return try {
+            KashuSupaBase.db.from("account").delete {
+                filter {
+                    eq("id", accountId)
+                }
             }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-        Result.success(Unit)
-    } catch (e: Exception) {
-        Result.failure(e)
     }
-}
 
-override suspend fun createAccount(account: Account): Result<Account> {
-    return try {
-        val response = KashuSupaBase.db.from("account").insert(account) {
-            select()
-        }.decodeSingle<Account>()
-        Result.success(response)
-    } catch (e: Exception) {
-        Result.failure(e)
+    override suspend fun createAccount(account: Account): Result<Account> {
+        return try {
+            val response = KashuSupaBase.db.from("account").insert(account) {
+                select()
+            }.decodeSingle<Account>()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
-}
 
-override suspend fun updateAccount(account: Account): Result<Unit> {
-    return try {
-        KashuSupaBase.db.from("account").update(account) {
-            filter {
-                eq("id", account.id ?: "")
+    override suspend fun updateAccount(account: Account): Result<Unit> {
+        return try {
+            KashuSupaBase.db.from("account").update(account) {
+                filter {
+                    eq("id", account.id ?: "")
+                }
             }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-        Result.success(Unit)
-    } catch (e: Exception) {
-        Result.failure(e)
     }
-}
-
 }

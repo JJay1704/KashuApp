@@ -20,10 +20,6 @@ data class TransactionFormState(
     val description: String = "",
     val categories: List<Category> = emptyList(),
     val accounts: List<Account> = emptyList(),
-    val selectedAccount: Account? = null,
-    val selectedCategory: Category? = null,
     val errorMessage: String = "",
-    val isEditing : Boolean = false
-
-
-    )
+    val isEditing: Boolean = false
+)

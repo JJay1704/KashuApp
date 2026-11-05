@@ -2,6 +2,7 @@ package com.kashuapp.ui.category
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -32,9 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,7 +38,6 @@ import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuTextField
 import com.kashuapp.data.category.Category
 import com.kashuapp.ui.theme.KashuTheme
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,19 +123,19 @@ fun CategoryForm(
                 trailingIcon = null
             )
 
-             val availableColors = listOf(
-                 "Verde" to "#34D399", "Azul" to "#3B82F6",
-                 "Ámbar" to "#F59E0B", "Rojo" to "#EF4444",
-                 "Violeta" to "#8B5CF6"
-             )
-             Spacer(modifier = Modifier.height(16.dp))
-             Text("Color", color = KashuTheme.colors.title)
-            LazyRow (
-                modifier = Modifier.fillMaxWidth().selectableGroup(),
+            val availableColors = listOf(
+                "Verde" to "#34D399", "Azul" to "#3B82F6",
+                "Ámbar" to "#F59E0B", "Rojo" to "#EF4444",
+                "Violeta" to "#8B5CF6"
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Color", color = KashuTheme.colors.title)
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(availableColors.size) { index ->
-                    val (label, hex) = availableColors[index]
+                    val (_, hex) = availableColors[index]
                     Box(
                         modifier = Modifier
                             .size(48.dp)
@@ -152,55 +147,49 @@ fun CategoryForm(
                                     KashuTheme.colors.title else Color.Transparent,
                                 CircleShape
                             )
-                            .semantics { contentDescription = label }
-                            .selectable(
-                                selected = selectedColor.equals(hex, ignoreCase = true),
-                                enabled = !isLoading,
-                                role = Role.RadioButton,
-                                onClick = { selectedColor = hex }
-                            )
+                            .clickable(enabled = !isLoading) {
+                                selectedColor = hex
+                            }
                     )
                 }
             }
-             Spacer(modifier = Modifier.height(16.dp))
-             Text("Ícono", color = KashuTheme.colors.title)
-             val availableIcons = listOf(
-                 "category" to "General", "food" to "Alimentación",
-                 "transport" to "Transporte", "shopping" to "Compras"
-             )
-             LazyRow(
-                 modifier = Modifier.fillMaxWidth().selectableGroup(),
-                 horizontalArrangement = Arrangement.spacedBy(8.dp)
-             ) {
-                 items(availableIcons.size) { index ->
-                     val (id, label) = availableIcons[index]
-                     Box(
-                         modifier = Modifier
-                             .size(48.dp)
-                             .clip(CircleShape)
-                             .background(KashuTheme.colors.surface)
-                             .border(
-                                 2.dp,
-                                 if (selectedIcon == id) KashuTheme.colors.title
-                                 else Color.Transparent,
-                                 CircleShape
-                             )
-                             .selectable(
-                                 selected = selectedIcon == id,
-                                 enabled = !isLoading,
-                                 role = Role.RadioButton,
-                                 onClick = { selectedIcon = id }
-                             ),
-                         contentAlignment = Alignment.Center
-                     ) {
-                         Icon(
-                             imageVector = categoryIcon(id),
-                             contentDescription = label,
-                             tint = categoryColor(selectedColor)
-                         )
-                     }
-                 }
-             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Ícono", color = KashuTheme.colors.title)
+            val availableIcons = listOf(
+                "category" to "General", "food" to "Alimentación",
+                "transport" to "Transporte", "shopping" to "Compras"
+            )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(availableIcons.size) { index ->
+                    val (id, label) = availableIcons[index]
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(KashuTheme.colors.surface)
+                            .border(
+                                2.dp,
+                                if (selectedIcon == id) KashuTheme.colors.title
+                                else Color.Transparent,
+                                CircleShape
+                            )
+                            .clickable(enabled = !isLoading) {
+                                selectedIcon = id
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = categoryIcon(id),
+                            contentDescription = label,
+                            tint = categoryColor(selectedColor)
+                        )
+                    }
+                }
+            }
 
             if (!errorMessage.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))

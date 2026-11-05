@@ -5,16 +5,17 @@ import com.kashuapp.data.KashuSupaBase
 class BudgetRepository : IBudgetRepository {
 
     override suspend fun getBudgets(userId: String, month: Int, year: Int): Result<List<Budget>> {
-        try {
-            val budgetTable = KashuSupaBase.db.from("budget").select().decodeList<Budget>()
-            val filtered = budgetTable.filter { budget ->
-                (budget.userId == null || budget.userId == userId) &&
-                        budget.month == month &&
-                        budget.year == year
-            }
-            return Result.success(filtered)
+        return try {
+            val budgets = KashuSupaBase.db.from("budget").select {
+                filter {
+                    eq("user_id", userId)
+                    eq("month", month)
+                    eq("year", year)
+                }
+            }.decodeList<Budget>()
+            Result.success(budgets)
         } catch (e: Exception) {
-            return Result.failure(e)
+            Result.failure(e)
         }
     }
 
@@ -52,5 +53,4 @@ class BudgetRepository : IBudgetRepository {
             Result.failure(e)
         }
     }
-
 }

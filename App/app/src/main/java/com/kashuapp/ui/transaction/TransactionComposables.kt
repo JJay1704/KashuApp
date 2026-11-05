@@ -116,11 +116,11 @@ fun TransactionFilters(
 
             KashuDropdownField(
                 fillMaxWidth = false,
-                selectedValue = uiState.selectedType?.let(::historyTypeLabel).orEmpty(),
+                selectedValue = if (uiState.selectedType != null) historyTypeLabel(uiState.selectedType) else "",
                 placeholder = "Type",
                 icon = Icons.Default.AddCircleOutline,
                 items = transactionTypes,
-                itemLabel = ::historyTypeLabel,
+                itemLabel = { historyTypeLabel(it) },
                 onItemSelected = { type -> onTypeSelected(type) },
                 isFilter = true,
                 onClearFilter = { onTypeSelected(null) })

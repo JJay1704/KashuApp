@@ -10,16 +10,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kashuapp.core.composables.KashuButton
 import com.kashuapp.core.composables.KashuTextField
 import com.kashuapp.ui.theme.KashuTheme
@@ -118,14 +114,11 @@ fun PswdReset(
     onToggleConfirmPasswordVisibility: () -> Unit,
     onSubmit: () -> Unit
 ) {
-
     Text(
         text = "Escriba nueva contraseña", color = KashuTheme.colors.title
     )
 
-
     Spacer(modifier = Modifier.height(20.dp))
-
 
     KashuTextField(
         label = "Ingrese contraseña",
@@ -142,16 +135,14 @@ fun PswdReset(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Password
         ),
-
-
         trailingIcon = {
             IconButton(
                 onClick = { onTogglePasswordVisibility() }) {
                 Icon(
                     imageVector = if (uiState.isPasswordVisible) {
-                        Icons.Default.VisibilityOff
-                    } else {
                         Icons.Default.Visibility
+                    } else {
+                        Icons.Default.VisibilityOff
                     }, contentDescription = if (uiState.isPasswordVisible) {
                         "Ocultar contraseña"
                     } else {
@@ -174,9 +165,9 @@ fun PswdReset(
             IconButton(onClick = { onToggleConfirmPasswordVisibility() }) {
                 Icon(
                     imageVector = if (uiState.isConfirmPasswordVisible) {
-                        Icons.Default.VisibilityOff
-                    } else {
                         Icons.Default.Visibility
+                    } else {
+                        Icons.Default.VisibilityOff
                     }, contentDescription = if (uiState.isConfirmPasswordVisible) {
                         "Ocultar confirmación"
                     } else {
@@ -199,20 +190,17 @@ fun PswdReset(
         onClickFun = {
             onSubmit()
         })
-
 }
 
 @Composable
 fun CompletedPswd(
     onCompleted: () -> Unit
 ) {
-    Text("Contraseña actualizada")
+    Text("Contraseña actualizada", color = KashuTheme.colors.title)
     Spacer(modifier = Modifier.height(20.dp))
 
     KashuButton(
-        text = "Continuar ", onClickFun = {
+        text = "Continuar", onClickFun = {
             onCompleted()
         })
-
-
 }

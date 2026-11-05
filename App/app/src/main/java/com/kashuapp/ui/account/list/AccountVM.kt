@@ -1,8 +1,5 @@
 package com.kashuapp.ui.account.list
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kashuapp.data.account.Account
@@ -21,10 +18,6 @@ class AccountVM(
     private val accountRepo: IAccountRepository = AccountRepository(),
 ) : ViewModel() {
 
-
-    var accounts by mutableStateOf<List<Account>>(emptyList())
-
-
     private val _uiState = MutableStateFlow(AccountFormState())
     val uiState = _uiState.asStateFlow()
 
@@ -37,7 +30,6 @@ class AccountVM(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             val resultAccount = accountRepo.getAllAccount(authRepo.getCurrentUserId().id)
             resultAccount.onSuccess { list ->
-                accounts = list
                 _uiState.update { it.copy(accounts = list, isLoading = false) }
             }
             resultAccount.onFailure { error ->
@@ -67,33 +59,29 @@ class AccountVM(
         }
     }
 
-
     fun closeForm() {
-
         _uiState.update { it.copy(accountToEdit = null, isFormOpen = false) }
     }
 
     fun setAccountActive(account: Account, isActive: Boolean) {
-
         if (account.id == null) return
 
         if (!_uiState.value.isLoading) {
             viewModelScope.launch {
-
                 _uiState.update { it.copy(isLoading = true, errorMessage = null) }
                 val result = accountRepo.setAccountActive(account.id, isActive)
                 result.onSuccess {
-
                     loadData()
-
                 }
-                result.onFailure {error ->
-                    _uiState.update { it.copy(isLoading = false, errorMessage = error.message?: "No se puede cambiar el estado de l cuenta") }
+                result.onFailure { error ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message ?: "No se puede cambiar el estado de la cuenta"
+                        )
+                    }
                 }
             }
         }
-
-
     }
 }
-

@@ -1,9 +1,7 @@
 package com.kashuapp.data.category
 
-
 import com.kashuapp.data.KashuSupaBase
 import kotlinx.serialization.json.put
-
 
 class CategoryRepository : ICategoryRepository {
     override suspend fun getAllCateg(userId: String): Result<List<Category>> {
@@ -13,16 +11,11 @@ class CategoryRepository : ICategoryRepository {
                 category.isDefault || category.userId == null || category.userId == userId
             }
 
-
             return Result.success(filtered)
-
         } catch (e: Exception) {
             return Result.failure(e)
         }
-
     }
-
-
 
     override suspend fun createCategory(newCat: Category): Result<Category> {
         return try {
@@ -44,14 +37,9 @@ class CategoryRepository : ICategoryRepository {
             Result.failure(e)
         }
     }
+
     override suspend fun updateCategory(cat: Category): Result<Unit> {
         return try {
-            val json = kotlinx.serialization.json.buildJsonObject {
-                put("name", cat.name)
-                put("type", cat.type)
-                put("icon", cat.icon.ifBlank { "category" })
-                put("color", cat.color.ifBlank { "#34D399" })
-            }
             KashuSupaBase.db.from("category").update(cat) {
                 filter {
                     eq("id", cat.id ?: "")
@@ -75,12 +63,4 @@ class CategoryRepository : ICategoryRepository {
             Result.failure(e)
         }
     }
-
-
-
-
-
-
-
-
 }

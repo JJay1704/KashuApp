@@ -1,7 +1,6 @@
 package com.kashuapp.ui.signUp
 
 import android.util.Patterns
-import androidx.annotation.Nullable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kashuapp.data.auth.AuthRepository
@@ -16,15 +15,13 @@ class SignUpVM(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SignUpState())
     val uiState = _uiState.asStateFlow()
+
     fun onName(newLastName: String) {
         _uiState.update { it.copy(fullName = newLastName, isFullNameError = null) }
     }
 
     fun onFatherName(fatherName: String) {
-
         _uiState.update { it.copy(fatherName = fatherName, isErrorFatherName = null) }
-
-
     }
 
     fun onMotherName(motherName: String) {
@@ -51,7 +48,6 @@ class SignUpVM(
         _uiState.update { it.copy(isConfirmPasswordVisible = !it.isConfirmPasswordVisible) }
     }
 
-
     fun register(onSuccess: () -> Unit) {
         val email = uiState.value.email.trim()
         val pass = uiState.value.password
@@ -60,13 +56,11 @@ class SignUpVM(
         val fatherName = uiState.value.fatherName
         val motherName = uiState.value.motherName
 
-
         val nameErr = if (givenName.isBlank()) "Ingresa tu nombre" else null
         val fatherErr = if (fatherName.isBlank()) "Ingresa tu apellido paterno" else null
         val emailErr = when {
             email.isBlank() -> "Ingresa tu correo"
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Correo electrónico inválido"
-
             else -> null
         }
         val passwordErr = when {
@@ -90,7 +84,6 @@ class SignUpVM(
         val hasAnyError =
             listOf(nameErr, fatherErr, emailErr, passwordErr, confirmErr).any { it != null }
         if (hasAnyError) return
-
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = "") }

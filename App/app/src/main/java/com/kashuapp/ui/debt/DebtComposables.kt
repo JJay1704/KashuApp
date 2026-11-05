@@ -1,6 +1,5 @@
 package com.kashuapp.ui.debt
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,8 +22,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,7 +52,6 @@ fun DebtView(
     onPaymentChange: (DebtPaymentState) -> Unit, onSavePayment: () -> Unit, onDismissPayment: () -> Unit,
     onConfirmDelete: () -> Unit, onCancelDelete: () -> Unit
 ) {
-    BackHandler(enabled = state.isSaving) { }
     DebtContent(state, onBack, onRefresh, onCreate, onEdit, onPay, onRequestDelete)
     state.form?.let {
         DebtForm(it, state.currencies, state.isSaving, state.errorMessage, onFormChange, onSaveDebt, onDismissForm)
@@ -269,8 +265,7 @@ internal fun DebtError(message: String?) {
 @Composable
 private fun DebtForm(form: DebtFormState, currencies: List<String>, saving: Boolean, error: String?,
     onChange: (DebtFormState) -> Unit, onSave: () -> Unit, onDismiss: () -> Unit) {
-    val latestSaving by rememberUpdatedState(saving)
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { !latestSaving })
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = { if (!saving) onDismiss() }, sheetState = sheetState,
         containerColor = KashuTheme.colors.surface) {
         Column(Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)
@@ -308,10 +303,7 @@ private fun DebtForm(form: DebtFormState, currencies: List<String>, saving: Bool
 @Composable
 private fun DebtPaymentForm(form: DebtPaymentState, accounts: List<Account>, saving: Boolean, error: String?,
     onChange: (DebtPaymentState) -> Unit, onSave: () -> Unit, onDismiss: () -> Unit) {
-    val currentForm by rememberUpdatedState(form)
-    val currentSaving by rememberUpdatedState(saving)
-    val currentOnChange by rememberUpdatedState(onChange)
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { !currentSaving })
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = { if (!saving) onDismiss() }, sheetState = sheetState,
         containerColor = KashuTheme.colors.surface) {
         Column(Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)
@@ -340,9 +332,9 @@ private fun DebtPaymentForm(form: DebtPaymentState, accounts: List<Account>, sav
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 KashuDatePickerField(modifier = Modifier.weight(1f), selectedDate = form.date,
-                    onDateSelected = { if (!currentSaving) currentOnChange(currentForm.copy(date = it)) })
+                    onDateSelected = { if (!saving) onChange(form.copy(date = it)) })
                 KashuTimePickerField(modifier = Modifier.weight(1f), label = "Hora (Lima)", selectedTime = form.time,
-                    onTimeSelected = { if (!currentSaving) currentOnChange(currentForm.copy(time = it)) })
+                    onTimeSelected = { if (!saving) onChange(form.copy(time = it)) })
             }
             KashuTextField(label = "Descripción (opcional)", type = form.description,
                 onType = { if (!saving) onChange(form.copy(description = it.take(250))) }, placeholder = "Detalle del pago",
@@ -362,10 +354,14 @@ private fun DebtPaymentForm(form: DebtPaymentState, accounts: List<Account>, sav
 internal fun debtMoney(currency: String, amount: Double): String = "$currency ${String.format(Locale.US, "%,.2f", amount)}"
 
 private fun debtPaymentDate(value: String): String {
-    val normalized = value.replace(' ', 'T').replace(Regex("(\\.\\d+)(?=[Z+-])"), "")
-    val parsed = runCatching { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US).parse(normalized) }
-        .getOrNull() ?: return value
-    return SimpleDateFormat("dd MMM yyyy · HH:mm", Locale.forLanguageTag("es-PE")).apply {
-        timeZone = TimeZone.getTimeZone("America/Lima")
-    }.format(parsed)
+    return try {
+        val raw = value.replace(' ', 'T')
+        val dateTimePart = raw.substringBefore("+").substringBefore("Z").substringBefore(".")
+        val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+        val parsed = parser.parse(dateTimePart) ?: return value
+        val formatter = SimpleDateFormat("dd MMM yyyy · HH:mm", Locale.forLanguageTag("es-PE"))
+        formatter.format(parsed)
+    } catch (e: Exception) {
+        value
+    }
 }

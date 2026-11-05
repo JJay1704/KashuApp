@@ -15,7 +15,6 @@ import com.kashuapp.data.transaction.ITransactionRepository
 import com.kashuapp.data.debt.DebtRepository
 import com.kashuapp.data.debt.IDebtRepository
 import com.kashuapp.data.transaction.TransactionRepository
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,9 +35,6 @@ class TransactionVM(
 
     private val _uiState = MutableStateFlow(TransactionState())
     val uiState: StateFlow<TransactionState> = _uiState.asStateFlow()
-
-    private var latestRequestId = 0L
-
 
     init {
         loadData()
@@ -133,8 +129,6 @@ class TransactionVM(
         period: String? = _uiState.value.selectedPeriod,
         type: String? = _uiState.value.selectedType
     ) {
-        latestRequestId += 1
-        val requestId = latestRequestId
         val userId = authRepo.getCurrentUserId().id
 
         if (userId.isBlank() || userId == "Not Gotten") {
@@ -178,12 +172,15 @@ class TransactionVM(
                 val debtNames = if (payments.isNotEmpty()) {
                     debtRepo.getDebts(userId).getOrThrow().associate { it.id to it.name }
                 } else emptyMap()
-                val start = dateRange.first?.let(::historyTimestamp)
-                val end = dateRange.second?.let(::historyTimestamp)
+                val start = dateRange.first?.let { historyTimestamp(it) }
+                val end = dateRange.second?.let { historyTimestamp(it) }
                 val paymentEntries = payments.filter { filterAccount == null || it.accountId == filterAccount }
                     .map { payment ->
-                        HistoryMovement.DebtPaymentEntry(payment, debtNames[payment.debtId] ?: "Deuda",
-                            historyTimestamp(payment.paidAt))
+                        HistoryMovement.DebtPaymentEntry(
+                            payment,
+                            debtNames[payment.debtId] ?: "Deuda",
+                            historyTimestamp(payment.paidAt)
+                        )
                     }.filter { entry ->
                         (start == null || entry.occurredAt >= start) && (end == null || entry.occurredAt <= end)
                     }
@@ -191,26 +188,20 @@ class TransactionVM(
                     HistoryMovement.TransactionEntry(transaction, historyTimestamp(transaction.transactionDate))
                 } + paymentEntries).sortedByDescending { it.occurredAt }
 
-                if (requestId == latestRequestId) {
-                    _uiState.update {
-                        it.copy(
-                            movements = movements,
-                            categories = categories,
-                            accounts = accounts,
-                            isLoading = false,
-                            errorMessage = null
-                        )
-                    }
+                _uiState.update {
+                    it.copy(
+                        movements = movements,
+                        categories = categories,
+                        accounts = accounts,
+                        isLoading = false,
+                        errorMessage = null
+                    )
                 }
-            } catch (error: CancellationException) {
-                throw error
             } catch (error: Exception) {
-                if (requestId == latestRequestId) {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false, errorMessage = "No se pudo cargar el historial"
-                        )
-                    }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false, errorMessage = "No se pudo cargar el historial"
+                    )
                 }
             }
         }

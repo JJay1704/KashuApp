@@ -9,19 +9,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.onFailure
-import kotlin.onSuccess
 
 class ResetPswdVM(
-
     private val authRepo: IAuthRepository = AuthRepository()
 ) : ViewModel() {
 
-
     private val _uiState = MutableStateFlow(ResetPswdState())
-
-
     val uiState = _uiState.asStateFlow()
+
     fun onEmail(email: String) {
         if (_uiState.value.isLoading) return
 
@@ -33,31 +28,20 @@ class ResetPswdVM(
                 successMessage = ""
             )
         }
-
-        _uiState.update { it.copy(email = email) }
-
-        if (email.isNullOrBlank()) {
-
-            _uiState.update { it.copy(isError = null) }
-        }
     }
 
-
     fun reset(onSuccess: () -> Unit) {
-
         val email = uiState.value.email.trim()
 
         val emailErr = when {
             email.isBlank() -> "Ingresa tu correo"
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches()-> "Correo electrónico inválido"
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Correo electrónico inválido"
             else -> null
         }
 
         _uiState.update { it.copy(isError = emailErr) }
 
-
         if (emailErr == null) {
-
             _uiState.update {
                 it.copy(
                     email = email,
@@ -69,20 +53,17 @@ class ResetPswdVM(
             }
 
             viewModelScope.launch {
-
-                _uiState.update { it.copy(isLoading = true, isError = null) }
-
                 val result = authRepo.sendCode(email)
                 result.onSuccess {
                     _uiState.update {
                         it.copy(
+                            isLoading = false,
                             successMessage = "Solicitud Enviada",
                             step = ResetSteps.CODE,
                             isError = null
                         )
                     }
-                    _uiState.update { it.copy(isLoading = false) }
-
+                    onSuccess()
                 }
                 result.onFailure {
                     _uiState.update {
@@ -93,13 +74,9 @@ class ResetPswdVM(
                         )
                     }
                 }
-
             }
         }
-
-
     }
-
 
     fun onCode(newCode: String) {
         _uiState.update { it.copy(code = newCode) }
@@ -118,7 +95,6 @@ class ResetPswdVM(
             it.copy(isLoading = true, isError = null)
         }
         viewModelScope.launch {
-
             val result = authRepo.confirmToken(email, code)
             result.onSuccess {
                 _uiState.update {
@@ -137,10 +113,7 @@ class ResetPswdVM(
                     )
                 }
             }
-
         }
-
-
     }
 
     fun togglePasswordVisibility() {
@@ -154,6 +127,7 @@ class ResetPswdVM(
             it.copy(isConfirmPasswordVisible = !it.isConfirmPasswordVisible)
         }
     }
+
     fun goBack() {
         _uiState.update {
             it.copy(
@@ -171,17 +145,14 @@ class ResetPswdVM(
         _uiState.update { it.copy(newPswd = newPswd, isError = null) }
     }
 
-
     fun onConfirmPswd(confirmPswd: String) {
         _uiState.update { it.copy(newPswdConfirm = confirmPswd, isError = null) }
     }
-
 
     fun updatePswd() {
         if (_uiState.value.isLoading) return
 
         val password = _uiState.value.newPswd.orEmpty()
-
         val confirmPswd = _uiState.value.newPswdConfirm.orEmpty()
         val error = when {
             password.length < 8 -> "Debe tener al menos 8 caracteres"
@@ -201,7 +172,6 @@ class ResetPswdVM(
         }
 
         viewModelScope.launch {
-
             val result = authRepo.updatePassword(password)
 
             result.onSuccess {

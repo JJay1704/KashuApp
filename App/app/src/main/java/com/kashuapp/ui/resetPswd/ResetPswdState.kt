@@ -8,8 +8,7 @@ data class ResetPswdState(
     val code: String = "",
     val isLoading: Boolean = false,
     val newPswd: String = "",
-    val newPswdConfirm : String = "",
-    val isErrorPswd : String= "",
+    val newPswdConfirm: String = "",
     val isPasswordVisible: Boolean = false,
     val isConfirmPasswordVisible: Boolean = false,
 )

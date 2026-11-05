@@ -20,17 +20,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kashuapp.core.composables.KashuButton
-import com.kashuapp.core.composables.KashuTextField
 import com.kashuapp.ui.theme.KashuTheme
 
 @Composable
@@ -46,16 +42,13 @@ fun ResetPswdScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(KashuTheme.colors.mainBackground)
                 .clip(RoundedCornerShape(24.dp))
                 .background(KashuTheme.colors.mainBackground)
                 .padding(24.dp), verticalArrangement = Arrangement.Center
         ) {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
-
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
@@ -69,7 +62,6 @@ fun ResetPswdScreen(
                         }
                     }) {
                     Icon(
-
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Volver",
                         tint = KashuTheme.colors.title
@@ -82,8 +74,6 @@ fun ResetPswdScreen(
                     fontWeight = FontWeight.Bold
                 )
             }
-
-
 
             Spacer(modifier = Modifier.height(50.dp))
 
@@ -102,7 +92,6 @@ fun ResetPswdScreen(
                             onBackToHome()
                         }
                     )
-
                 }
 
                 ResetSteps.CODE -> {
@@ -147,8 +136,6 @@ fun ResetPswdScreen(
                     )
                 }
             }
-
-
         }
     }
 }
