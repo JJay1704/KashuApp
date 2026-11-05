@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -52,6 +53,8 @@ import com.kashuapp.ui.transaction.list.TransactionState
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.Date
+import com.kashuapp.ui.transaction.list.HistoryMovement
 import androidx.compose.foundation.lazy.items
 import com.kashuapp.ui.category.categoryColor
 import com.kashuapp.ui.category.categoryIcon
@@ -88,7 +91,7 @@ fun TransactionFilters(
                 isFilter = true,
                 onClearFilter = { onAccountSelected(null) })
 
-}
+        }
 
         item {
 
@@ -111,19 +114,19 @@ fun TransactionFilters(
         }
         item {
 
-KashuDropdownField(
+            KashuDropdownField(
                 fillMaxWidth = false,
-                selectedValue = uiState.selectedType ?: "",
+                selectedValue = uiState.selectedType?.let(::historyTypeLabel).orEmpty(),
                 placeholder = "Type",
                 icon = Icons.Default.AddCircleOutline,
                 items = transactionTypes,
-                itemLabel = { if (it == "EXPENSE") "Gasto" else "Ingreso" },
+                itemLabel = ::historyTypeLabel,
                 onItemSelected = { type -> onTypeSelected(type) },
                 isFilter = true,
                 onClearFilter = { onTypeSelected(null) })
         }
 
-item {
+        item {
             KashuDropdownField(
                 fillMaxWidth = false,
                 selectedValue = uiState.selectedPeriod ?: "",
@@ -148,23 +151,75 @@ fun TransactionList(
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()
     ) {
-        items(uiState.transactions) { transaction ->
-            val category = uiState.categories.find { it.id == transaction.categoryId }
-            val categoryName = category?.name ?: "Sin categoría"
-
-val account = uiState.accounts.find { it.id == transaction.accountId }
-
-            TransactionItemCard(
-                item = transaction,
-                category = category,
-                categoryName = categoryName,
-                accountName = account?.name ?: "Sin cuenta",
-                currency = account?.currency ?: "",
-                onClickCard = {
-                    onTransactionClick(transaction)
-                })
+        items(uiState.movements, key = { it.key }) { movement ->
+            when (movement) {
+                is HistoryMovement.TransactionEntry -> {
+                    val transaction = movement.transaction
+                    val category = uiState.categories.find { it.id == transaction.categoryId }
+                    val account = uiState.accounts.find { it.id == transaction.accountId }
+                    val isGoalContribution = category?.name?.contains("aporte", ignoreCase = true) == true ||
+                        transaction.description?.startsWith("Aporte a meta:", ignoreCase = true) == true
+                    TransactionItemCard(
+                        item = transaction,
+                        category = category,
+                        categoryName = category?.name ?: "Sin categoría",
+                        accountName = account?.name ?: "Sin cuenta",
+                        currency = account?.currency ?: "",
+                        onClickCard = {
+                            if (!isGoalContribution) {
+                                onTransactionClick(transaction)
+                            }
+                        }
+                    )
+                }
+                is HistoryMovement.DebtPaymentEntry -> {
+                    val debtCategory = uiState.categories.find {
+                        it.name.contains("deuda", ignoreCase = true)
+                    }
+                    val accountName = uiState.accounts.find { it.id == movement.payment.accountId }?.name ?: "Sin cuenta"
+                    DebtHistoryItemCard(movement, accountName, debtCategory)
+                }
+            }
         }
     }
+}
+
+private fun historyTypeLabel(type: String): String = when (type) {
+    "EXPENSE" -> "Gasto"
+    "INCOME" -> "Ingreso"
+    "DEBT_PAYMENT" -> "Abono de deuda"
+    else -> type
+}
+
+@Composable
+private fun DebtHistoryItemCard(
+    movement: HistoryMovement.DebtPaymentEntry,
+    accountName: String,
+    category: Category? = null
+) {
+    val payment = movement.payment
+    val desc = if (payment.description.isNotBlank()) {
+        "${movement.debtName} - ${payment.description}"
+    } else {
+        "Abono a deuda: ${movement.debtName}"
+    }
+    TransactionItemCard(
+        item = Transaction(
+            id = payment.id,
+            userId = payment.userId,
+            accountId = payment.accountId,
+            categoryId = category?.id ?: "",
+            amount = payment.amount,
+            type = "EXPENSE",
+            description = desc,
+            transactionDate = payment.paidAt
+        ),
+        category = category,
+        categoryName = category?.name ?: "Deuda",
+        accountName = accountName,
+        currency = payment.currency,
+        onClickCard = {}
+    )
 }
 
 @Composable
@@ -306,7 +361,7 @@ fun TransactionItemCard(
         ?: if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
     val iconColor = category?.let { categoryColor(it.color) } ?: amountColor
 
-Card(
+    Card(
         onClick = onClickCard,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),

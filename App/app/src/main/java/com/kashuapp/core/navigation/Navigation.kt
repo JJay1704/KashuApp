@@ -33,62 +33,74 @@ fun Navigation() {
 
                     LoginScreen(onNavigateToHome = {
                         navController.navigate("home") {
-
                             popUpTo("login") { inclusive = true }
+                            launchSingleTop = true
                         }
                     }, onNavigateToRegister = {
-                        navController.navigate("register")
+                        navController.navigate("register") {
+                            launchSingleTop = true
+                        }
                     })
                 }
                 composable("home") {
                     HomeScreen(
                         onNavigateToCategory = {
-                            navController.navigate("category")
-
+                            navController.navigate("category") {
+                                launchSingleTop = true
+                            }
                         },
                         onNavigateToDebt = {
-                            navController.navigate("debt")
+                            navController.navigate("debt") {
+                                launchSingleTop = true
+                            }
                         },
-                        onNavigateToAccount = { navController.navigate("account") }, onLogout = {
-
+                        onNavigateToAccount = {
+                            navController.navigate("account") {
+                                launchSingleTop = true
+                            }
+                        },
+                        onLogout = {
                             navController.navigate("login") {
-
                                 popUpTo(0) { inclusive = true }
+                                launchSingleTop = true
                             }
                         }
-
                     )
-
                 }
                 composable("register") {
                     RegisterView(onNavigateToHome = {
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
+                            launchSingleTop = true
                         }
-                    }, onNavigateToLogin = { navController.popBackStack() })
-
+                    }, onNavigateToLogin = {
+                        navController.popBackStack("login", inclusive = false)
+                    })
                 }
 
                 composable("category") {
                     CategoryScreen(
-                        onBackToHome = { navController.popBackStack() })
+                        onBackToHome = {
+                            navController.popBackStack("home", inclusive = false)
+                        }
+                    )
                 }
                 composable("account") {
-
                     AccountScreen(
-                        onBackToHome = { navController.popBackStack() })
-
+                        onBackToHome = {
+                            navController.popBackStack("home", inclusive = false)
+                        }
+                    )
                 }
                 composable("debt") {
-
                     DebtScreen(
-                        onBack = {navController.popBackStack()}
+                        onBack = {
+                            navController.popBackStack("home", inclusive = false)
+                        }
                     )
-
                 }
 
             }
         }
     }
 }
-

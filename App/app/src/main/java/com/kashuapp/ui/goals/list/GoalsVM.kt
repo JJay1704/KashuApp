@@ -7,9 +7,15 @@ import com.kashuapp.data.account.AccountRepository
 import com.kashuapp.data.account.IAccountRepository
 import com.kashuapp.data.auth.AuthRepository
 import com.kashuapp.data.auth.IAuthRepository
+import com.kashuapp.data.category.Category
+import com.kashuapp.data.category.CategoryRepository
+import com.kashuapp.data.category.ICategoryRepository
 import com.kashuapp.data.goal.Goal
 import com.kashuapp.data.goal.GoalRepository
 import com.kashuapp.data.goal.IGoalRepository
+import com.kashuapp.data.transaction.ITransactionRepository
+import com.kashuapp.data.transaction.Transaction
+import com.kashuapp.data.transaction.TransactionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -21,7 +27,9 @@ import java.util.Locale
 class GoalsVM(
     private val goalRepo: IGoalRepository = GoalRepository(),
     private val authRepo: IAuthRepository = AuthRepository(),
-            private val accountRepo: IAccountRepository = AccountRepository()
+    private val accountRepo: IAccountRepository = AccountRepository(),
+    private val transRepo: ITransactionRepository = TransactionRepository(),
+    private val catRepo: ICategoryRepository = CategoryRepository()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GoalsState())
@@ -141,8 +149,9 @@ class GoalsVM(
         val goal = _uiState.value.selectedGoalForSavings ?: return
 
         val amount = amountStr.toDoubleOrNull()
+        val accountId = selectedAccount?.id
 
-        if (selectedAccount == null) {
+        if (selectedAccount == null || accountId.isNullOrBlank()) {
             _uiState.update { it.copy(errorMessage = "Selecciona una cuenta de origen") }
             return
         }
@@ -156,9 +165,11 @@ class GoalsVM(
             return
         }
 
-        val updatedAccount = selectedAccount.copy(
-            currentBalance = selectedAccount.currentBalance - amount
-        )
+        val userId = authRepo.getCurrentUserId().id
+        if (userId == "Not Gotten" || userId.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Sesión no válida o expirada") }
+            return
+        }
 
         val newCurrentAmount = goal.currentAmount + amount
         val updatedGoal = goal.copy(
@@ -168,7 +179,41 @@ class GoalsVM(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            accountRepo.updateAccount(updatedAccount)
+
+            val resolvedCategoryId = resolveGoalCategoryId(userId, goal)
+            if (resolvedCategoryId.isNullOrBlank()) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "No se encontró una categoría para registrar el aporte"
+                    )
+                }
+                return@launch
+            }
+
+            val transactionDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                .format(Calendar.getInstance().time)
+            val savingsTransaction = Transaction(
+                userId = userId,
+                accountId = accountId,
+                categoryId = resolvedCategoryId,
+                amount = amount,
+                type = "EXPENSE",
+                description = "Aporte a meta: ${goal.title}",
+                transactionDate = transactionDate
+            )
+
+            val transResult = transRepo.postTrans(savingsTransaction)
+            transResult.onFailure { error ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = error.message ?: "Error al registrar la transacción del aporte"
+                    )
+                }
+                return@launch
+            }
+
             val result = goalRepo.updateGoal(updatedGoal)
             result.onSuccess {
                 closeAddSavings()
@@ -184,5 +229,37 @@ class GoalsVM(
                 }
             }
         }
+    }
+
+    private suspend fun resolveGoalCategoryId(userId: String, goal: Goal): String? {
+        val categories = catRepo.getAllCateg(userId).getOrDefault(emptyList())
+        val expenseCategories = categories.filter { it.type.equals("EXPENSE", ignoreCase = true) }
+        val preferred = expenseCategories.firstOrNull {
+            it.name.contains("aporte", ignoreCase = true) ||
+                it.name.contains("ahorro", ignoreCase = true) ||
+                it.name.contains("meta", ignoreCase = true)
+        } ?: categories.firstOrNull {
+            it.name.contains("aporte", ignoreCase = true) ||
+                it.name.contains("ahorro", ignoreCase = true) ||
+                it.name.contains("meta", ignoreCase = true)
+        }
+
+        if (preferred?.id != null) {
+            return preferred.id
+        }
+
+        if (!goal.categoryId.isNullOrBlank()) {
+            return goal.categoryId
+        }
+
+        return catRepo.createCategory(
+            Category(
+                userId = userId,
+                name = "Metas de Ahorro",
+                type = "EXPENSE",
+                icon = goal.icon.ifBlank { "savings" },
+                color = goal.color.ifBlank { "#34D399" }
+            )
+        ).getOrNull()?.id
     }
 }

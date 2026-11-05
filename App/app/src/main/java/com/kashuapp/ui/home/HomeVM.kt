@@ -11,7 +11,9 @@ import com.kashuapp.data.category.ICategoryRepository
 import com.kashuapp.data.debt.DebtRepository
 import com.kashuapp.data.debt.IDebtRepository
 import com.kashuapp.data.transaction.ITransactionRepository
+import com.kashuapp.data.transaction.Transaction
 import com.kashuapp.data.transaction.TransactionRepository
+import com.kashuapp.ui.transaction.list.historyTimestamp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,6 +57,30 @@ class HomeVM(
                 val categories = catRepo.getAllCateg(userId).getOrThrow()
                 val accounts = accountRepo.getAllAccount(userId).getOrThrow()
                 val debts = debtRepo.getDebts(userId).getOrThrow()
+                val payments = debtRepo.getPayments(userId).getOrDefault(emptyList())
+
+                val debtCategory = categories.find {
+                    it.name.contains("deuda", ignoreCase = true)
+                }
+                val debtNames = debts.associate { it.id to it.name }
+                val debtTransactions = payments.map { payment ->
+                    val debtName = debtNames[payment.debtId] ?: "Deuda"
+                    val desc = if (payment.description.isNotBlank()) {
+                        "$debtName - ${payment.description}"
+                    } else {
+                        "Abono a deuda: $debtName"
+                    }
+                    Transaction(
+                        id = payment.id,
+                        userId = payment.userId,
+                        accountId = payment.accountId,
+                        categoryId = debtCategory?.id ?: "",
+                        amount = payment.amount,
+                        type = "EXPENSE",
+                        description = desc,
+                        transactionDate = payment.paidAt
+                    )
+                }
 
                 val balances = accounts
                     .filter { it.isActive }
@@ -84,9 +110,10 @@ class HomeVM(
                     it.copy(
                         accounts = accounts,
                         accountsByCurrency = balances,
-                        transactions = transactions
+                        transactions = (transactions + debtTransactions)
                             .sortedByDescending { transaction ->
-                                transaction.transactionDate
+                                runCatching { historyTimestamp(transaction.transactionDate) }
+                                    .getOrDefault(0L)
                             }
                             .take(5),
                         categories = categories,

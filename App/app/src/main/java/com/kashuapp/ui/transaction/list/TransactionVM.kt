@@ -1,12 +1,7 @@
 package com.kashuapp.ui.transaction.list
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.setValue
-import com.kashuapp.data.accounType.AccountType
 import com.kashuapp.data.account.Account
 import com.kashuapp.data.account.AccountRepository
 import com.kashuapp.data.account.IAccountRepository
@@ -17,7 +12,8 @@ import com.kashuapp.data.category.CategoryRepository
 import com.kashuapp.data.category.ICategoryRepository
 
 import com.kashuapp.data.transaction.ITransactionRepository
-import com.kashuapp.data.transaction.Transaction
+import com.kashuapp.data.debt.DebtRepository
+import com.kashuapp.data.debt.IDebtRepository
 import com.kashuapp.data.transaction.TransactionRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +29,8 @@ class TransactionVM(
     private val transRepo: ITransactionRepository = TransactionRepository(),
     private val catRepo: ICategoryRepository = CategoryRepository(),
     private val authRepo: IAuthRepository = AuthRepository(),
-    private val accountRepo: IAccountRepository = AccountRepository()
+    private val accountRepo: IAccountRepository = AccountRepository(),
+    private val debtRepo: IDebtRepository = DebtRepository()
 
 ) : ViewModel() {
 
@@ -49,7 +46,7 @@ class TransactionVM(
 
 
     val periods = listOf("Today", "This week", "This Month", "Last Month")
-    val transactionTypes = listOf("EXPENSE", "INCOME")
+    val transactionTypes = listOf("EXPENSE", "INCOME", "DEBT_PAYMENT")
 
     fun selectAccount(account: Account?) {
         _uiState.update {
@@ -80,39 +77,30 @@ class TransactionVM(
     }
 
     fun getDateRange(option: String): Pair<String, String?> {
-
         val calendar = Calendar.getInstance()
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val todayStr = sdf.format(calendar.time)
-        return when (option) {
-            periods[0] -> {
-                Pair("$todayStr 00:00", "$todayStr 23:59")
-            }
-
-            periods[1] -> {
-                calendar.add(Calendar.DAY_OF_YEAR, -7)
-                val weekStart = sdf.format(calendar.time)
-                Pair("$weekStart 00:00", null)
-            }
-
-            periods[2] -> {
-                calendar.set(Calendar.DAY_OF_MONTH, 1)
-                val monthStart = sdf.format(calendar.time)
-                Pair("$monthStart 00:00", null)
-            }
-
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        when (option) {
+            periods[1] -> calendar.add(Calendar.DAY_OF_YEAR, -7)
+            periods[2] -> calendar.set(Calendar.DAY_OF_MONTH, 1)
             periods[3] -> {
-                calendar.add(Calendar.MONTH, -1)
                 calendar.set(Calendar.DAY_OF_MONTH, 1)
-                val lastMonthStart = sdf.format(calendar.time)
-                val maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                calendar.set(Calendar.DAY_OF_MONTH, maxDay)
-                val lastMonthEnd = sdf.format(calendar.time)
-                Pair("$lastMonthStart 00:00", "$lastMonthEnd 23:59")
+                calendar.add(Calendar.MONTH, -1)
             }
-
-            else -> Pair("$todayStr 00:00", "$todayStr 23:59")
         }
+        val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US)
+        val start = format.format(calendar.time)
+        val end = when (option) {
+            periods[1], periods[2] -> null
+            else -> {
+                calendar.add(if (option == periods[3]) Calendar.MONTH else Calendar.DAY_OF_MONTH, 1)
+                calendar.add(Calendar.MILLISECOND, -1)
+                format.format(calendar.time)
+            }
+        }
+        return start to end
     }
 
 
@@ -170,7 +158,7 @@ class TransactionVM(
                     Pair(null, null)
                 }
 
-                val transactions = transRepo.getAll(
+                val transactions = if (type == "DEBT_PAYMENT") emptyList() else transRepo.getAll(
                     userId = userId,
                     accountId = filterAccount,
                     categoryId = filterCategory,
@@ -183,12 +171,30 @@ class TransactionVM(
 
                 val accounts = accountRepo.getAllAccount(userId).getOrThrow()
 
+                val selectedCategoryObj = categories.find { it.id == filterCategory }
+                val isDebtCategoryFilter = selectedCategoryObj?.name?.contains("deuda", ignoreCase = true) == true
+                val includePayments = (filterCategory == null || isDebtCategoryFilter) && (type == null || type == "DEBT_PAYMENT")
+                val payments = if (includePayments) debtRepo.getPayments(userId).getOrThrow() else emptyList()
+                val debtNames = if (payments.isNotEmpty()) {
+                    debtRepo.getDebts(userId).getOrThrow().associate { it.id to it.name }
+                } else emptyMap()
+                val start = dateRange.first?.let(::historyTimestamp)
+                val end = dateRange.second?.let(::historyTimestamp)
+                val paymentEntries = payments.filter { filterAccount == null || it.accountId == filterAccount }
+                    .map { payment ->
+                        HistoryMovement.DebtPaymentEntry(payment, debtNames[payment.debtId] ?: "Deuda",
+                            historyTimestamp(payment.paidAt))
+                    }.filter { entry ->
+                        (start == null || entry.occurredAt >= start) && (end == null || entry.occurredAt <= end)
+                    }
+                val movements = (transactions.map { transaction ->
+                    HistoryMovement.TransactionEntry(transaction, historyTimestamp(transaction.transactionDate))
+                } + paymentEntries).sortedByDescending { it.occurredAt }
+
                 if (requestId == latestRequestId) {
                     _uiState.update {
                         it.copy(
-                            transactions = transactions.sortedByDescending { transaction ->
-                                transaction.transactionDate
-                            },
+                            movements = movements,
                             categories = categories,
                             accounts = accounts,
                             isLoading = false,

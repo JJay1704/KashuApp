@@ -113,7 +113,7 @@ fun TransactionView(
                 )
             }
 
-            if (uiState.isLoading && uiState.transactions.isEmpty()) {
+            if (uiState.isLoading && uiState.movements.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -125,7 +125,7 @@ fun TransactionView(
                     )
                 }
             } else if (
-                uiState.transactions.isEmpty() &&
+                uiState.movements.isEmpty() &&
                 uiState.errorMessage == null
             ) {
                 Box(
@@ -140,7 +140,7 @@ fun TransactionView(
                         fontSize = 14.sp
                     )
                 }
-            } else if (uiState.transactions.isNotEmpty()) {
+            } else if (uiState.movements.isNotEmpty()) {
                 TransactionList (
                     uiState = uiState,
                     onTransactionClick = {transaction -> selectedTransactionToEdit = transaction}
